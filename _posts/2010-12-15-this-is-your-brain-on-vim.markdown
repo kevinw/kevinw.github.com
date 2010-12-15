@@ -16,6 +16,8 @@ First: remember this whole elastic-brain-as-senses-mapped-spatially picture?
 
 <img src="/img/brain_before.png">
 
+Consider, if you will, the following montage from one vimmer's journey.
+
 the long, hard road to vim nirvana
 ----------
 
@@ -109,7 +111,7 @@ frenzied &lt;Leader&gt;key mapping until keyboard resembles NASA mission control
 
 "hey look, everybody within earshot!!! I'm now version controlling, mailchecking, testrunning, ycombinator-browsing, ALL from within vim's warm safe ultra-customizable womb! why aren't you guys doing back flips to celebrate!?"
 
-### some lengthy and indeterminate time later
+### some lengthy and indeterminately vague time later
 
 loses several friends over lectures on "the clear advantages of modality in text editing"
 
