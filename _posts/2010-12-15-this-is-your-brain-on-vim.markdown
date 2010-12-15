@@ -5,14 +5,10 @@ title: This is Your Brain on Vim
 
 ### the pristine state
 
-<!--
 I was watching a violinist bow intensely and I had this thought: I probably have as many brain cells devoted to my text editor as he
 does to playing his chosen instrument. Is it outlandish to imagine that an MRI of his brain during a difficult solo wouldn't
-look much different than mine while slicing/dicing code in that blissful near-fugue state where you've mastered your editor and you 
-can create towering structures of most-working-out-the-gate systems as fast you can think?
-
-First: remember this whole elastic-brain-as-senses-mapped-spatially picture?
--->
+look much different than mine while manipulating abstractions in that blissful near-fugue state where you've mastered your editor and you 
+can create towering structures of mostly-working-out-of-the-gate code as fast you can think?
 
 <img src="/img/brain_before.png">
 
