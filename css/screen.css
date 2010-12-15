@@ -1,0 +1,27 @@
+body {
+    font-family: georgia;
+    font-size: 17px;
+}
+
+#site {
+    width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+blockquote {
+ border : 2px solid #000;
+ width: 200px;
+ float: right;
+ margin: 0px;
+ padding: 10px;
+ background-color: #ccc;
+ }
+
+#post p {
+    margin-left: 15px;
+}
+
+.footer {
+    margin-bottom: 25px;
+}
