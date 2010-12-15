@@ -9,6 +9,10 @@ body {
     margin-right: auto;
 }
 
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Gill Sans", "Gill Sans MT", "Arial Black";
+}
+
 blockquote {
  border : 2px solid #000;
  width: 200px;
@@ -25,3 +29,13 @@ blockquote {
 .footer {
     margin-bottom: 25px;
 }
+
+ul.posts li {
+    list-style: none;
+}
+
+span.post_list_date {
+    color: grey;
+    font-size: 70%;
+}
+
