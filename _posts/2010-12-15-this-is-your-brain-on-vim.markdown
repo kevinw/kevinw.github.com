@@ -104,7 +104,7 @@ discovers :python scripting, enters golden age of flourishing customizability. f
 
 frenzied &lt;Leader&gt;key mapping until keyboard resembles NASA mission control panel in its manifold multifunctional ridiculousness
 
-"hey look, everybody within earshot!!! I'm now version controlling, mailchecking, testrunning, ycombinator-browsing, ALL from within vim's warm safe ultra-customizable womb! why aren't you guys doing back flips to celebrate!?"
+"hey look, everybody within earshot!!! I'm now version controlling, blogposting, mailchecking, testrunning, debugging, hackernews-skimming, ALL from within vim's warm safe ultra-customizable womb! why aren't you guys doing back flips to celebrate!?"
 
 ### some lengthy and indeterminately vague time later
 
