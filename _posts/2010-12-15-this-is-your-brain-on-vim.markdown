@@ -116,9 +116,9 @@ with syntax checking, linting, autocompletion, quick documentation lookup, tons 
 
 logs into server, unconsciously uses nano to edit a config file. unexpected realization of betrayal minutes later accompanied by a deep shame abetted only by updating all those barely used plugins and sprinkling more comments in .vimrc
 
-monastic calm no longer disturbed by repetitive tasks, nor by emacs vs vim debates
+monastic calm no longer daunted by repetitive editing tasks, nor by emacs vs vim debates
 
-..this is your brain on Vim
+...and finally, this is your brain on Vim
 ---------------------------
 
 <img src="/img/brain_after.png">
