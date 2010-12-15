@@ -117,7 +117,7 @@ luxuriates in shared github.com/me/vimfiles bliss, publishes obligatory blog pos
 
 with syntax checking, linting, autocompletion, quick documentation lookup, tons of killer abbreviations, and plugins for every filetype under the sun, vim approaches true IDE-status in both productivity, and startup time
 
-logs into server, unconsciously uses nano to edit a config file. unexpected realization of betrayal minutes later accompanied by a deep shame only abetted by updating all those barely used plugins and sprinkling more comments in .vimrc
+logs into server, unconsciously uses nano to edit a config file. unexpected realization of betrayal minutes later accompanied by a deep shame abetted only by updating all those barely used plugins and sprinkling more comments in .vimrc
 
 monastic calm no longer disturbed by repetitive tasks, nor by emacs vs vim debates
 
