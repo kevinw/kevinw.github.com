@@ -1,0 +1,17 @@
+
+<div id="facebook_like"> </div>
+<script>
+    var n = document.getElementById('facebook_like');
+    if (n) {
+        var iframe = document.createElement('iframe');
+        iframe.setAttribute('allowTransparency', 'true');
+        iframe.setAttribute('scrolling', 'no');
+        iframe.setAttribute('frameborder', '0');
+        iframe.setAttribute('style', 'border:none; overflow:hidden; width:450px; height:25px;');
+
+        var fbUrl = 'http://www.facebook.com/plugins/like.php?href=' + encodeURIComponent("http://kevinw.github.com{{ page.url }}") + '&amp;layout=button_count&amp;show_faces=false&amp;width=450&amp;action=like&amp;colorscheme=light&amp;height=25'
+        iframe.setAttribute('src', fbUrl);
+        n.appendChild(iframe);
+    }
+</script>
+
