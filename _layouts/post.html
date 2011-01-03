@@ -18,6 +18,7 @@ layout: default
 </div>
 -->
 
+{% include facebooklike.html %}
 {% include twitter.html %}
 
 <!-- DISQUS -->
@@ -26,7 +27,7 @@ layout: default
     var disqus_shortname = 'symbolsystem',
         disqus_identifier = "{{ page.id }}";
         disqus_url = 'http://kevinw.github.com{{ page.id }}';
-        disqus_developer = 1;
+        //disqus_developer = 1;
 
     (function() {
         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

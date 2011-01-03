@@ -104,7 +104,7 @@ discovers :python scripting, enters golden age of flourishing customizability. f
 
 frenzied &lt;Leader&gt;key mapping until keyboard resembles NASA mission control panel in its manifold multifunctional ridiculousness
 
-"hey look, everybody within earshot!!! I'm now version controlling, mailchecking, testrunning, ycombinator-browsing, ALL from within vim's warm safe ultra-customizable womb! why aren't you guys doing back flips to celebrate!?"
+"hey look, everybody within earshot!!! I'm now version controlling, blogposting, mailchecking, testrunning, debugging, hackernews-skimming, ALL from within vim's warm safe ultra-customizable womb! why aren't you guys doing back flips to celebrate!?"
 
 ### some lengthy and indeterminately vague time later
 
@@ -116,9 +116,9 @@ with syntax checking, linting, autocompletion, quick documentation lookup, tons 
 
 logs into server, unconsciously uses nano to edit a config file. unexpected realization of betrayal minutes later accompanied by a deep shame abetted only by updating all those barely used plugins and sprinkling more comments in .vimrc
 
-monastic calm no longer disturbed by repetitive tasks, nor by emacs vs vim debates
+monastic calm no longer daunted by repetitive editing tasks, nor by emacs vs vim debates
 
-..this is your brain on Vim
+...and finally, this is your brain on Vim
 ---------------------------
 
 <img src="/img/brain_after.png">
