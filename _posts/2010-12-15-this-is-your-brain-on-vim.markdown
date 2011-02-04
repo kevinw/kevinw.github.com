@@ -94,7 +94,7 @@ irc friends finally corner you for a dramatic intervention re: obnoxiously frequ
 
 niggling feeling that emacs' parens-all-the-way-down construction must be heaven-like, comparatively
 
-"I had this nightmare last night. dreamt I was still hadn't learned to slice and dice vertical splits on my widescreen monitors. it was EFFING SCARY."
+"I had this nightmare last night. dreamt I still hadn't learned to slice and dice vertical splits on my widescreen monitors. it was EFFING SCARY."
 
 glances around room furtively, binds ctrl+s to save, allows self quiet sigh of relief
 
