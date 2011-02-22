@@ -1,5 +1,6 @@
 body {
     font-family: georgia;
+    text-rendering: optimizeLegibility;
     font-size: 17px;
 }
 
