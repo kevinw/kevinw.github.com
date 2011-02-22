@@ -4,10 +4,10 @@ layout: nil
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <title>Kevin Watters</title>
-    <link href="http://kevinw.github.com/atom.xml" rel="self"/>
-    <link href="http://kevinw.github.com/"/>
+    <link href="http://symbolsystem.com/atom.xml" rel="self"/>
+    <link href="http://symbolsystem.com/"/>
     <updated>{{ site.time | date_to_xmlschema }}</updated>
-    <id>http://kevinw.github.com/</id>
+    <id>http://symbolsystem.com/</id>
     
     {% for post in site.posts %}
     <entry>
@@ -15,9 +15,9 @@ layout: nil
         {% for category in post.categories %}
         <category term="{{category}}" scheme="http://www.sixapart.com/ns/types#tag" />
         {% endfor %}
-        <link href="http://kevinw.github.com{{ post.url }}"/>
+        <link href="http://symbolsystem.com{{ post.url }}"/>
         <updated>{{ post.date | date_to_xmlschema }}</updated>
-        <id>kevinw.github.com:{{ post.id }}</id>
+        <id>symbolsystem.com:{{ post.id }}</id>
         <content type="html">{{ post.content | h}}</content>
         <author>
             <name>{{post.author_name}}</name>
