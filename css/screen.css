@@ -27,6 +27,8 @@ blockquote {
 }
 
 .footer {
+    border-top: 1px solid #cccccc;
+    padding: 5px;
     margin-bottom: 25px;
 }
 
