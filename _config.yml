@@ -1,2 +1,4 @@
 permalink: pretty
-
+markdown: rdiscount
+rdiscount:
+  extensions: [smart]

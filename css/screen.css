@@ -14,13 +14,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 blockquote {
- border : 2px solid #000;
- width: 200px;
- float: right;
- margin: 0px;
- padding: 10px;
- background-color: #ccc;
- }
+    margin: 0px;
+    padding: 10px;
+    background-color: #cdddef;
+}
 
 #post p {
     margin-left: 15px;
