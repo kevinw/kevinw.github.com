@@ -5,9 +5,9 @@ title: Why Did why the lucky stiff Quit?
 
 ## ...or, is this time well spent?
 
-<!-- ...or, indulgent fluff piece eulogizing. take your pick. -->
+<img width="690" height="374" src="/img/why/backwards.jpg" title="(...or, projecting my insecurities about programming burnout onto _why's new book)">
 
-<img width="690" height="374" src="/img/why/backwards.jpg">
+<!-- ...or, indulgent fluff piece eulogizing -->
 
 Have you read [\_why](http://en.wikipedia.org/wiki/Why_the_lucky_stiff)'s weird new print spool novella?
 
@@ -175,12 +175,14 @@ One interpretation seems clear: the flutes are computers, and programming, and t
 
 Is he warning us about a community that doesn't get enough nourishment outside of its bubble? That repeats the same things over and over to each other, perpetuating certain bad habits, and prejudices? Maybe. That's how I read it, anyways.
 
+Sometimes in programming it can feel like we haven't even crawled out of the primordial soup.
+
 If anything, it's just \_why telling a story--maybe one obliquely about his own experience. Or maybe it's just a fever dream.
 
 But there's hope in the story, too. A [final page](https://github.com/steveklabnik/CLOSURE/blob/master/PDF/NOTYET.pdf?raw=true) mostly obscured by \_why's hand hints at a rebirth, out of the hole in the hill. Is it a cycle in purgatory? Or an opportunity to sculpt a new experience? To effect new positive change? The page is titled `NOTYET`...
 
-Sometimes in programming it can feel like we haven't even crawled out of the primordial soup.
+\_why's theory about THE HAPPENING, too--that we're blaming the trees because they're *there*, and prevalent--might be a hint that programming burnout may be less about something doomed and intrinsic to programming, and more about something more mysterious. Maybe just the need to go elsewhere to feed that part of our brains that may be idling, when we need it.
 
-But CLOSURE is a good excuse to remind myself that it's important to keep a [playful humanism in hacking](https://github.com/mental/bloopsaphone). To always try to be [frighteningly creative](http://mislav.uniqpath.com/poignant-guide/book/chapter-7.html). To attempt [completely new things](https://github.com/whymirror/yown/blob/master/yown.io). To keep [inventing programming languages](https://github.com/fogus/potion). To keep programming education [accessible and exciting](http://hackety.com/). That meaning and success is personal, and isn't always measured in page views, or karma, or dollars, or even necessarily tied to your public identity.
+CLOSURE is a wonderful excuse to remind myself that it's important to keep a [playful humanism in hacking](https://github.com/mental/bloopsaphone). To always try to be [boundlessly creative](http://mislav.uniqpath.com/poignant-guide/book/chapter-7.html). To attempt [completely new things](https://github.com/whymirror/yown/blob/master/yown.io). To keep [inventing programming languages](https://github.com/fogus/potion). To keep programming education [accessible and exciting](http://hackety.com/). That meaning and success is personal, and isn't always measured in page views, or karma, or dollars, or even necessarily tied to your public identity.
 
 And that anything is possible when you're having fun.
