@@ -4,9 +4,10 @@ title: Kevin Watters Resume
 ---
 
 # Kevin Watters
-## Senior Software Engineer
 
-#### Looking for extraordinary work with extraordinary people.
+## senior software engineer
+
+#### experienced full-stack polyglot startup veteran
 
 [kevinwatters@gmail.com](mailto:kevinwatters@gmail.com) - [github.com/kevinw](http://github.com/kevinw) - (585) 754-3475
 
@@ -16,11 +17,11 @@ title: Kevin Watters Resume
 
 __Senior Software Engineer, DevTools__
 
-Worked in a small internal "strike team" with Python, NodeJS, and PHP to bootstrap and provide tools and leadership for continuous delivery and TDD within the larger engineering organization.
+Worked in an internal strike team with Python, NodeJS, and PHP to bootstrap and provide tools and leadership for continuous delivery and TDD within the larger engineering organization.
 
 __Senior Software Engineer, Games__
 
-Spearheaded modern and lean Javascript shared between the client and server, along with highly scalable PHP, to deliver a social game to millions of users in record time--9 1/2 weeks.
+Spearheaded modern and lean Javascript with a homebrewed framework sharing code between the client and server, along with a highly scalable PHP backend, to deliver a social game to millions of users in record time--9 1/2 weeks.
 
 ### Digsby (2008-2011)
 
