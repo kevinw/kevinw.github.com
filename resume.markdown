@@ -37,4 +37,6 @@ Rochester Institute of Technology -- Rochester, NY
 
 BS in Computer Science, Minor in Mathematics, May 2008
 
+-----------
+
 *References available on request.*

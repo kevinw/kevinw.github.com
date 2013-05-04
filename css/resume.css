@@ -2,3 +2,11 @@ p { padding-left: 20px; }
 h1, h2, h3, h4, h5, h6 {
     font-family: "Optima", "Helvetica", "Arial";
 }
+
+hr {
+    text-align: left;
+    width: 100px;
+    border: 0;
+    height: 1px;
+    background-color: #c0c0c0;
+}
