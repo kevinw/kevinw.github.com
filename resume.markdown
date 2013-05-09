@@ -7,7 +7,7 @@ title: Kevin Watters Resume
 
 ## senior software engineer
 
-#### experienced full-stack polyglot startup veteran
+#### full-stack polyglot startup veteran
 
 [kevinwatters@gmail.com](mailto:kevinwatters@gmail.com) - [github.com/kevinw](http://github.com/kevinw) - (585) 754-3475
 
@@ -35,8 +35,6 @@ Gained extensive Python and C++ experience delivering a new Windows WebKit port 
 
 Rochester Institute of Technology -- Rochester, NY
 
-BS in Computer Science, Minor in Mathematics, May 2008
+BS in Computer Science, Mathematics minor, May 2008
 
------------
-
-*References available on request.*
+*References available upon request.*
