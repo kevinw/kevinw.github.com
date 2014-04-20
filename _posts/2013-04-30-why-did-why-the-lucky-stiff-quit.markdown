@@ -17,7 +17,7 @@ After [famously committing infosuicide in 2009](http://www.slate.com/articles/te
 
 Steve Klabnik is calling it [CLOSURE](https://github.com/steveklabnik/CLOSURE). You can find the collected full PDF there, or the "book" portion [on Scribd](http://www.scribd.com/doc/136918361/Collected-PDFs-of-why). Constructed of images, drawings, handwritten notes, and a mishmash of artful typesettings, it's classic \_why--I recommend it for any fans of his [older stuff](http://mislav.uniqpath.com/poignant-guide/). It's great.
 
-Maybe I'm nostalgic for the days of reading [RedHanded](http://web.archive.org/web/20051101200607/http://redhanded.hobix.com/cult/theLeastSurprised5.html), but this new writing's melancholic take on programming resonated with me. Or maybe I'll just compel you to read it (the real goal, here) by excerpting some of the quotable bits. But I want to use CLOSURE as a lens to ask and venture answers for questions I've had for awhile now:
+Maybe I'm nostalgic for the days of reading [RedHanded](http://web.archive.org/web/20051101200607/http://redhanded.hobix.com/cult/theLeastSurprised5.html), but this new writing's melancholic take on programming resonated with me. Or maybe I'll just compel you to read it (the real goal, here) by excerpting some of the quotable bits. In any case I want to use CLOSURE as a lens to ask and venture answers for questions I've had for awhile now:
 
  * Why did \_why quit?
  * Why is programming sometimes so terrible, and sometimes the best?
@@ -185,4 +185,4 @@ But there's hope in the story, too. A [final page](https://github.com/steveklabn
 
 CLOSURE is a wonderful excuse to remind myself that it's important to keep a [playful humanism in hacking](https://github.com/mental/bloopsaphone). To always try to be [boundlessly creative](http://mislav.uniqpath.com/poignant-guide/book/chapter-7.html). To attempt [completely new things](https://github.com/whymirror/yown/blob/master/yown.io). To keep [inventing programming languages](https://github.com/fogus/potion). To keep programming education [accessible and exciting](http://hackety.com/). That meaning and success is personal, and isn't always measured in page views, or karma, or dollars, or even necessarily tied to your public identity.
 
-And that anything is possible when you're having fun.
+And that the best thing is just make good stuff and put it out there.
