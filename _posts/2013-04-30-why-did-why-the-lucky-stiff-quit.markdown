@@ -185,4 +185,4 @@ But there's hope in the story, too. A [final page](https://github.com/steveklabn
 
 CLOSURE is a wonderful excuse to remind myself that it's important to keep a [playful humanism in hacking](https://github.com/mental/bloopsaphone). To always try to be [boundlessly creative](http://mislav.uniqpath.com/poignant-guide/book/chapter-7.html). To attempt [completely new things](https://github.com/whymirror/yown/blob/master/yown.io). To keep [inventing programming languages](https://github.com/fogus/potion). To keep programming education [accessible and exciting](http://hackety.com/). That meaning and success is personal, and isn't always measured in page views, or karma, or dollars, or even necessarily tied to your public identity.
 
-That the thing to do is just make stuff and put it out there.
+And that anything is possible when you're having fun.
