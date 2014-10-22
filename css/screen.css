@@ -1,6 +1,7 @@
 body {
-    font-family: georgia;
-    font-size: 17px;
+    font-size: 12.5px;
+    line-height: 17px;
+    font-family: helvetica, arial;
 }
 
 #site {
