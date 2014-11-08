@@ -4,7 +4,9 @@ title: Kevin Watters
 ---
 
 <div id="home">
-    <div style="width: 100%; margin-top: 10px; border: 2px dashed #c0c0c0; height: 500px;"></div>
+    <div style="text-align: center">
+      <canvas id="playground-display" width="500" height="500" style="width: 500px; margin-top: 10px; border: 2px dashed #c0c0c0; border-radius: 5px;"></canvas>
+    </div>
     <h1>things</h1>
     <ul class="posts">
         {% for post in site.posts %}
@@ -24,3 +26,6 @@ title: Kevin Watters
 
 {% include twitter.html %}
 
+<script src="js/lib/mathparser.js"></script>
+<script src="js/lib/Mojulo.js"></script>
+<script src="js/pretty.js"></script>
