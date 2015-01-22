@@ -1,6 +1,7 @@
 body {
-    font-family: georgia;
-    font-size: 17px;
+    font-family: 'Merriweather', georgia, serif;
+    font-size: 14px;
+    line-height: 20px;
 }
 
 #site {
