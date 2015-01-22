@@ -1,2 +1,1 @@
-jekyll --pygments --safe --server --auto
-
+bundle exec jekyll serve
