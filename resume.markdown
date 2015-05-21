@@ -5,13 +5,27 @@ title: Kevin Watters Resume
 
 # Kevin Watters
 
-## senior software engineer
+## game designer / senior software engineer
 
 #### full-stack polyglot startup veteran
 
-[kevinwatters@gmail.com](mailto:kevinwatters@gmail.com) - [github.com/kevinw](http://github.com/kevinw) - (585) 754-3475
+[kevinwatters@gmail.com](mailto:kevinwatters@gmail.com) - [kevinw.github.io/kevinw](http://github.com/kevinw)
 
 ## Experience
+
+### Vessel (http://vessel.com) (2013-2014)
+
+__Senior Software Engineer__
+
+Fifth employee and second engineer in well funded video startup taking on YouTube in the independent short-form video space. Built AWS infrastructure, web services, and front-end client code for a large-scale video streaming site in months, using Python, Flask, ffmpeg, coffeescript, and ReactJS.
+
+### WebGL Independent Contract Work (2013)
+
+Created an interactive WebGL 3D experience for a client's presentation on their history and roadmap. Constructed a 3D landscape with signposts alongside a mountain road, so that the "journey" takes you to each stop along the company's history. Used Javascript and ThreeJS.
+
+### Game Engineering Contract Work (2013)
+
+Working in tandem with a game designer, engineered from scratch a prototype of a card battle game, using MOAI and Lua.
 
 ### Tagged, Inc.  (2011-2012)
 
