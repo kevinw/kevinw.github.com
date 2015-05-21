@@ -41,7 +41,7 @@ Spearheaded modern and lean Javascript with a homebrewed framework sharing code 
 
 __Software Engineer/Startup Generalist__
 
-Joined the startup [Digsby](http://www.digsby.com) at its inception, and worked with 6 others to develop a multiprotocol social networking and instant messaging desktop client from scratch.
+Joined the startup Digsby (http://www.digsby.com) at its inception, and worked with 6 others to develop a multiprotocol social networking and instant messaging desktop client from scratch.
 
 Gained extensive Python and C++ experience delivering a new Windows WebKit port embedded in a highly usable and functional desktop app to hundreds of thousands of users.
 
