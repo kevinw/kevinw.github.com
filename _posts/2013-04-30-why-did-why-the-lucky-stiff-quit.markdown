@@ -47,7 +47,7 @@ The light killed them. Anonymity was jerry-rigged as a necessary condition for t
 
 Is this a clue that a much-linked blog revealing \_why's identity in 2009 was a factor in his disappearance?
 
-There are lots of convincing arguments for anonymity--political or physical retribution for expressing opinions unpopular with corporations or organizations. e.g.  But another perfectly good one that may apply here is that, for \_why, the pseudonym was part of the game. He was doing performance art with a superhero mask on. Part of the fun was the anonymity itself. And when that was gone, at least some of the magic disappeared with it.
+There are lots of convincing arguments for anonymity--e.g., political or physical retribution for expressing opinions unpopular with corporations or organizations. But another perfectly good one that may apply here is that, for \_why, the pseudonym was part of the game. He was doing performance art with a superhero mask on. Part of the fun was the anonymity itself. And when that was gone, at least some of the magic disappeared with it.
 
 There's some more indirect admonishment, re: anonymity, later. He tells us in 2009 he read most of Kafka in one month, but that he skimped on his letters:
 
