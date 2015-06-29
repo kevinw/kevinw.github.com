@@ -1,19 +1,14 @@
 ---
-layout: default
+layout: trackpadtouch
 title: Trackpad Touch - Unity Trackpad Multitouch Input Plugin - Kevin Watters
 ---
 
-<style>
-  body {
-    background: url(tt_pattern-small.png);
-  }
-</style>
+<a href="https://www.assetstore.unity3d.com/#!/content/40277"><img src="tt_logo-horizontal-700px.png" title="Trackpad Touch"></a>
 
-<img src="tt_logo-horizontal-700px.png" title="Trackpad Touch">
-
-[Asset Store Link](https://www.assetstore.unity3d.com/)
-
-<a href="TrackpadTouchEditorScreenshot.png"><img src="TrackpadTouchEditorScreenshot700.jpg"></a>
+<center>
+<h2><a href="https://www.assetstore.unity3d.com/#!/content/40277">Get it in the Unity Asset Store</a></h2>
+<h4>(requires OS X)</h4>
+</center>
 
 ## About
 
@@ -22,6 +17,8 @@ game with an interface matching [Input.touches](http://docs.unity3d.com/ScriptRe
 
 This allows you to test your game's multitouch functionality in the editor,
 without having to use Unity Remote or building to the device.
+
+<a href="TrackpadTouchEditorScreenshot.png"><img src="TrackpadTouchEditorScreenshot700.jpg"></a>
 
 ## Important: Disable OS X Gestures
 

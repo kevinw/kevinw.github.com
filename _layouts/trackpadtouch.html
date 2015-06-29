@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ page.title }}</title>
+        <meta name="author" content="Kevin Watters">
+        <link rel="stylesheet" type="text/css" href="/css/screen.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/css/pygments.css" media="screen">
+        <link href="http://kevinw.github.io/atom.xml" type="application/atom+xml" rel="alternate" title="Kevin Watters" />
+        <link href='http://fonts.googleapis.com/css?family=Merriweather' rel='stylesheet' type='text/css'>
+        <style>
+          body {
+              background: url(tt_pattern-small.png);
+          }
+          #site {
+              padding: 40px;
+                  background-color: white;
+          }
+        </style>
+    </head>
+    <body>
+        <div id="site">
+            <div>
+            <a href="/">Kevin Watters</a>
+            </div>
+
+            {{ content }}
+
+        </div>
+        {% include analytics.html %}
+    </body>
+</html>
+
