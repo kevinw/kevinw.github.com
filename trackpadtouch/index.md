@@ -8,6 +8,9 @@ title: Trackpad Touch - Unity Trackpad Multitouch Input Plugin - Kevin Watters
 <center>
 <h2><a href="https://www.assetstore.unity3d.com/#!/content/40277">Get it in the Unity Asset Store</a></h2>
 <h4>(requires OS X)</h4>
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/DT7tO7-4VnM" frameborder="0" allowfullscreen></iframe>
+
 </center>
 
 ## About
