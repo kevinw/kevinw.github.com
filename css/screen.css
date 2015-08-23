@@ -1,17 +1,31 @@
 body {
-    font-family: 'Merriweather', georgia, serif;
+    /*font-family: 'Merriweather', georgia, serif;*/
+  font-family: Monaco, Consolas, 'Courier New';
     font-size: 14px;
     line-height: 20px;
+    background-color: #FFA900;
+}
+
+#disqus_thread {
+  background-color: #FFD67A;
+  padding: 20px;
+  border-radius: 3px;
+}
+
+.name-title {
+  text-align: center;
 }
 
 #site {
-    width: 700px;
+    max-width: 700px;
     margin-left: auto;
     margin-right: auto;
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-family: "Gill Sans", "Gill Sans MT", "Arial Black";
+    /*font-family: "Gill Sans", "Gill Sans MT", "Arial Black";*/
+    font-family: "Gill Sans";
+    color: #76203f;
 }
 
 blockquote {
