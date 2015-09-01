@@ -10,3 +10,10 @@ hr {
     height: 1px;
     background-color: #c0c0c0;
 }
+
+#site {
+  background-color: white;
+  padding: 12px 30px 12px 30px;
+  border-radius: 3px;
+  box-shadow: rgba(0, 0, 0, 0.3) 4px 4px;
+}
