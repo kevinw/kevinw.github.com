@@ -6,6 +6,8 @@ var SHADOW_MAP_WIDTH = 2048, SHADOW_MAP_HEIGHT = 1024;
 var BGCOLOR = 0xFFA900;
 var CONTROLS_ENABLED = false;
 
+//  width="500" height="500" style="width: 500px;"
+
 function getCamInfo() {
   return {
     aspect: window.innerWidth / window.innerHeight,
@@ -216,7 +218,13 @@ loader.load('js/HollowCube.js', function (result) {
   }
 
   render();
-
-
-
 });
+
+function onWinSize() {
+    var W = window.innerWidth;
+    var H = window.innerHeight;
+    var playground = document.getElementById("playground-display");
+    playground.width = playground.height = H * 0.8;
+}
+document.addEventListener('DOMContentLoaded', onWinSize);
+onWinSize();
