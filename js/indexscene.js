@@ -219,7 +219,7 @@ loader.load('js/HollowCube.js', function (result) {
     scene.add(mesh1);
 
 
-    var material2 = new THREE.MeshPhongMaterial({map: canvasTex});
+    var material2 = new THREE.MeshPhongMaterial({map: canvasTex, color: 0xaaaaaa});
     var mesh2 = new THREE.Mesh(new THREE.PlaneBufferGeometry(50, 50), material2);
     mesh2.position.set(0,0,-4);
     mesh2.receiveShadow = true;
