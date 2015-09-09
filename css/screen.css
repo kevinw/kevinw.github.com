@@ -6,6 +6,15 @@ body {
     background-color: #FFA900;
 }
 
+canvas.background-canvas {
+  position: fixed;
+  z-index: -500;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
 #disqus_thread {
   background-color: #FFD67A;
   padding: 20px;

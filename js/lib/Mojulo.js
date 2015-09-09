@@ -62,6 +62,7 @@ Mojulo = (function() {
       };
 
       var data = this.imageData.data;
+      var scale = this.scale;
 
       for (var x = 0; x < width; x++) {
         for (var y = 0; y < height; y++) {
@@ -77,13 +78,17 @@ Mojulo = (function() {
           var G = (color & 0x00ff00) >>> 8;
           var B = (color & 0x0000ff) >>> 0;
 
-          for (var sx = 0; sx < this.scale; sx++) {
-            for (var sy = 0; sy < this.scale; sy++) {
-              var i = (((y * this.scale + sy) * width * this.scale) + (x * this.scale + sx)) * 4;
+          var cx = x - width/2;
+          var cy = y - height/2;
+          var a = 255-(Math.sqrt(cx*cx + cy*cy)/width*2.0) * 255;
+
+          for (var sx = 0; sx < scale; sx++) {
+            for (var sy = 0; sy < scale; sy++) {
+              var i = (((y * scale + sy) * width * scale) + (x * scale + sx)) * 4;
               this.imageData.data[i]   = R;
               this.imageData.data[i+1] = G;
               this.imageData.data[i+2] = B;
-              this.imageData.data[i+3] = 255;
+              this.imageData.data[i+3] = a;
             }
           }
         }
