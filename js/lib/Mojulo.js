@@ -10,18 +10,26 @@ Mojulo = (function() {
     return Array(width - str.length).join(padding) + str;
   }
 
-  function Mojulo(equation, canvas) {
+  function Mojulo(equation, canvas, didUpdate, opts) {
     this.equation  = mathparser.parse(equation); // Generate the equation
     this.canvas    = canvas;
-    this.scale     = canvas.getAttribute('width') / width;
     this.context   = canvas.getContext('2d');
+    this.scale     = this.canvas.getAttribute('width') / width;
     this.imageData = this.context.createImageData(width * this.scale, height * this.scale);
     this.then      = +Date.now();
-    this.frame     = 1;
     this.paused    = true;
+    this.didUpdate = didUpdate;
+    this.manualTime = opts && opts.manualTime;
+    this.frame     = 1;
   }
 
   Mojulo.prototype = {
+    updateSize: function() {
+      this.context   = this.canvas.getContext('2d');
+      this.scale     = this.canvas.getAttribute('width') / width;
+      this.imageData = this.context.createImageData(width * this.scale, height * this.scale);
+    },
+
     play: function() {
       this.paused = false;
       this.step();
@@ -41,7 +49,8 @@ Mojulo = (function() {
       if (delta > interval) {
         this.then = now;
         this.drawFrame();
-        this.frame++;
+        if (!this.manualTime)
+          this.frame++;
       }
     },
 
@@ -57,7 +66,9 @@ Mojulo = (function() {
 
         vars: {
           PI: Math.PI,
-          time: this.frame
+          time: this.frame,
+          W: width,
+          H: height
         }
       };
 
@@ -80,21 +91,33 @@ Mojulo = (function() {
 
           var cx = x - width/2;
           var cy = y - height/2;
-          var a = 255-(Math.sqrt(cx*cx + cy*cy)/width*2.0) * 255;
+
+          var distance = Math.sqrt(cx*cx + cy*cy)/width;
+          if (x == width/2 && y == 0)
+            window.foo1 = distance;
+          if (x == 0 && y == 0)
+            window.foo2 = distance;
+
+
+          var a = 255;//-(Math.sqrt(cx*cx + cy*cy)/width*1.5) * 255;
+          if (distance > 0.5) {
+            a = 0;
+          }
 
           for (var sx = 0; sx < scale; sx++) {
             for (var sy = 0; sy < scale; sy++) {
               var i = (((y * scale + sy) * width * scale) + (x * scale + sx)) * 4;
-              this.imageData.data[i]   = R;
-              this.imageData.data[i+1] = G;
-              this.imageData.data[i+2] = B;
-              this.imageData.data[i+3] = a;
+              data[i]   = R;
+              data[i+1] = G;
+              data[i+2] = B;
+              data[i+3] = a;
             }
           }
         }
       }
 
       this.context.putImageData(this.imageData, 0, 0);
+      if (this.didUpdate) this.didUpdate();
     }
   };
 

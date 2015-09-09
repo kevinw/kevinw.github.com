@@ -5,6 +5,7 @@ var FOV = 75;
 var SHADOW_MAP_WIDTH = 2048, SHADOW_MAP_HEIGHT = 1024;
 var BGCOLOR = 0xFFA900;
 var CONTROLS_ENABLED = false;
+var GROUND = false;
 
 //  width="500" height="500" style="width: 500px;"
 
@@ -106,24 +107,12 @@ loader.load('js/HollowCube.js', function (result) {
   cube.castShadow = true;
   cube.receiveShadow = true;
 
-  /*
-  // create a mesh with models geometry and material
-  var mesh = new THREE.Mesh(
-    geometry,
-    material
-  );
-  mesh.rotation.y = -Math.PI/5;
-  scene.add(mesh);
-  */
-
   var ambient = new THREE.AmbientLight(0x222222);
 	scene.add(ambient);
 
   var light = new THREE.SpotLight(0xffffff, 0.9, 0, Math.PI / 2, 1);
   light.position.set(5, 10, 10);
   light.target.position.set(0, 0, 0);
-
-  //light.shadowCameraVisible = true;
 
   light.castShadow = true;
   light.shadowCameraNear = 5;
@@ -132,9 +121,6 @@ loader.load('js/HollowCube.js', function (result) {
   light.shadowMapWidth = 512;
   light.shadowMapHeight = 512;
   light.shadowDarkness = 0.2;
-
-
-
   //light.shadowBias = 0.0001;
   //light.shadowDarkness = 0.5;
 
@@ -157,6 +143,7 @@ loader.load('js/HollowCube.js', function (result) {
     camera.aspect = camInfo.aspect;
     camera.near = camInfo.near;
     camera.far = camInfo.far;
+    camera.updateProjectionMatrix();
     requestAnimationFrame(render);
   }
 
@@ -173,9 +160,16 @@ loader.load('js/HollowCube.js', function (result) {
 
   scene.add(copier.root);
 
+  var mojulo;
+
   document.addEventListener("mousemove", function(e) {
-    mouse.x = e.clientX / window.innerWidth * (2 * Math.PI);
-    mouse.y = e.clientY / window.innerHeight * (2 * Math.PI);
+    var px = e.clientX / window.innerWidth,
+      py = e.clientY / window.innerHeight;
+    mouse.x = px * 2 * Math.PI;
+    mouse.y = py * 2 * Math.PI;
+    if (mojulo) {
+      mojulo.frame = Math.floor(px * 180) - 40;
+    }
   });
 
   scene.remove(cube);
@@ -184,14 +178,16 @@ loader.load('js/HollowCube.js', function (result) {
   var geometry = new THREE.PlaneBufferGeometry(10, 10);
   var planeMaterial = new THREE.MeshBasicMaterial({color: BGCOLOR});
 
-  var ground = new THREE.Mesh(geometry, planeMaterial);
-  ground.position.set(0, 0, -1);
-  //ground.rotation.x = - Math.PI / 2;
-  ground.scale.set(10, 10, 10);
-  ground.castShadow = false;
-  ground.receiveShadow = true;
+  if (GROUND) {
+    var ground = new THREE.Mesh(geometry, planeMaterial);
+    ground.position.set(0, 0, -1);
+    //ground.rotation.x = - Math.PI / 2;
+    ground.scale.set(10, 10, 10);
+    ground.castShadow = false;
+    ground.receiveShadow = true;
 
-  scene.add(ground);
+    scene.add(ground);
+  }
 
   var controls;
   if (CONTROLS_ENABLED) {
@@ -207,6 +203,34 @@ loader.load('js/HollowCube.js', function (result) {
     //controls.addEventListener('change', function() { requestAnimationFrame(render); });
   }
 
+  var canvasTex;
+
+  window.setPrettyCanvas = function(canvas) {
+    canvasTex = new THREE.Texture(canvas);
+    canvasTex.minFilter = THREE.NearestFilter;
+    canvasTex.magFilter = THREE.NearestFilter;
+    canvasTex.needsUpdate = true;
+
+    var material1 = new THREE.MeshBasicMaterial({map: canvasTex});
+    material1.transparent = true;
+
+    var mesh1 = new THREE.Mesh(new THREE.PlaneBufferGeometry(6, 6), material1);
+    mesh1.position.set(0,0,-0.9);
+    scene.add(mesh1);
+
+
+    var material2 = new THREE.MeshPhongMaterial({map: canvasTex});
+    var mesh2 = new THREE.Mesh(new THREE.PlaneBufferGeometry(50, 50), material2);
+    mesh2.position.set(0,0,-4);
+    mesh2.receiveShadow = true;
+    scene.add(mesh2);
+
+  };
+
+  mojulo = initMojulo(function() {
+    canvasTex.needsUpdate = true;
+  });
+
   function render() {
     copier.setRotation(-mouse.y, mouse.x, 0);
     copier.update();
@@ -219,12 +243,3 @@ loader.load('js/HollowCube.js', function (result) {
 
   render();
 });
-
-function onWinSize() {
-    var W = window.innerWidth;
-    var H = window.innerHeight;
-    var playground = document.getElementById("playground-display");
-    playground.width = playground.height = H * 0.8;
-}
-document.addEventListener('DOMContentLoaded', onWinSize);
-onWinSize();
