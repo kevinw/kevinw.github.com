@@ -90,8 +90,7 @@ var meshCopier = function(scene, mesh) {
 
 };
 
-var loader = new THREE.SceneLoader();
-loader.load('js/HollowCube.js', function (result) {
+function onSceneLoaded(result) {
   var scene = result.scene;
   window.scene = scene;
 
@@ -242,4 +241,10 @@ loader.load('js/HollowCube.js', function (result) {
   }
 
   render();
-});
+}
+
+window.launchHeadTrip = function() {
+  var loader = new THREE.SceneLoader();
+  loader.load('js/HollowCube.js', onSceneLoaded);
+}
+
