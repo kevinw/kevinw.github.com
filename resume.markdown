@@ -13,6 +13,12 @@ title: Kevin Watters Resume
 
 ## Experience
 
+### Floodwatch (http://floodwatch.o-c-r.org) (2015)
+
+__Senior Software Engineer, Freelance__
+
+Helped the Office for Creative Research in NYC build out Flask/Python infrastructure and a Javascript Chrome extension frontend for Floodwatch, their online-privacy-rights tool for fighting back against aggressive ad tracking.
+
 ### Vessel (http://vessel.com) (2013-2014)
 
 __Senior Software Engineer__
