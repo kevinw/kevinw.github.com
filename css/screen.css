@@ -29,6 +29,7 @@ canvas.background-canvas {
   height: 100px;
   line-height: 100px;
   font-family: "Gill Sans", "Gill Sans MT", "Arial Black";
+  font-size: 20px;
   margin-bottom: 70px;
 }
 .name-title a { color: white; text-decoration: none; }
