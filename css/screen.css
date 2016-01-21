@@ -1,13 +1,12 @@
 body {
-    /*font-family: 'Merriweather', georgia, serif;*/
-  font-family: Monaco, Consolas, 'Courier New';
-    font-size: 14px;
-    line-height: 20px;
-    background-color: #FFA900;
+  font-family: 'Merriweather', georgia, serif;
+  font-size: 14px;
+  line-height: 20px;
+  background-color: white;
+  margin: 0;
 }
 
-#playground-display {
-}
+#playground-display {}
 
 canvas.background-canvas {
   position: fixed;
@@ -19,14 +18,20 @@ canvas.background-canvas {
 }
 
 #disqus_thread {
-  background-color: #FFD67A;
   padding: 20px;
   border-radius: 3px;
 }
 
 .name-title {
   text-align: center;
+  background-color: #FFA900;
+  width: 100%;
+  height: 100px;
+  line-height: 100px;
+  font-family: "Gill Sans", "Gill Sans MT", "Arial Black";
+  margin-bottom: 70px;
 }
+.name-title a { color: white; text-decoration: none; }
 
 #site {
     max-width: 700px;
@@ -35,8 +40,7 @@ canvas.background-canvas {
 }
 
 h1, h2, h3, h4, h5, h6 {
-    /*font-family: "Gill Sans", "Gill Sans MT", "Arial Black";*/
-    font-family: "Gill Sans";
+    font-family: "Gill Sans", "Gill Sans MT", "Arial Black";
     color: #76203f;
 }
 
