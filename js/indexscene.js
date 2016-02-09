@@ -136,6 +136,7 @@ function onSceneLoaded(result) {
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
   var renderer = new THREE.WebGLRenderer();
+  renderer.setClearColor( 0xefefef );
   function onSize() {
     var camInfo = getCamInfo();
     renderer.setSize(window.innerWidth, window.innerHeight);
