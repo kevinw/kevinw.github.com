@@ -2,7 +2,6 @@
  * ideas: complimentary colors cycling through the hue space as you move
  */
 var FOV = 75;
-var SHADOW_MAP_WIDTH = 2048, SHADOW_MAP_HEIGHT = 1024;
 var BGCOLOR = 0xFFA900;
 var CONTROLS_ENABLED = false;
 var GROUND = false;
@@ -97,14 +96,12 @@ function onSceneLoaded(result) {
   // create a new material
   var material = new THREE.MeshLambertMaterial({
     //map: THREE.ImageUtils.loadTexture('path_to_texture'),  // specify and load the texture
-    colorAmbient: [0.480000026226044, 0.480000026226044, 0.480000026226044],
-    colorDiffuse: [0.480000026226044, 0.480000026226044, 0.480000026226044],
-    colorSpecular: [0.8999999761581421, 0.8999999761581421, 0.8999999761581421]
+    //colorAmbient: [0.480000026226044, 0.480000026226044, 0.480000026226044],
+    color: [0.480000026226044, 0.480000026226044, 0.480000026226044],
+    //colorSpecular: [0.8999999761581421, 0.8999999761581421, 0.8999999761581421]
   });
   scene.children[0].material.materials.push(material);
   var cube = scene.children[0];
-  cube.castShadow = true;
-  cube.receiveShadow = true;
 
   var ambient = new THREE.AmbientLight(0x222222);
 	scene.add(ambient);
@@ -112,17 +109,6 @@ function onSceneLoaded(result) {
   var light = new THREE.SpotLight(0xffffff, 0.9, 0, Math.PI / 2, 1);
   light.position.set(5, 10, 10);
   light.target.position.set(0, 0, 0);
-
-  light.castShadow = true;
-  light.shadowCameraNear = 5;
-  light.shadowCameraFar = 30;
-  light.shadowCameraFov = 30;
-  light.shadowMapWidth = 512;
-  light.shadowMapHeight = 512;
-  light.shadowDarkness = 0.2;
-  //light.shadowBias = 0.0001;
-  //light.shadowDarkness = 0.5;
-
   scene.add(light);
 
   var clock = new THREE.Clock();
@@ -149,12 +135,13 @@ function onSceneLoaded(result) {
 
   window.addEventListener('resize', onSize, true);
   onSize();
-  renderer.shadowMapEnabled = true;
-  renderer.shadowMapType = THREE.PCFShadowMap;
+
+  renderer.setPixelRatio( window.devicePixelRatio );
   renderer.domElement.setAttribute("class", "background-canvas");
   document.body.appendChild(renderer.domElement);
 
   var mouse = new THREE.Vector3();
+  var extraRot = new THREE.Vector3();
 
   var copier = meshCopier(scene, cube);
 
@@ -183,8 +170,6 @@ function onSceneLoaded(result) {
     ground.position.set(0, 0, -1);
     //ground.rotation.x = - Math.PI / 2;
     ground.scale.set(10, 10, 10);
-    ground.castShadow = false;
-    ground.receiveShadow = true;
 
     scene.add(ground);
   }
@@ -222,17 +207,17 @@ function onSceneLoaded(result) {
     var material2 = new THREE.MeshPhongMaterial({map: canvasTex, color: 0xaaaaaa});
     var mesh2 = new THREE.Mesh(new THREE.PlaneBufferGeometry(50, 50), material2);
     mesh2.position.set(0,0,-4);
-    mesh2.receiveShadow = true;
     scene.add(mesh2);
 
   };
 
-  mojulo = initMojulo(function() {
-    canvasTex.needsUpdate = true;
-  });
+  if (window.initMojulo)
+    mojulo = initMojulo(function() {
+      canvasTex.needsUpdate = true;
+    });
 
   function render() {
-    copier.setRotation(-mouse.y, mouse.x, 0);
+    copier.setRotation(-mouse.y + extraRot.y, mouse.x + extraRot.x, 0);
     copier.update();
 
     var speed = clock.getDelta();
