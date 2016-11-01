@@ -1,23 +1,42 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>{{ page.title }}</title>
-        <meta name="author" content="Kevin Watters">
-        <link rel="stylesheet" type="text/css" href="/css/screen.css" media="screen">
-        <link rel="stylesheet" type="text/css" href="/css/pygments.css" media="screen">
-        <link href="http://kevinw.github.io/atom.xml" type="application/atom+xml" rel="alternate" title="Kevin Watters" />
-        <link href='http://fonts.googleapis.com/css?family=Merriweather' rel='stylesheet' type='text/css'>
-    </head>
-    <body>
-        <div class="name-title">
-          <a href="/">Kevin Watters</a>
-        </div>
-        <div id="site">
+<html lang="en">
+<head>
 
-            {{ content }}
+  <meta charset="utf-8">
+  <title>{{ page.title }}</title>
+  <meta name="description" content="the personal site of Kevin Watters">
+  <meta name="author" content="Kevin Watters">
 
-        </div>
-        {% include analytics.html %}
-    </body>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <link rel="stylesheet" href="/css/normalize.css">
+  <link rel="stylesheet" href="/css/skeleton.css">
+  <link rel="stylesheet" href="/css/ktw2016.css">
+
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+<div class="container">
+  <div class="row">
+    <div class="two columns">
+      <img src="/img/me_point.jpg" style="max-width: 100%">
+      <h4>Kevin Watters</h4>
+      <p>
+        <a href="https://twitter.com/kevinwatters">Twitter</a><br>
+        <a href="https://www.facebook.com/kevin.watters">Facebook</a><br>
+        <a href="https://github.com/kevinw">GitHub</a><br>
+        <a href="mailto:kevinwatters@gmail.com">email</a><br>
+      </p>
+    </div>
+
+{{ content }}
+
+  </div> <!-- row -->
+</div> <!-- container -->
+
+</body>
 </html>
-
