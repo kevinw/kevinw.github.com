@@ -1,6 +1,7 @@
 ---
 layout: post
 title: This is Your Brain on Vim
+cover_url: /img/brain_before.png
 ---
 
 ### the pristine state

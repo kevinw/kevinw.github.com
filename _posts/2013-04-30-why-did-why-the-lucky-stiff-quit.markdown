@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Why Did why the lucky stiff Quit?
+cover_url: /img/why/backwards.jpg
 ---
 
 ## ...or, is this time well spent?
