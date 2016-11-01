@@ -1,0 +1,9 @@
+- title: Trackpad Touch
+  url: /trackpadtouch
+  cover_url: /trackpadtouch/trackpadtouch_cover.jpg
+  short_text: A Unity plugin for multitouch trackpad input on the desktop.
+
+- title: gitviz
+  url: https://github.com/kevinw/gitviz
+  cover_url: /img/gitviz.jpg
+  short_text: Visualize git repository internals as they change, live, in the browser.

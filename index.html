@@ -3,10 +3,10 @@ layout: default
 title: Kevin Watters
 ---
 
-<div class="five columns">
+<div class="five columns" id="games">
   <h5>games</h5>
+  <ul class="unstyled-list">
   {% for game in site.data.itch.games %}
-    <ul class="unstyled-list">
     <li>
       <a href="{{ game.url }}"><img src="{{ game.cover_url }}" class="u-full-width"></a>
       <h6><a href="{{ game.url }}">{{ game.title }}</a></h6>
@@ -14,11 +14,11 @@ title: Kevin Watters
         <p>{{ game.short_text }}</p>
       {% endif %}
     </li>
-  </ul>
   {% endfor %}
+  </ul>
 </div>
 
-<div class="five columns">
+<div class="five columns" id="blog">
   <h5>blog</h5>
     <ul class="posts unstyled-list">
       {% for post in site.posts %}
