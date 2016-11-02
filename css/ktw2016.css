@@ -10,3 +10,11 @@ body { margin-top: 20px; }
 .name-title { line-height: 130%; margin-bottom: 0; }
 
 .name-detail { display: inline-block; padding-bottom: 10px; color: #a0a0a0; font-size: 80%; line-height: 150%; }
+
+.blog .posttitle { font-size: 40px; font-weight: bold; margin: 0;}
+.titledate { color: #999; }
+.blog h2 { font-size: 25px; }
+
+.blog img { max-width: 100%; max-height: auto; }
+
+p { margin-bottom: 1.8rem; }

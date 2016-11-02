@@ -6,7 +6,7 @@ cover_url: /img/why/backwards.jpg
 
 ## ...or, is this time well spent?
 
-<img width="690" height="374" src="/img/why/backwards.jpg" title="(...or, projecting my insecurities about programming burnout onto _why's new book)">
+<img src="/img/why/backwards.jpg" title="(...or, projecting my insecurities about programming burnout onto _why's new book)">
 
 <!-- ...or, indulgent fluff piece eulogizing -->
 
@@ -28,7 +28,7 @@ Maybe I'm nostalgic for the days of reading [RedHanded](http://web.archive.org/w
 
 CLOSURE begins with a map, perhaps in the great tradition of fantasy novels seeking to establish a sense of realism and place in the face of the strange and supernatural. It seems to be a highly modified map of the [San Juan Islands](http://goo.gl/maps/ehDo0) between Washington and Canada. There are some startling changes, though...the thought of any place on earth named "Wayne Newton Island" is pretty terrifying.
 
-<a href="https://github.com/steveklabnik/CLOSURE/blob/master/PDF/CAPRICE.pdf?raw=true"><img width="690" height="533" src="/img/why/map.jpg"></a>
+<a href="https://github.com/steveklabnik/CLOSURE/blob/master/PDF/CAPRICE.pdf?raw=true"><img src="/img/why/map.jpg"></a>
 
 I like to imagine that this sort of stage-setting is a hint that \_why, in his sabbatical from public hacking, has been doing some travelling, been seeking answers for himself. Maybe been on a boat, playing guitar, drawing foxes.
 
@@ -52,7 +52,7 @@ There are lots of convincing arguments for anonymity--e.g., political or physica
 
 There's some more indirect admonishment, re: anonymity, later. He tells us in 2009 he read most of Kafka in one month, but that he skimped on his letters:
 
-<img width="690" height="893" src="/img/why/hisownimagination.jpg">
+<img src="/img/why/hisownimagination.jpg">
 
 Why did he skip Kafka's letters?
 
@@ -70,7 +70,7 @@ He knew his work would live on. But so *why the need to delete everything?--espe
 
 He gives us an answer, almost directly, when talking about how when Kafka was dying of tuberculosis, he told his friend to burn all of his writing, unread. Kafka died without fame, but his friend published his work anyways. \_why postulates that Kafka didn't actually want his stuff to go up in smoke:
 
-<img width="690" height="425" src="/img/why/reality.jpg">
+<img src="/img/why/reality.jpg">
 
 There was no harm meant in wanting to vanish--it was fundamentally creative, not destructive.
 
@@ -80,11 +80,11 @@ Kafka's (and \_why's) playful duplicitousness wasn't out of exasperation, or spi
 
 Reading Kafka also seemed to affect \_why's will to program.
 
-<img width="690" height="502" src="/img/why/decimated.jpg">
+<img src="/img/why/decimated.jpg">
 
 And later...
 
-<img width="690" height="140" src="/img/why/amerika.jpg">
+<img src="/img/why/amerika.jpg">
 
 This mirrors very closely the sentiment in one of \_why's last tweets--
 
@@ -138,7 +138,7 @@ You may read this as an indictment of type systems weak enough to lack a Maybe t
 
 Either way, \_why says it well, I think.
 
-<img src="/img/why/nulls.png" width="462" height="146">
+<img src="/img/why/nulls.png">
 
 ## starving on flute island
 
