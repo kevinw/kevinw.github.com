@@ -5,15 +5,15 @@ title: Kevin Watters - Projects
 
 <div class="ten columns">
   <h1>Projects</h1>
-  <di class="row">
   {% for game in site.data.projects %}
-    <div class="six columns">
+  <div class="row">
+    <div class="eight columns">
       <a href="{{ game.url }}"><img src="{{ game.cover_url }}" class="u-full-width"></a>
       <h6><a href="{{ game.url }}">{{ game.title }}</a></h6>
       {% if game.short_text %}
-        <p>{{ game.short_text }}</p>
+        <p>{{ game.short_text }}</>
       {% endif %}
     </div>
-  {% endfor %}
   </div>
+  {% endfor %}
 </div>
