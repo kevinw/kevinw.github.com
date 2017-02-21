@@ -9,9 +9,15 @@ title: Kevin Watters Resume
 
 #### full-stack polyglot startup veteran
 
-[kevinwatters@gmail.com](mailto:kevinwatters@gmail.com) - [kevinw.github.io/kevinw](http://github.com/kevinw)
+[kevinwatters@gmail.com](mailto:kevinwatters@gmail.com) - [github.com/kevinw](http://github.com/kevinw)
 
 ## Experience
+
+### [Zero Days VR](https://www.sundance.org/projects/zero-days-vr) (https://www.sundance.org/projects/zero-days-vr) (2017)
+
+__Technical Artist and Game Programmer__
+
+Designed and developed generative systems for major characters in a Sundance-featured VR documentary.
 
 ### WILD (http://www.builtbywild.com) (2016)
 
