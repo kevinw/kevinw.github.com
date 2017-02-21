@@ -1,6 +1,6 @@
 ---
 layout: resume
-title: Kevin Watters Resume
+title: Kevin Watters - Resume
 ---
 
 # Kevin Watters
