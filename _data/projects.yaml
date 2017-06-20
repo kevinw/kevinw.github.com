@@ -5,7 +5,7 @@
 
 - title: fake artist
   url: https://github.com/kevinw/fakeartist
-  cover_url: https://camo.githubusercontent.com/3b6a08cca04c92ee59b411bb54b69aab83491874/68747470733a2f2f646c2e64726f70626f7875736572636f6e74656e742e636f6d2f752f3130383133392f66616b656172746973742f66616b656172746973742e6a7067
+  cover_url: /img/fakeartist.jpg
   short_text: A video pixel sorting experiment. Feeds your webcam any videos you have into a pixelsorter, live.
 
 - title: Trackpad Touch
