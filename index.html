@@ -4,7 +4,7 @@ title: Kevin Watters
 ---
 
 <div class="five columns" id="games">
-  <h5>games</h5>
+  <h4>games</h4>
   <ul class="unstyled-list">
   {% for game in site.data.itch.games %}
     <li>
@@ -18,8 +18,21 @@ title: Kevin Watters
   </ul>
 </div>
 
-<div class="five columns" id="blog">
-  <h5>blog</h5>
+<div class="five columns">
+  <h4 id="projects">projects</h4>
+  <ul class="posts unstyled-list">
+  {% for game in site.data.projects %}
+  <li>
+      <a href="{{ game.url }}"><img src="{{ game.cover_url }}" class="u-full-width"></a>
+      <h6><a href="{{ game.url }}">{{ game.title }}</a></h6>
+      {% if game.short_text %}
+        <p>{{ game.short_text }}</>
+      {% endif %}
+  </li>
+  {% endfor %}
+  </ul>
+
+  <h4 id="blog">blog</h4>
     <ul class="posts unstyled-list">
       {% for post in site.posts %}
         <li>
