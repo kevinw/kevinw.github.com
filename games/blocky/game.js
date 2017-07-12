@@ -1,189 +1,40 @@
-class Entity {
-    constructor(x, y) {
-        this.position = new Vector(0, 0);
-        this.visible = true;
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+class Component {
+    constructor() {
+        this._entity = null;
+        this.scene = null;
         this.active = true;
-        this.isCreated = false;
-        this.isStarted = false;
-        this.components = new ObjectList();
-        this.groups = [];
-        this._depth = 0;
-        if (x !== undefined)
-            this.x = x;
-        if (y !== undefined)
-            this.y = y;
+        this.visible = true;
+        this.position = new Vector(0, 0);
+    }
+    get entity() { return this._entity; }
+    set entity(val) {
+        if (this._entity != null && val != null)
+            throw "This Component is already attached to an Entity";
+        this._entity = val;
     }
     get x() { return this.position.x; }
     set x(val) { this.position.x = val; }
     get y() { return this.position.y; }
     set y(val) { this.position.y = val; }
-    get depth() {
-        return this._depth;
+    get scenePosition() {
+        return new Vector((this._entity ? this._entity.x : 0) + this.position.x, (this._entity ? this._entity.y : 0) + this.position.y);
     }
-    set depth(val) {
-        if (this.scene != null && this._depth != val) {
-            this._depth = val;
-            this.scene.entities.unsorted = true;
-            for (let i = 0; i < this.groups.length; i++)
-                this.scene.groups[this.groups[i]].unsorted = true;
-        }
-    }
-    created() {
-    }
-    added() {
-    }
-    started() {
-    }
-    removed() {
-    }
-    recycled() {
-    }
-    destroyed() {
-    }
-    update() {
-        this.components.each((c) => {
-            if (c.active)
-                c.update();
-        });
-    }
-    render(camera) {
-        this.components.each((c) => {
-            if (c.visible)
-                c.render(camera);
-        });
-    }
-    debugRender(camera) {
-        Engine.graphics.hollowRect(this.x - 5, this.y - 5, 10, 10, 1, Color.white);
-        this.components.each((c) => {
-            if (c.visible)
-                c.debugRender(camera);
-        });
-    }
-    add(component) {
-        this.components.add(component);
-        component.entity = this;
-        component.addedToEntity();
-        if (this.scene != null)
-            this.scene._trackComponent(component);
-        return component;
-    }
-    remove(component) {
-        this.components.remove(component);
-        component.removedFromEntity();
-        component.entity = null;
-        if (this.scene != null)
-            this.scene._untrackComponent(component);
-        return component;
-    }
-    removeAll() {
-        for (let i = this.components.count - 1; i >= 0; i--)
-            this.remove(this.components[i]);
-    }
-    find(className) {
-        let component = null;
-        this.components.each((c) => {
-            if (c instanceof className) {
-                component = c;
-                return false;
-            }
-        });
-        return component;
-    }
-    findAll(className) {
-        let list = [];
-        this.components.each((c) => {
-            if (c instanceof className)
-                list.push(c);
-        });
-        return list;
-    }
-    group(groupType) {
-        this.groups.push(groupType);
-        if (this.scene != null)
-            this.scene._groupEntity(this, groupType);
-    }
-    ungroup(groupType) {
-        let index = this.groups.indexOf(groupType);
-        if (index >= 0) {
-            this.groups.splice(index, 1);
-            if (this.scene != null)
-                this.scene._ungroupEntity(this, groupType);
-        }
-    }
-    ingroup(groupType) {
-        return (this.groups.indexOf(groupType) >= 0);
-    }
-}
-class Clouds extends Entity {
-    constructor(index, depth) {
-        super();
-        this.add(this.sprite = new Graphic(Assets.atlases["gfx"].get("clouds " + index)));
-        this.sprite.origin.set(this.sprite.width / 2, this.sprite.height / 2);
-        this.depth = depth;
-        this.timerY = Math.random() * Math.PI * 2;
-        this.timerX = Math.random() * Math.PI * 2;
-    }
-    update() {
-        this.timerY += Engine.delta;
-        this.timerX += Engine.delta;
-        this.sprite.x = Math.sin(this.timerX * 2) * 4;
-        this.sprite.y = Math.sin(this.timerY) * 2;
-    }
-}
-class Door extends Entity {
-    constructor(name, gotoScene, gotoDoor, spawnPlayer) {
-        super();
-        this.spawnPlayerTimer = 1;
-        this.playerOn = true;
-        this.isOpen = true;
-        this.closedEase = 1;
-        this.name = name;
-        this.gotoScene = gotoScene;
-        this.gotoDoor = gotoDoor;
-        this.spawnPlayer = spawnPlayer;
-        this.add(this.hitbbox = new Hitbox(-4, -8, 8, 8));
-    }
-    added() {
-        if (this.spawnPlayer)
-            this.scene.camera.position.set(this.x, this.y - 64);
-    }
-    update() {
-        if (this.spawnPlayer && this.spawnPlayerTimer > 0) {
-            this.spawnPlayerTimer -= Engine.delta * 1.25;
-            this.scene.camera.position.set(this.x, this.y - Ease.cubeIn(this.spawnPlayerTimer) * 64);
-            if (this.spawnPlayerTimer <= 0) {
-                let player;
-                this.scene.add(player = new Player(), new Vector(this.x, this.y));
-                player.physics.speed.y = 120;
-                this.closedEase = 0;
-            }
-        }
-        else {
-            if (this.hitbbox.check(Game.TAGS.PLAYER)) {
-                if (this.gotoScene.length > 0 && !this.playerOn) {
-                    this.scene.remove(this.scene.find(Player));
-                    this.playerOn = true;
-                    this.scene.doSlide(1, 0, () => { Engine.goto(new Level(this.gotoScene, this.gotoDoor), false); });
-                }
-            }
-            else {
-                if (this.isOpen && this.gotoScene.length <= 0) {
-                    this.hitbbox.tag(Game.TAGS.SOLID);
-                    this.isOpen = false;
-                }
-                this.playerOn = false;
-                if (!this.isOpen)
-                    this.closedEase = Calc.approach(this.closedEase, 1, Engine.delta);
-            }
-        }
-    }
-    render() {
-        Engine.graphics.rect(this.x + -6, this.y - 13, 12, 13, Game.COLORS[3]);
-        Engine.graphics.rect(this.x + -5, this.y - 12, 10, 12, Game.COLORS[2]);
-        Engine.graphics.rect(this.x + -4, this.y - 11, 8, 11, Game.COLORS[3]);
-        if (!this.isOpen)
-            Engine.graphics.rect(this.x + -3, this.y - 10, 6, 10 * this.closedEase, Game.COLORS[2]);
-    }
+    addedToEntity() { }
+    addedToScene() { }
+    removedFromEntity() { }
+    removedFromScene() { }
+    update() { }
+    render(camera) { }
+    debugRender(camera) { }
 }
 class Color {
     constructor(r, g, b, a) {
@@ -454,71 +305,6 @@ Engine._muted = false;
 Engine.instance = null;
 Engine.started = false;
 Engine.exiting = false;
-class Game {
-    static start() {
-        const zoom = 1.2;
-        Engine.start("test", 160 * zoom, 144 * zoom, 5, () => { Game.load(); });
-    }
-    static load() {
-        Engine.graphics.clearColor = Game.COLORS[0].clone();
-        Keyboard.map(Game.KEYS.LEFT, [Key.left, Key.a, Key.j]);
-        Keyboard.map(Game.KEYS.RIGHT, [Key.right, Key.d, Key.l]);
-        Keyboard.map(Game.KEYS.UP, [Key.up, Key.w, Key.i]);
-        Keyboard.map(Game.KEYS.DOWN, [Key.down, Key.s, Key.k]);
-        Keyboard.map(Game.KEYS.A, [Key.z, Key.c]);
-        Keyboard.map(Game.KEYS.B, [Key.x, Key.v]);
-        Keyboard.map(Game.KEYS.START, [Key.enter]);
-        Keyboard.map(Game.KEYS.SELECT, [Key.shift]);
-        Keyboard.map(Game.KEYS.TELEPORT, [Key.t]);
-        let template = new ParticleTemplate("dust");
-        template.accelX(120, 40);
-        template.accelY(-20, 10);
-        template.colors([Game.COLORS[0]]);
-        template.duration(12);
-        template.scale(1, 0);
-        var assets = new AssetLoader("assets")
-            .addAtlas("gfx", "atlas.png", "atlas.json", AtlasReaders.Aseprite)
-            .addAtlas("sprites", "sprites/atlas.png", "sprites/atlas.json", AtlasReaders.Aseprite)
-            .addAtlas("guy_idle", "sprites/guy_idle.png", "sprites/guy_idle.json", AtlasReaders.DoodleStudio)
-            .addAtlas("guy_walk", "sprites/guy_walk.png", "sprites/guy_walk.json", AtlasReaders.DoodleStudio)
-            .addJson("scenes/bottom.json")
-            .addJson("scenes/bottom2.json")
-            .load(() => { Game.begin(); });
-    }
-    static begin() {
-        Engine.graphics.clearColor = Game.COLORS[3].clone();
-        Engine.graphics.pixel = Assets.atlases["gfx"].get("pixel");
-        SpriteBank.create("player")
-            .add("idle", 10, Assets.atlases['sprites'].find("player_idle"), true)
-            .add("run", 10, Assets.atlases['sprites'].find("player_run"), true);
-        SpriteBank.create("guy")
-            .add("idle", 6, Assets.atlases["guy_idle"].find("main"), true)
-            .add("run", 10, Assets.atlases["guy_walk"].find("main"), true);
-        Engine.goto(new Level("bottom", "start"), false);
-    }
-}
-Game.TAGS = {
-    PLAYER: "player",
-    SOLID: "solid"
-};
-Game.KEYS = {
-    LEFT: "left",
-    RIGHT: "right",
-    UP: "up",
-    DOWN: "down",
-    A: "a",
-    B: "b",
-    START: "start",
-    SELECT: "select",
-    TELEPORT: "teleport",
-};
-Game.COLORS = [
-    new Color(155 / 255, 188 / 255, 15 / 255, 1),
-    new Color(139 / 255, 172 / 255, 15 / 255, 1),
-    new Color(48 / 255, 98 / 255, 48 / 255, 1),
-    new Color(15 / 255, 56 / 255, 15 / 255, 1)
-];
-Game.start();
 class Scene {
     constructor() {
         this.camera = new Camera();
@@ -759,335 +545,6 @@ class Scene {
         }
     }
 }
-class Component {
-    constructor() {
-        this._entity = null;
-        this.scene = null;
-        this.active = true;
-        this.visible = true;
-        this.position = new Vector(0, 0);
-    }
-    get entity() { return this._entity; }
-    set entity(val) {
-        if (this._entity != null && val != null)
-            throw "This Component is already attached to an Entity";
-        this._entity = val;
-    }
-    get x() { return this.position.x; }
-    set x(val) { this.position.x = val; }
-    get y() { return this.position.y; }
-    set y(val) { this.position.y = val; }
-    get scenePosition() {
-        return new Vector((this._entity ? this._entity.x : 0) + this.position.x, (this._entity ? this._entity.y : 0) + this.position.y);
-    }
-    addedToEntity() { }
-    addedToScene() { }
-    removedFromEntity() { }
-    removedFromScene() { }
-    update() { }
-    render(camera) { }
-    debugRender(camera) { }
-}
-class Teleport extends Component {
-    constructor(name) {
-        super();
-        this.name = name;
-    }
-}
-class Level extends Scene {
-    constructor(scene, entrance) {
-        super();
-        this.slider = 0;
-        this.sliderTo = -1;
-        this.loaded = false;
-        this.scene = scene;
-        this.entrance = entrance;
-    }
-    loadTiled(jsonPath, terrain) {
-        const level = Assets.json[jsonPath];
-        if (!level)
-            throw "no level at " + jsonPath;
-        const tilesets = [];
-        for (const tileset of level.tilesets) {
-            const firstGid = tileset.firstgid;
-            const lastGid = firstGid + tileset.tilecount;
-            const tilesetInfo = {
-                firstGid,
-                lastGid,
-                tilewidth: tileset.tilewidth,
-                tileheight: tileset.tileheight,
-                tilesPerRow: Math.floor(tileset.imagewidth / tileset.tilewidth),
-                tileproperties: tileset.tileproperties,
-                image: tileset.image,
-                tilemap: null
-            };
-            tilesets.push(tilesetInfo);
-        }
-        function findTileset(gid) {
-            for (let a = 0; a < tilesets.length; ++a) {
-                if (gid >= tilesets[a].firstGid &&
-                    gid < tilesets[a].lastGid) {
-                    return tilesets[a];
-                }
-            }
-            return null;
-        }
-        function getTerrainTileSize() {
-            return [level.tilewidth, level.tileheight];
-        }
-        let terrainWidth = undefined;
-        let terrainHeight = undefined;
-        for (let i = 0; i < level.layers.length; i++) {
-            const layer = level.layers[i];
-            if (layer.name == "objects") {
-                let mapX = 0;
-                let mapY = 0;
-                let first = true;
-                for (const tile of layer.data) {
-                    if (!first) {
-                        if (++mapX >= layer.width) {
-                            mapX = 0;
-                            mapY++;
-                        }
-                    }
-                    else {
-                        first = false;
-                    }
-                    if (tile === 0)
-                        continue;
-                    const tileset = findTileset(tile);
-                    if (!tileset)
-                        continue;
-                    const tilesetLocalId = tile - tileset.firstGid;
-                    const props = tileset.tileproperties != null ? tileset.tileproperties[tilesetLocalId] : undefined;
-                    if (!props)
-                        continue;
-                    if (props.pushable) {
-                        let pushable;
-                        this.add(pushable = new Entity(mapX * tileset.tilewidth, mapY * tileset.tileheight));
-                        pushable.depth = -10;
-                        pushable.add(new Pushable());
-                        pushable.add(new Graphic(tileset.tilemap.getTileSubtexture(tilesetLocalId)));
-                    }
-                }
-            }
-            if (layer.name === "terrain" || layer.name === "shadows" || layer.name === "corners") {
-                let tilemap = undefined;
-                let mapX = 0;
-                let mapY = 0;
-                const tiles = layer.data;
-                for (let j = 0; j < tiles.length; ++j) {
-                    const tile = tiles[j];
-                    if (tile !== 0) {
-                        const tilesetInfo = findTileset(tile);
-                        if (!tilesetInfo)
-                            throw `couldn't find a tilesetInfo for tile ${tile} at (${mapX}, ${mapY}) in layer ${layer.name}`;
-                        if (!tilemap) {
-                            const textureName = "assets/fantasy/TMX/" + tilesetInfo.image;
-                            const tex = Assets.textures[textureName];
-                            console.assert(tex != null, "expected a texture at " + textureName);
-                            tilemap = new Tilemap(tex, tilesetInfo.tilewidth, tilesetInfo.tileheight);
-                            tilesetInfo.tilemap = tilemap;
-                            terrain.add(tilemap);
-                        }
-                        const tileI = tile - tilesetInfo.firstGid;
-                        console.assert(tileI >= 0 && tile < tilesetInfo.lastGid);
-                        const tileY = Math.floor(tileI / tilesetInfo.tilesPerRow);
-                        const tileX = Math.floor(tileI % tilesetInfo.tilesPerRow);
-                        tilemap.set(tileX, tileY, mapX, mapY);
-                    }
-                    if (++mapX >= layer.width) {
-                        mapX = 0;
-                        mapY++;
-                    }
-                }
-            }
-            else if (layer.name == "entities") {
-                for (let j = 0; j < layer.objects.length; j++) {
-                    const entity = layer.objects[j];
-                    if (entity.type == "door") {
-                        const doorName = entity.name;
-                        const spawnPlayer = doorName == this.entrance;
-                        this.add(new Door(doorName, entity.gotoScene || "", entity.gotoDoor || "", spawnPlayer), new Vector(parseInt(entity.x), parseInt(entity.y)));
-                    }
-                    else if (entity.type == "teleport") {
-                        const teleport = new Entity(entity.x, entity.y);
-                        teleport.add(new Teleport(entity.name));
-                        this.add(teleport);
-                        teleport.group("teleports");
-                    }
-                }
-            }
-            else if (layer.name == "solids") {
-                const solids = new Hitgrid(level.tilewidth, level.tileheight, [Game.TAGS.SOLID]);
-                terrain.add(solids);
-                let mapX = 0, mapY = 0;
-                for (let i = 0; i < layer.data.length; ++i) {
-                    const tile = layer.data[i];
-                    if (tile !== 0) {
-                        solids.set(true, mapX, mapY);
-                    }
-                    if (++mapX >= layer.width) {
-                        mapX = 0;
-                        mapY++;
-                    }
-                }
-            }
-        }
-    }
-    loadOgmo(jsonPath, terrain) {
-        let level = Assets.json[jsonPath];
-        for (let i = 0; i < level.layers.length; i++) {
-            let layer = level.layers[i];
-            if (layer.name == "terrain") {
-                let tilemap = new Tilemap(Assets.atlases["gfx"].get("tilemap"), 8, 8);
-                terrain.add(tilemap);
-                let rows = layer.data.split('\n');
-                for (let y = 0; y < rows.length; y++) {
-                    let x = 0;
-                    let tiles = rows[y].split(',');
-                    for (let j = 0; j < tiles.length - 1; j++) {
-                        if (tiles[j] == "-1") {
-                            x++;
-                            continue;
-                        }
-                        let tx = tiles[j];
-                        let ty = tiles[j + 1];
-                        tilemap.set(parseInt(tx), parseInt(ty), x, y);
-                        x++;
-                        j++;
-                    }
-                }
-            }
-            else if (layer.name == "solids") {
-                let solids = new Hitgrid(8, 8, [Game.TAGS.SOLID]);
-                terrain.add(solids);
-                let rows = layer.data.split('\n');
-                for (let y = 0; y < rows.length; y++)
-                    for (let x = 0; x < rows[y].length; x++)
-                        if (rows[y][x] == '1')
-                            solids.set(true, x, y);
-            }
-            else if (layer.name == "bgclouds") {
-                for (let j = 0; j < layer.entities.length; j++)
-                    this.add(new Clouds(layer.entities[j].index, 10), new Vector(layer.entities[j].x, layer.entities[j].y));
-            }
-            else if (layer.name == "fgclouds") {
-                for (let j = 0; j < layer.entities.length; j++)
-                    this.add(new Clouds(layer.entities[j].index, -10), new Vector(layer.entities[j].x, layer.entities[j].y));
-            }
-            else if (layer.name == "entities") {
-                for (let j = 0; j < layer.entities.length; j++) {
-                    let entity = layer.entities[j];
-                    if (entity.name == "door") {
-                        this.add(new Door(entity.doorName, entity.gotoScene, entity.gotoDoor, entity.doorName == this.entrance), new Vector(parseInt(entity.x), parseInt(entity.y)));
-                    }
-                }
-            }
-        }
-    }
-    begin() {
-        super.begin();
-        this.loaded = false;
-        new AssetLoader("assets")
-            .addJson("fantasy/TMX/tiny.json")
-            .addJson("fantasy/TMX/fantasy.json")
-            .addTexture("fantasy/TMX/../oryx_world2.png", new Color(0, 0, 0, 1))
-            .addTexture("fantasy/TMX/../oryx_world.png", new Color(0, 0, 0, 1))
-            .addTexture("fantasy/TMX/../oryx_fx.png")
-            .addTexture("fantasy/TMX/../oryx_creatures.png")
-            .addTexture("fantasy/TMX/../oryx_items.png")
-            .load(() => {
-            this.loaded = true;
-            this.afterLoad();
-        });
-        return;
-    }
-    afterLoad() {
-        this.camera.origin.set(Engine.width / 2, Engine.height / 2);
-        this.camera.position.set(Engine.width / 2, Engine.height / 2);
-        let terrain = this.add(new Entity());
-        terrain.depth = 1;
-        this.loadTiled("assets/fantasy/TMX/fantasy.json", terrain);
-    }
-    doSlide(from, to, onEnd) {
-        this.slider = from;
-        this.sliderTo = to;
-        this.sliderOnEnd = onEnd;
-    }
-    update() {
-        super.update();
-        if (!this.loaded)
-            return;
-        if (Keyboard.pressed(Game.KEYS.SELECT))
-            Engine.debugMode = !Engine.debugMode;
-        if (this.slider != this.sliderTo) {
-            this.slider = Calc.approach(this.slider, this.sliderTo, Engine.delta * 1.5);
-            if (this.slider == this.sliderTo && this.sliderOnEnd != undefined && this.sliderOnEnd != null)
-                this.sliderOnEnd();
-        }
-        if (this.dust)
-            this.dust.burst(this.camera.position.x - Engine.width, this.camera.position.y - Engine.height + Math.random() * Engine.height * 2, 0);
-    }
-    render() {
-        super.render();
-        if (this.slider > -1 || this.slider < 1) {
-            let color = Game.COLORS[0];
-            let px = this.camera.position.x + Ease.cubeInOut(this.slider) * (Engine.width + 32);
-            let py = this.camera.position.y - Engine.height / 2;
-            let left = px - Engine.width / 2;
-            let right = px + Engine.width / 2;
-            Engine.graphics.setRenderTarget(Engine.graphics.buffer);
-            Engine.graphics.shader = Shaders.texture;
-            Engine.graphics.shader.set("matrix", this.camera.matrix);
-            Engine.graphics.rect(left - 1, py, Engine.width + 2, Engine.height, color);
-            Engine.graphics.triangle(new Vector(left, py), new Vector(left - 32, py + Engine.height), new Vector(left, py + Engine.height), color);
-            Engine.graphics.triangle(new Vector(right, py), new Vector(right + 32, py), new Vector(right, py + Engine.height), color);
-        }
-    }
-}
-class Player extends Entity {
-    constructor() {
-        super();
-        this.add(this.physics = new Physics(-4, -8, 8, 8, [Game.TAGS.PLAYER], [Game.TAGS.SOLID]));
-        this.add(this.sprite = new Sprite("guy"));
-        this.sprite.play("idle");
-        this.sprite.origin.set(12, 24);
-        this.physics.onCollideX = () => { this.physics.speed.x = 0; };
-        this.physics.onCollideY = () => { this.physics.speed.y = 0; };
-    }
-    update() {
-        super.update();
-        let speed = 220;
-        let maxSpeed = 48;
-        if (Keyboard.check(Game.KEYS.A)) {
-            speed *= 2;
-            maxSpeed *= 2;
-        }
-        if (Keyboard.pressed(Game.KEYS.TELEPORT)) {
-            this.position.copy(this.scene.firstInGroup("teleports").position);
-        }
-        const delta = speed * Engine.delta;
-        if (Keyboard.check(Game.KEYS.LEFT))
-            this.physics.speed.x -= delta;
-        else if (Keyboard.check(Game.KEYS.RIGHT))
-            this.physics.speed.x += delta;
-        else
-            this.physics.friction(200, 0);
-        if (Keyboard.check(Game.KEYS.UP))
-            this.physics.speed.y -= delta;
-        else if (Keyboard.check(Game.KEYS.DOWN))
-            this.physics.speed.y += delta;
-        else
-            this.physics.friction(0, 200);
-        this.physics.circularMaxspeed(maxSpeed);
-        this.scene.camera.position.set(this.x, this.y - 5);
-        const xSign = Calc.sign(this.physics.speed.x);
-        if (xSign != 0)
-            this.sprite.scale.x = xSign;
-        this.sprite.play(this.physics.speed.length > 0 ? "run" : "idle");
-    }
-}
 class Collider extends Component {
     constructor() {
         super(...arguments);
@@ -1202,6 +659,312 @@ class Hitbox extends Collider {
         Engine.graphics.hollowRect(this.sceneLeft, this.sceneTop, this.width, this.height, 1, Color.red);
     }
 }
+class Rectsprite extends Component {
+    constructor(width, height, color) {
+        super();
+        this.size = new Vector(0, 0);
+        this.scale = new Vector(1, 1);
+        this.origin = new Vector(0, 0);
+        this.rotation = 0;
+        this.color = Color.white.clone();
+        this.alpha = 1;
+        this.size.x = width;
+        this.size.y = height;
+        this.color = color || Color.white;
+    }
+    get width() { return this.size.x; }
+    set width(val) { this.size.x = val; }
+    get height() { return this.size.y; }
+    set height(val) { this.size.y = val; }
+    render() {
+        if (Engine.graphics.shader.sampler2d != null) {
+            Engine.graphics.texture(Engine.graphics.pixel, this.scenePosition.x, this.scenePosition.y, null, Color.temp.copy(this.color).mult(this.alpha), Vector.temp0.copy(this.origin).div(this.size), Vector.temp1.copy(this.size).mult(this.scale), this.rotation);
+        }
+        else {
+            Engine.graphics.quad(this.scenePosition.x, this.scenePosition.y, this.size.x, this.size.y, Color.temp.copy(this.color).mult(this.alpha), this.origin, this.scale, this.rotation);
+        }
+    }
+}
+class Entity {
+    constructor(x, y) {
+        this.position = new Vector(0, 0);
+        this.visible = true;
+        this.active = true;
+        this.isCreated = false;
+        this.isStarted = false;
+        this.components = new ObjectList();
+        this.groups = [];
+        this._depth = 0;
+        if (x !== undefined)
+            this.x = x;
+        if (y !== undefined)
+            this.y = y;
+    }
+    get x() { return this.position.x; }
+    set x(val) { this.position.x = val; }
+    get y() { return this.position.y; }
+    set y(val) { this.position.y = val; }
+    get depth() {
+        return this._depth;
+    }
+    set depth(val) {
+        if (this.scene != null && this._depth != val) {
+            this._depth = val;
+            this.scene.entities.unsorted = true;
+            for (let i = 0; i < this.groups.length; i++)
+                this.scene.groups[this.groups[i]].unsorted = true;
+        }
+    }
+    created() {
+    }
+    added() {
+    }
+    started() {
+    }
+    removed() {
+    }
+    recycled() {
+    }
+    destroyed() {
+    }
+    update() {
+        this.components.each((c) => {
+            if (c.active)
+                c.update();
+        });
+    }
+    render(camera) {
+        this.components.each((c) => {
+            if (c.visible)
+                c.render(camera);
+        });
+    }
+    debugRender(camera) {
+        Engine.graphics.hollowRect(this.x - 5, this.y - 5, 10, 10, 1, Color.white);
+        this.components.each((c) => {
+            if (c.visible)
+                c.debugRender(camera);
+        });
+    }
+    add(component) {
+        this.components.add(component);
+        component.entity = this;
+        component.addedToEntity();
+        if (this.scene != null)
+            this.scene._trackComponent(component);
+        return component;
+    }
+    remove(component) {
+        this.components.remove(component);
+        component.removedFromEntity();
+        component.entity = null;
+        if (this.scene != null)
+            this.scene._untrackComponent(component);
+        return component;
+    }
+    removeAll() {
+        for (let i = this.components.count - 1; i >= 0; i--)
+            this.remove(this.components[i]);
+    }
+    find(className) {
+        let component = null;
+        this.components.each((c) => {
+            if (c instanceof className) {
+                component = c;
+                return false;
+            }
+        });
+        return component;
+    }
+    findAll(className) {
+        let list = [];
+        this.components.each((c) => {
+            if (c instanceof className)
+                list.push(c);
+        });
+        return list;
+    }
+    group(groupType) {
+        this.groups.push(groupType);
+        if (this.scene != null)
+            this.scene._groupEntity(this, groupType);
+    }
+    ungroup(groupType) {
+        let index = this.groups.indexOf(groupType);
+        if (index >= 0) {
+            this.groups.splice(index, 1);
+            if (this.scene != null)
+                this.scene._ungroupEntity(this, groupType);
+        }
+    }
+    ingroup(groupType) {
+        return (this.groups.indexOf(groupType) >= 0);
+    }
+}
+define("game/health", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Health extends Component {
+        constructor() {
+            super(...arguments);
+            this.health = 1;
+            this.invincibilityTime = 1;
+            this.lastHitTime = -1000;
+            this.onDamage = [];
+        }
+        get invincible() {
+            return Engine.elapsed - this.lastHitTime < this.invincibilityTime;
+        }
+        tryApplyDamage(source) {
+            if (!this.invincible) {
+                this.health -= source.amount;
+                this.lastHitTime = Engine.elapsed;
+                for (const cb of this.onDamage)
+                    cb(source);
+                return true;
+            }
+            return false;
+        }
+    }
+    exports.default = Health;
+});
+define("game/player", ["require", "exports", "game/game", "game/health"], function (require, exports, game_1, health_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class GraphicHitEffect extends Component {
+        addedToScene() {
+            super.addedToScene();
+            this.health = this.entity.find(health_1.default);
+            this.graphic = this.entity.find(Graphic);
+        }
+        update() {
+            let visibleThisFrame = true;
+            if (this.health.invincible)
+                visibleThisFrame = Engine.frameCount % 2 === 0;
+            this.graphic.visible = visibleThisFrame;
+        }
+    }
+    class KnockBack extends Component {
+        constructor() {
+            super(...arguments);
+            this.factor = 3.4;
+        }
+        addedToScene() {
+            this.health = this.entity.find(health_1.default);
+            this.physics = this.entity.find(Physics);
+            this.health.onDamage.push((damager) => {
+                let speed;
+                {
+                    const hitbox = damager.entity.find(Hitbox);
+                    if (hitbox) {
+                        const pt = Vector.temp0.set(hitbox.sceneLeft + hitbox.width / 2, hitbox.sceneTop + hitbox.height / 2);
+                        speed = Vector.temp1.copy(this.entity.position).sub(pt).normalize().mult(100).mult(this.factor);
+                    }
+                }
+                this.physics.speed.add(speed);
+            });
+        }
+    }
+    class Player extends Entity {
+        constructor() {
+            super();
+            this.add(this.physics = new Physics(-4, -8, 8, 8, [game_1.default.TAGS.PLAYER], [game_1.default.TAGS.SOLID]));
+            this.add(this.sprite = new Sprite("guy"));
+            this.add(new health_1.default());
+            this.add(new KnockBack());
+            this.add(new GraphicHitEffect());
+            this.sprite.play("idle");
+            this.sprite.origin.set(12, 24);
+            this.physics.onCollideX = () => { this.physics.speed.x = 0; };
+            this.physics.onCollideY = () => { this.physics.speed.y = 0; };
+        }
+        update() {
+            super.update();
+            const friction = 200;
+            let speed = 220;
+            let maxSpeed = 48;
+            if (Keyboard.check(game_1.default.KEYS.A)) {
+                speed *= 2;
+                maxSpeed *= 2;
+            }
+            if (Keyboard.pressed(game_1.default.KEYS.TELEPORT))
+                this.position.copy(this.scene.firstInGroup("teleports").position);
+            const delta = speed * Engine.delta;
+            const addedSpeed = Vector.temp0.set((Keyboard.check(game_1.default.KEYS.LEFT) ? -delta : 0) +
+                (Keyboard.check(game_1.default.KEYS.RIGHT) ? delta : 0), (Keyboard.check(game_1.default.KEYS.UP) ? -delta : 0) +
+                (Keyboard.check(game_1.default.KEYS.DOWN) ? delta : 0));
+            this.physics.speed.add(addedSpeed);
+            this.physics.friction(addedSpeed.x == 0 ? friction : 0, addedSpeed.y == 0 ? friction : 0);
+            this.physics.circularMaxspeed(maxSpeed);
+            this.scene.camera.position.set(this.x, this.y - 5);
+            const xSign = Calc.sign(this.physics.speed.x);
+            if (xSign != 0)
+                this.sprite.scale.x = xSign;
+            this.sprite.play(this.physics.speed.length > 0 ? "run" : "idle");
+        }
+    }
+    exports.default = Player;
+});
+define("game/door", ["require", "exports", "game/level", "game/game", "game/player"], function (require, exports, level_1, game_2, player_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Door extends Entity {
+        constructor(name, gotoScene, gotoDoor, spawnPlayer) {
+            super();
+            this.spawnPlayerTimer = 1;
+            this.playerOn = true;
+            this.isOpen = true;
+            this.closedEase = 1;
+            this.name = name;
+            this.gotoScene = gotoScene;
+            this.gotoDoor = gotoDoor;
+            this.spawnPlayer = spawnPlayer;
+            this.add(this.hitbbox = new Hitbox(-4, -8, 8, 8));
+        }
+        added() {
+            if (this.spawnPlayer)
+                this.scene.camera.position.set(this.x, this.y - 64);
+        }
+        update() {
+            if (this.spawnPlayer && this.spawnPlayerTimer > 0) {
+                this.spawnPlayerTimer -= Engine.delta * 1.25;
+                this.scene.camera.position.set(this.x, this.y - Ease.cubeIn(this.spawnPlayerTimer) * 64);
+                if (this.spawnPlayerTimer <= 0) {
+                    let player;
+                    this.scene.add(player = new player_1.default(), new Vector(this.x, this.y));
+                    player.physics.speed.y = 120;
+                    this.closedEase = 0;
+                }
+            }
+            else {
+                if (this.hitbbox.check(game_2.default.TAGS.PLAYER)) {
+                    if (this.gotoScene.length > 0 && !this.playerOn) {
+                        this.scene.remove(this.scene.find(player_1.default));
+                        this.playerOn = true;
+                        this.scene.doSlide(1, 0, () => { Engine.goto(new level_1.default(this.gotoScene, this.gotoDoor), false); });
+                    }
+                }
+                else {
+                    if (this.isOpen && this.gotoScene.length <= 0) {
+                        this.hitbbox.tag(game_2.default.TAGS.SOLID);
+                        this.isOpen = false;
+                    }
+                    this.playerOn = false;
+                    if (!this.isOpen)
+                        this.closedEase = Calc.approach(this.closedEase, 1, Engine.delta);
+                }
+            }
+        }
+        render() {
+            Engine.graphics.rect(this.x + -6, this.y - 13, 12, 13, game_2.default.COLORS[3]);
+            Engine.graphics.rect(this.x + -5, this.y - 12, 10, 12, game_2.default.COLORS[2]);
+            Engine.graphics.rect(this.x + -4, this.y - 11, 8, 11, game_2.default.COLORS[3]);
+            if (!this.isOpen)
+                Engine.graphics.rect(this.x + -3, this.y - 10, 6, 10 * this.closedEase, game_2.default.COLORS[2]);
+        }
+    }
+    exports.default = Door;
+});
 class Physics extends Hitbox {
     constructor(left, top, width, height, tags, solids) {
         super(left, top, width, height, tags);
@@ -1313,58 +1076,778 @@ class Physics extends Hitbox {
         this.remainder.x = this.remainder.y = 0;
     }
 }
-class Pushable extends Component {
-    constructor() {
-        super(...arguments);
-        this.pushCounter = new Vector();
-        this.threshold = 0.5;
+define("game/pushable", ["require", "exports", "game/game"], function (require, exports, game_3) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Pushable extends Component {
+        constructor() {
+            super(...arguments);
+            this.pushCounter = new Vector();
+            this.threshold = 0.5;
+        }
+        addedToEntity() {
+            const tags = [game_3.default.TAGS.SOLID];
+            const collidesWith = [game_3.default.TAGS.PLAYER];
+            this.entity.add(this.physics = new Physics(0, 0, 24, 24, tags, collidesWith));
+            this.entity.add(this.hitbox = new Hitbox(-1, -1, 26, 26, []));
+        }
+        play_sound() {
+            game_3.default.SOUNDS.slide_stone.play();
+        }
+        update() {
+            super.update();
+            const currentTween = this.entity.find(Tween);
+            if (currentTween)
+                return;
+            var player = this.hitbox.collide(game_3.default.TAGS.PLAYER, undefined, undefined);
+            if (!player) {
+                this.pushCounter.set(0, 0);
+                return;
+            }
+            const p = player.entity.find(Physics);
+            {
+                let xSign = Math.sign(p.speed.x);
+                let ySign = Math.sign(p.speed.y);
+                if (xSign != 0 && !this.physics.sceneBounds.overlapsVertically(p.sceneBounds))
+                    xSign = 0;
+                if (ySign != 0 && !this.physics.sceneBounds.overlapsHorizontally(p.sceneBounds))
+                    ySign = 0;
+                this.pushCounter.set(xSign == 0 ? 0 : (this.pushCounter.x + Engine.delta * xSign), ySign == 0 ? 0 : (this.pushCounter.y + Engine.delta * ySign));
+            }
+            const duration = .42;
+            const ease = Ease.sineInOut;
+            const tileSize = 24;
+            const start = this.scenePosition;
+            if (Math.abs(this.pushCounter.x) > this.threshold) {
+                const amount = Math.sign(this.pushCounter.x) * tileSize;
+                const withColliders = this.physics.collideAll(game_3.default.TAGS.SOLID, amount, 0);
+                if (!this.isBlocked(withColliders)) {
+                    this.play_sound();
+                    Tween.create(this.entity).start(duration, start.x, start.x + amount, ease, (n) => {
+                        this.physics.moveX(n - this.scenePosition.x);
+                    }, true).restart();
+                    this.pushCounter.x = 0;
+                }
+            }
+            if (Math.abs(this.pushCounter.y) > this.threshold) {
+                const amount = Math.sign(this.pushCounter.y) * tileSize;
+                const withColliders = this.physics.collideAll(game_3.default.TAGS.SOLID, 0, amount);
+                if (!this.isBlocked(withColliders)) {
+                    this.play_sound();
+                    Tween.create(this.entity).start(duration, start.y, start.y + amount, ease, (n) => {
+                        this.physics.moveY(n - this.scenePosition.y);
+                    }, true).restart();
+                    this.pushCounter.y = 0;
+                }
+            }
+        }
+        isBlocked(colliders) {
+            for (const c of colliders)
+                if (c.entity != this.entity)
+                    return true;
+            return false;
+        }
     }
-    addedToEntity() {
-        const tags = [Game.TAGS.SOLID];
-        const collidesWith = [Game.TAGS.PLAYER];
-        this.entity.add(this.physics = new Physics(0, 0, 24, 24, tags, collidesWith));
-        this.entity.add(this.hitbox = new Hitbox(-1, -1, 26, 26, []));
+    exports.default = Pushable;
+});
+define("game/level", ["require", "exports", "game/game", "game/door", "game/pushable", "game/causesdamage", "reflect-metadata"], function (require, exports, game_4, door_1, pushable_1, causesdamage_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    function createSpriteBanksForTileAnimations(tilesetInfo) {
+        let animations = {};
+        let animSpeeds = {};
+        for (const [localIdString, { anim_name, anim_frame, anim_speed }] of Object.entries(tilesetInfo.tileproperties)) {
+            if (anim_name && anim_frame !== undefined) {
+                const localId = parseInt(localIdString, 10);
+                console.assert(!isNaN(localId));
+                console.assert(typeof (anim_frame) === 'number');
+                if (animations[anim_name] === undefined)
+                    animations[anim_name] = { frames: new Array(), speed: 2.2 };
+                animations[anim_name].frames.splice(anim_frame, 0, tilesetInfo.tilemap.getTileSubtexture(localId));
+                if (anim_speed !== undefined)
+                    animations[anim_name].speed = anim_speed;
+            }
+        }
+        for (const [animName, { frames, speed }] of Object.entries(animations))
+            SpriteBank.create(animName)
+                .add("main", speed, frames, true);
+    }
+    class Emitter extends Component {
+        constructor({ prefab = "" }) {
+            super();
+            this.prefab = prefab;
+        }
+        emit() {
+            const { x, y } = this.scenePosition;
+            var e = new Entity(x, y);
+            this.scene.add(instantiatePrefab(this.prefab, e));
+        }
+    }
+    class MyComponent extends Component {
+        constructor() {
+            super(...arguments);
+            this.siblings = {};
+        }
+        addedToScene() {
+            for (const [name, ctor] of Object.entries(this.siblings)) {
+                this[name] = this.entity.find(ctor);
+            }
+        }
+    }
+    function logType(target, key) {
+        var t = Reflect.getMetadata("design:type", target, key);
+        console.log(`${key} type: ${t.name}`);
+    }
+    function logParamTypes(target, key) {
+        var types = Reflect.getMetadata("design:paramtypes", target, key);
+        var s = types.map((a) => a.name).join();
+        console.log(`${key} param types: ${s}`);
+    }
+    function logProperty(target, key) {
+        var _val = this[key];
+        var getter = function () {
+            console.log(`Get: ${key} => ${_val}`);
+            return _val;
+        };
+        var setter = function (newVal) {
+            console.log(`Set: ${key} => ${newVal}`);
+            _val = newVal;
+        };
+        if (delete this[key]) {
+            Object.defineProperty(target, key, {
+                get: getter,
+                set: setter,
+                enumerable: true,
+                configurable: true
+            });
+        }
+    }
+    class Mover extends MyComponent {
+        constructor(delta) {
+            super();
+            this.delta = delta;
+        }
+        addedToScene() {
+            this.siblings["physics"] = Physics;
+            super.addedToScene();
+            this.physics.speed.copy(this.delta);
+        }
+    }
+    __decorate([
+        logType,
+        __metadata("design:type", Physics)
+    ], Mover.prototype, "physics", void 0);
+    class Trigger extends Component {
+        constructor(onTrigger) {
+            super();
+            this.triggerEvery = 1;
+            this.lastTrigger = -1;
+            this.onTrigger = onTrigger;
+        }
+        addedToScene() {
+            super.addedToScene();
+            this.hitbox = this.entity.find(Hitbox);
+        }
+        update() {
+            super.update();
+            if (this.hitbox.check(game_4.default.TAGS.PLAYER)) {
+                const now = Engine.elapsed;
+                if (this.lastTrigger + this.triggerEvery < now) {
+                    this.lastTrigger = now;
+                    this.onTrigger(this);
+                }
+            }
+        }
+    }
+    class SpriteAutoPlay extends Component {
+        constructor(animationName) {
+            super();
+            this.animationName = animationName;
+        }
+        addedToScene() {
+            this.entity.find(Sprite).play(this.animationName);
+        }
+    }
+    const prefabs = {
+        fireball: {
+            sprite: () => new Sprite("fireball_red"),
+            spriteAutoPlay: () => new SpriteAutoPlay("main"),
+            physics: () => new Physics(6, 3, 12, 18),
+            causesDamage: () => new causesdamage_1.default(),
+            mover: () => new Mover(new Vector(-80, 0))
+        },
+        dragon: {
+            sightline: () => new Hitbox(-80, 4, 80, 8),
+            trigger: () => new Trigger((self) => self.entity.find(Emitter).emit()),
+            emitter: () => new Emitter({ prefab: "fireball" })
+        },
+        eyeballs: {
+            hitbox: () => new Hitbox(2, 2, 20, 20),
+            causesDamage: () => new causesdamage_1.default(),
+        }
+    };
+    function instantiatePrefab(prefabName, entity) {
+        const template = prefabs[prefabName];
+        if (!template)
+            throw "no prefab named " + prefabName;
+        for (var name in template) {
+            const componentTemplate = template[name];
+            if (Array.isArray(componentTemplate)) {
+                const ctor = componentTemplate[0];
+                const newComponent = new ctor(...componentTemplate.slice(1));
+                entity.add(newComponent);
+            }
+            else if (typeof (componentTemplate) === "function") {
+                const newComponent = componentTemplate();
+                entity.add(newComponent);
+            }
+        }
+        return entity;
+    }
+    class Wobble extends Component {
+        constructor(graphic) {
+            super();
+            this.intensity = .07;
+            this.frequency = 2.1;
+            this.graphic = graphic;
+        }
+        addedToScene() {
+            super.addedToScene();
+            this.startPos = this.graphic.position;
+        }
+        update() {
+            super.update();
+            this.graphic.y = this.startPos.y + Math.sin(Engine.elapsed * this.frequency) * this.intensity;
+        }
+    }
+    class Teleport extends Component {
+        constructor(name) {
+            super();
+            this.name = name;
+        }
+    }
+    class Level extends Scene {
+        constructor(scene, entrance) {
+            super();
+            this.slider = 0;
+            this.sliderTo = -1;
+            this.loaded = false;
+            this.scene = scene;
+            this.entrance = entrance;
+        }
+        loadTiled(dirName, jsonFile, terrain) {
+            const jsonPath = dirName + jsonFile;
+            const level = Assets.json[jsonPath];
+            if (!level)
+                throw "no level at " + jsonPath;
+            const tilesets = [];
+            function getNumber(obj, key) {
+                var val = obj[key];
+                var valType = typeof (val);
+                if (valType !== "number")
+                    throw `expected ${key} to be a number, got ${valType}`;
+                if (isNaN(val))
+                    throw `expected ${key} to be a number, got NaN`;
+                return val;
+            }
+            for (const tileset of level.tilesets) {
+                const firstGid = tileset.firstgid;
+                if (tileset.source !== undefined) {
+                    const assetName = dirName + tileset.source;
+                    var xmlTilesetInfo = Assets.xml[assetName];
+                    let tilesetEl = xmlTilesetInfo['documentElement'];
+                    function parseAndCheckInt(s) {
+                        let n = parseInt(s, 10);
+                        if (isNaN(n))
+                            throw `expected a number, got ${s}`;
+                        return n;
+                    }
+                    let getInt = (s) => parseAndCheckInt(tilesetEl.getAttribute(s));
+                    const columns = getInt("columns");
+                    const tilewidth = getInt("tilewidth");
+                    const tileheight = getInt("tileheight");
+                    const lastGid = firstGid + getInt("tilecount");
+                    let imagewidth = -1;
+                    let imageheight = -1;
+                    let transColor;
+                    let image;
+                    let tilesPerRow;
+                    let tileoffset = null;
+                    let tileproperties = {};
+                    for (let q = 0; q < tilesetEl.children.length; ++q) {
+                        const child = tilesetEl.children[q];
+                        switch (child.nodeName) {
+                            case "image":
+                                {
+                                    imagewidth = parseAndCheckInt(child.getAttribute("width"));
+                                    imageheight = parseAndCheckInt(child.getAttribute("height"));
+                                    transColor = child.getAttribute("trans");
+                                    image = child.getAttribute("source");
+                                    tilesPerRow = Math.floor(imagewidth / tilewidth);
+                                    break;
+                                }
+                            case "tileoffset":
+                                {
+                                    const x = parseAndCheckInt(child.getAttribute("x"));
+                                    const y = parseAndCheckInt(child.getAttribute("y"));
+                                    tileoffset = new Vector(x, y);
+                                    break;
+                                }
+                            case "tile":
+                                {
+                                    const gid = parseAndCheckInt(child.getAttribute("id"));
+                                    const type = child.getAttribute("type");
+                                    if (type)
+                                        tileproperties[gid] = { type };
+                                    for (let k = 0; k < child.children.length; ++k) {
+                                        const subChild = child.children[k];
+                                        switch (subChild.nodeName) {
+                                            case "properties":
+                                                {
+                                                    const props = tileproperties[gid] || (tileproperties[gid] = {});
+                                                    for (let p = 0; p < subChild.children.length; ++p) {
+                                                        const property = subChild.children[p];
+                                                        console.assert(property.nodeName === "property");
+                                                        const key = property.getAttribute("name");
+                                                        console.assert(typeof (key) === 'string');
+                                                        const val = property.getAttribute("value");
+                                                        const propType = property.getAttribute("type");
+                                                        switch (propType) {
+                                                            case "int":
+                                                                props[key] = parseInt(val, 10);
+                                                                console.assert(!isNaN(props[key]));
+                                                                break;
+                                                            case "float":
+                                                                props[key] = parseFloat(val);
+                                                                console.assert(!isNaN(props[key]));
+                                                                break;
+                                                            case "bool":
+                                                                props[key] = val.toString() === "true" ? true : false;
+                                                                break;
+                                                            case "string":
+                                                            default:
+                                                                props[key] = val.toString();
+                                                                break;
+                                                        }
+                                                    }
+                                                    break;
+                                                }
+                                            default:
+                                                throw `unknown <tile/> child ${subChild.nodeName}`;
+                                        }
+                                    }
+                                    break;
+                                }
+                            default:
+                                throw `unknown node name ${child.nodeName}`;
+                        }
+                    }
+                    const tilesetInfo = {
+                        firstGid, lastGid,
+                        tilewidth, tileheight,
+                        tilesPerRow,
+                        image,
+                        tileproperties,
+                        tilemap: null,
+                    };
+                    tilesets.push(tilesetInfo);
+                }
+                else {
+                    const lastGid = firstGid + getNumber(tileset, "tilecount");
+                    const tilesetInfo = {
+                        firstGid,
+                        lastGid,
+                        tilewidth: tileset.tilewidth,
+                        tileheight: tileset.tileheight,
+                        tilesPerRow: Math.floor(tileset.imagewidth / tileset.tilewidth),
+                        tileproperties: tileset.tileproperties,
+                        image: tileset.image,
+                        tilemap: null
+                    };
+                    tilesets.push(tilesetInfo);
+                }
+            }
+            for (const tilesetInfo of tilesets) {
+                const textureName = dirName + tilesetInfo.image;
+                const tex = Assets.textures[textureName];
+                console.assert(tex != null, `expected a texture at ${textureName}`);
+                console.assert(tilesetInfo.tilewidth > 1, tilesetInfo);
+                console.assert(tilesetInfo.tilewidth > 1, tilesetInfo);
+                const tilemap = new Tilemap(tex, tilesetInfo.tilewidth, tilesetInfo.tileheight);
+                console.assert(tilesetInfo.tilemap == null);
+                tilesetInfo.tilemap = tilemap;
+                terrain.add(tilemap);
+                createSpriteBanksForTileAnimations(tilesetInfo);
+            }
+            function findTileset(gid) {
+                for (const tileset of tilesets)
+                    if (gid >= tileset.firstGid && gid < tileset.lastGid)
+                        return tileset;
+            }
+            function getTileProps(gid) {
+                if (gid < 1)
+                    return null;
+                const tileset = findTileset(gid);
+                if (!tileset)
+                    return null;
+                const tilesetLocalId = gid - tileset.firstGid;
+                const props = tileset.tileproperties != null ? tileset.tileproperties[tilesetLocalId] : undefined;
+                if (!props)
+                    return null;
+                return props;
+            }
+            for (let i = 0; i < level.layers.length; i++) {
+                const layer = level.layers[i];
+                if (layer.name == "objects") {
+                    let mapX = 0;
+                    let mapY = 0;
+                    let first = true;
+                    for (const tile of layer.data) {
+                        if (!first) {
+                            if (++mapX >= layer.width) {
+                                mapX = 0;
+                                mapY++;
+                            }
+                        }
+                        else {
+                            first = false;
+                        }
+                        var props = getTileProps(tile);
+                        if (!props)
+                            continue;
+                        if (props.pushable) {
+                            let pushable;
+                            const tileset = findTileset(tile);
+                            this.add(pushable = new Entity(mapX * tileset.tilewidth, mapY * tileset.tileheight));
+                            pushable.depth = -10;
+                            pushable.add(new pushable_1.default());
+                            pushable.add(new Graphic(tileset.tilemap.getTileSubtexture(tile - tileset.firstGid)));
+                        }
+                    }
+                }
+                if (layer.name === "terrain" || layer.name === "shadows" || layer.name === "corners") {
+                    let tilemap = undefined;
+                    let mapX = 0;
+                    let mapY = 0;
+                    const tiles = layer.data;
+                    for (let j = 0; j < tiles.length; ++j) {
+                        const tile = tiles[j];
+                        if (tile !== 0) {
+                            const tilesetInfo = findTileset(tile);
+                            if (!tilesetInfo)
+                                throw `couldn't find a tilesetInfo for tile ${tile} at (${mapX}, ${mapY}) in layer ${layer.name}`;
+                            const tilemap = tilesetInfo.tilemap;
+                            const tileI = tile - tilesetInfo.firstGid;
+                            console.assert(tileI >= 0 && tile < tilesetInfo.lastGid);
+                            const tileY = Math.floor(tileI / tilesetInfo.tilesPerRow);
+                            const tileX = Math.floor(tileI % tilesetInfo.tilesPerRow);
+                            tilemap.set(tileX, tileY, mapX, mapY);
+                        }
+                        if (++mapX >= layer.width) {
+                            mapX = 0;
+                            mapY++;
+                        }
+                    }
+                }
+                else if (layer.name == "entities") {
+                    for (let j = 0; j < layer.objects.length; j++) {
+                        const entity = layer.objects[j];
+                        if (entity.type == "door") {
+                            const doorName = entity.name;
+                            const spawnPlayer = doorName == this.entrance;
+                            this.add(new door_1.default(doorName, entity.gotoScene || "", entity.gotoDoor || "", spawnPlayer), new Vector(parseInt(entity.x), parseInt(entity.y)));
+                        }
+                        else if (entity.type == "teleport") {
+                            const teleport = new Entity(entity.x, entity.y);
+                            teleport.add(new Teleport(entity.name));
+                            this.add(teleport);
+                            teleport.group("teleports");
+                        }
+                        else {
+                            const gid = entity.gid;
+                            if (typeof (gid) === "number" && gid >= 1) {
+                                const newEntity = new Entity(entity.x, entity.y);
+                                let type;
+                                var props = getTileProps(gid);
+                                const tileset = findTileset(gid);
+                                if (props && props.type)
+                                    type = props.type;
+                                newEntity.depth = -2000;
+                                let mainGraphic = null;
+                                let needsWobble = false;
+                                if (props && props.hasShadow) {
+                                    needsWobble = true;
+                                    function makeShadow(tileset) {
+                                        for (let localIdString in tileset.tileproperties) {
+                                            const localId = parseInt(localIdString, 10);
+                                            let props = tileset.tileproperties[localId];
+                                            if (typeof (props.shadow) === "number") {
+                                                const tex = tileset.tilemap.getTileSubtexture(localId);
+                                                return new Graphic(tex);
+                                            }
+                                        }
+                                        return null;
+                                    }
+                                    const shadow = makeShadow(tileset);
+                                    if (shadow) {
+                                        newEntity.add(shadow);
+                                    }
+                                }
+                                if (tileset)
+                                    newEntity.add(mainGraphic = new Graphic(tileset.tilemap.getTileSubtexture(gid - tileset.firstGid)));
+                                if (needsWobble)
+                                    newEntity.add(new Wobble(mainGraphic));
+                                if (type) {
+                                    instantiatePrefab(type, newEntity);
+                                }
+                                this.add(newEntity);
+                            }
+                        }
+                    }
+                }
+                else if (layer.name == "solids") {
+                    const solids = new Hitgrid(level.tilewidth, level.tileheight, [game_4.default.TAGS.SOLID]);
+                    terrain.add(solids);
+                    let mapX = 0, mapY = 0;
+                    for (let i = 0; i < layer.data.length; ++i) {
+                        if (layer.data[i] !== 0)
+                            solids.set(true, mapX, mapY);
+                        if (++mapX >= layer.width) {
+                            mapX = 0;
+                            mapY++;
+                        }
+                    }
+                }
+            }
+        }
+        loadOgmo(jsonPath, terrain) {
+            let level = Assets.json[jsonPath];
+            for (let i = 0; i < level.layers.length; i++) {
+                let layer = level.layers[i];
+                if (layer.name == "terrain") {
+                    let tilemap = new Tilemap(Assets.atlases["gfx"].get("tilemap"), 8, 8);
+                    terrain.add(tilemap);
+                    let rows = layer.data.split('\n');
+                    for (let y = 0; y < rows.length; y++) {
+                        let x = 0;
+                        let tiles = rows[y].split(',');
+                        for (let j = 0; j < tiles.length - 1; j++) {
+                            if (tiles[j] == "-1") {
+                                x++;
+                                continue;
+                            }
+                            let tx = tiles[j];
+                            let ty = tiles[j + 1];
+                            tilemap.set(parseInt(tx), parseInt(ty), x, y);
+                            x++;
+                            j++;
+                        }
+                    }
+                }
+                else if (layer.name == "solids") {
+                    let solids = new Hitgrid(8, 8, [game_4.default.TAGS.SOLID]);
+                    terrain.add(solids);
+                    let rows = layer.data.split('\n');
+                    for (let y = 0; y < rows.length; y++)
+                        for (let x = 0; x < rows[y].length; x++)
+                            if (rows[y][x] == '1')
+                                solids.set(true, x, y);
+                }
+                else if (layer.name == "bgclouds") {
+                    for (let j = 0; j < layer.entities.length; j++)
+                        this.add(new Clouds(layer.entities[j].index, 10), new Vector(layer.entities[j].x, layer.entities[j].y));
+                }
+                else if (layer.name == "fgclouds") {
+                    for (let j = 0; j < layer.entities.length; j++)
+                        this.add(new Clouds(layer.entities[j].index, -10), new Vector(layer.entities[j].x, layer.entities[j].y));
+                }
+                else if (layer.name == "entities") {
+                    for (let j = 0; j < layer.entities.length; j++) {
+                        let entity = layer.entities[j];
+                        if (entity.name == "door") {
+                            this.add(new door_1.default(entity.doorName, entity.gotoScene, entity.gotoDoor, entity.doorName == this.entrance), new Vector(parseInt(entity.x), parseInt(entity.y)));
+                        }
+                    }
+                }
+            }
+        }
+        begin() {
+            super.begin();
+            this.loaded = false;
+            const D = "fantasy/TMX/";
+            new AssetLoader("assets")
+                .addJson(D + "tiny.json")
+                .addJson(D + "fantasy.json")
+                .addJson(D + "puzzle.json")
+                .addXml(D + "oryx_creatures.tsx")
+                .addXml(D + "oryx_items.tsx")
+                .addXml(D + "oryx_world2.tsx")
+                .addTexture(D + "../oryx_world2.png", new Color(0, 0, 0, 1))
+                .addTexture(D + "../oryx_world.png", new Color(0, 0, 0, 1))
+                .addTexture(D + "../oryx_fx.png")
+                .addTexture(D + "../oryx_creatures.png", new Color(0, 0, 0, 1))
+                .addTexture(D + "../oryx_items.png")
+                .load(() => {
+                this.loaded = true;
+                this.afterLoad();
+            });
+            return;
+        }
+        afterLoad() {
+            this.camera.origin.set(Engine.width / 2, Engine.height / 2);
+            this.camera.position.set(Engine.width / 2, Engine.height / 2);
+            let terrain = this.add(new Entity());
+            terrain.depth = 1;
+            this.loadTiled("assets/fantasy/TMX/", "puzzle.json", terrain);
+        }
+        doSlide(from, to, onEnd) {
+            this.slider = from;
+            this.sliderTo = to;
+            this.sliderOnEnd = onEnd;
+        }
+        update() {
+            super.update();
+            if (Keyboard.pressed(game_4.default.KEYS.SELECT))
+                Engine.debugMode = !Engine.debugMode;
+            if (this.slider != this.sliderTo) {
+                this.slider = Calc.approach(this.slider, this.sliderTo, Engine.delta * 1.5);
+                if (this.slider == this.sliderTo && this.sliderOnEnd != undefined && this.sliderOnEnd != null)
+                    this.sliderOnEnd();
+            }
+            if (!this.loaded)
+                return;
+            if (this.dust)
+                this.dust.burst(this.camera.position.x - Engine.width, this.camera.position.y - Engine.height + Math.random() * Engine.height * 2, 0);
+        }
+        render() {
+            super.render();
+            if (this.slider > -1 || this.slider < 1) {
+                let color = game_4.default.COLORS[0];
+                let px = this.camera.position.x + Ease.cubeInOut(this.slider) * (Engine.width + 32);
+                let py = this.camera.position.y - Engine.height / 2;
+                let left = px - Engine.width / 2;
+                let right = px + Engine.width / 2;
+                Engine.graphics.setRenderTarget(Engine.graphics.buffer);
+                Engine.graphics.shader = Shaders.texture;
+                Engine.graphics.shader.set("matrix", this.camera.matrix);
+                Engine.graphics.rect(left - 1, py, Engine.width + 2, Engine.height, color);
+                Engine.graphics.triangle(new Vector(left, py), new Vector(left - 32, py + Engine.height), new Vector(left, py + Engine.height), color);
+                Engine.graphics.triangle(new Vector(right, py), new Vector(right + 32, py), new Vector(right, py + Engine.height), color);
+            }
+        }
+    }
+    exports.default = Level;
+});
+define("game/game", ["require", "exports", "game/level"], function (require, exports, level_2) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Game {
+        static start() {
+            const zoom = 1.2;
+            Engine.start("test", 160 * zoom, 144 * zoom, 5, () => { Game.load(); });
+        }
+        static load() {
+            Engine.graphics.clearColor = Game.COLORS[0].clone();
+            Keyboard.map(Game.KEYS.LEFT, [Key.left, Key.a, Key.j]);
+            Keyboard.map(Game.KEYS.RIGHT, [Key.right, Key.d, Key.l]);
+            Keyboard.map(Game.KEYS.UP, [Key.up, Key.w, Key.i]);
+            Keyboard.map(Game.KEYS.DOWN, [Key.down, Key.s, Key.k]);
+            Keyboard.map(Game.KEYS.A, [Key.z, Key.c]);
+            Keyboard.map(Game.KEYS.B, [Key.x, Key.v]);
+            Keyboard.map(Game.KEYS.START, [Key.enter]);
+            Keyboard.map(Game.KEYS.SELECT, [Key.shift]);
+            Keyboard.map(Game.KEYS.TELEPORT, [Key.t]);
+            let template = new ParticleTemplate("dust");
+            template.accelX(120, 40);
+            template.accelY(-20, 10);
+            template.colors([Game.COLORS[0]]);
+            template.duration(12);
+            template.scale(1, 0);
+            var assets = new AssetLoader("assets")
+                .addAtlas("gfx", "atlas.png", "atlas.json", AtlasReaders.Aseprite)
+                .addAtlas("sprites", "sprites/atlas.png", "sprites/atlas.json", AtlasReaders.Aseprite)
+                .addAtlas("guy_idle", "sprites/guy_idle.png", "sprites/guy_idle.json", AtlasReaders.DoodleStudio)
+                .addAtlas("guy_walk", "sprites/guy_walk.png", "sprites/guy_walk.json", AtlasReaders.DoodleStudio)
+                .addJson("scenes/bottom.json")
+                .addJson("scenes/bottom2.json")
+                .addSound("slide_stone", "sounds/168821__debsound__stone-door-004.wav")
+                .load(() => { Game.begin(); });
+        }
+        static begin() {
+            Engine.graphics.clearColor = Game.COLORS[3].clone();
+            Engine.graphics.pixel = Assets.atlases["gfx"].get("pixel");
+            SpriteBank.create("player")
+                .add("idle", 10, Assets.atlases['sprites'].find("player_idle"), true)
+                .add("run", 10, Assets.atlases['sprites'].find("player_run"), true);
+            SpriteBank.create("guy")
+                .add("idle", 6, Assets.atlases["guy_idle"].find("main"), true)
+                .add("run", 10, Assets.atlases["guy_walk"].find("main"), true);
+            Game.SOUNDS.slide_stone = new Sound("slide_stone");
+            Game.SOUNDS.slide_stone.volume = .2;
+            Engine.goto(new level_2.default("bottom", "start"), false);
+        }
+    }
+    Game.TAGS = {
+        PLAYER: "player",
+        SOLID: "solid"
+    };
+    Game.KEYS = {
+        LEFT: "left",
+        RIGHT: "right",
+        UP: "up",
+        DOWN: "down",
+        A: "a",
+        B: "b",
+        START: "start",
+        SELECT: "select",
+        TELEPORT: "teleport",
+    };
+    Game.SOUNDS = {};
+    Game.COLORS = [
+        new Color(155 / 255, 188 / 255, 15 / 255, 1),
+        new Color(139 / 255, 172 / 255, 15 / 255, 1),
+        new Color(48 / 255, 98 / 255, 48 / 255, 1),
+        new Color(15 / 255, 56 / 255, 15 / 255, 1)
+    ];
+    exports.default = Game;
+});
+define("game/causesdamage", ["require", "exports", "game/game", "game/health"], function (require, exports, game_5, health_2) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class CausesDamage extends Component {
+        constructor() {
+            super(...arguments);
+            this.amount = .1;
+        }
+        addedToScene() {
+            super.addedToScene();
+            this.hitbox = this.entity.find(Hitbox);
+        }
+        update() {
+            super.update();
+            for (let collider of this.hitbox.collideAll(game_5.default.TAGS.PLAYER)) {
+                var health = collider.entity.find(health_2.default);
+                if (health)
+                    health.tryApplyDamage(this);
+            }
+        }
+    }
+    exports.default = CausesDamage;
+});
+class Clouds extends Entity {
+    constructor(index, depth) {
+        super();
+        this.add(this.sprite = new Graphic(Assets.atlases["gfx"].get("clouds " + index)));
+        this.sprite.origin.set(this.sprite.width / 2, this.sprite.height / 2);
+        this.depth = depth;
+        this.timerY = Math.random() * Math.PI * 2;
+        this.timerX = Math.random() * Math.PI * 2;
     }
     update() {
-        super.update();
-        const currentTween = this.entity.find(Tween);
-        if (currentTween)
-            return;
-        var player = this.hitbox.collide(Game.TAGS.PLAYER, undefined, undefined);
-        if (!player) {
-            this.pushCounter.set(0, 0);
-            return;
-        }
-        const p = player.entity.find(Physics);
-        {
-            const xSign = Math.sign(p.speed.x);
-            const ySign = Math.sign(p.speed.y);
-            this.pushCounter.set(xSign == 0 ? 0 : (this.pushCounter.x + Engine.delta * xSign), ySign == 0 ? 0 : (this.pushCounter.y + Engine.delta * ySign));
-        }
-        const duration = .42;
-        const ease = (n) => n;
-        const tileSize = 24;
-        const start = this.scenePosition;
-        if (Math.abs(this.pushCounter.x) > this.threshold) {
-            const amount = Math.sign(this.pushCounter.x) * tileSize;
-            const withCollider = this.physics.collide(Game.TAGS.SOLID, amount, 0);
-            if (!withCollider || withCollider.entity == this.entity) {
-                Tween.create(this.entity).start(duration, start.x, start.x + amount, ease, (n) => {
-                    this.physics.moveX(n - this.scenePosition.x);
-                }, true).restart();
-                this.pushCounter.x = 0;
-            }
-        }
-        if (Math.abs(this.pushCounter.y) > this.threshold) {
-            const amount = Math.sign(this.pushCounter.y) * tileSize;
-            const withCollider = this.physics.collide(Game.TAGS.SOLID, 0, amount);
-            if (!withCollider || withCollider.entity == this.entity) {
-                Tween.create(this.entity).start(duration, start.y, start.y + amount, ease, (n) => {
-                    this.physics.moveY(n - this.scenePosition.y);
-                }, true).restart();
-                this.pushCounter.y = 0;
-            }
-        }
+        this.timerY += Engine.delta;
+        this.timerX += Engine.delta;
+        this.sprite.x = Math.sin(this.timerX * 2) * 4;
+        this.sprite.y = Math.sin(this.timerY) * 2;
     }
 }
 var ResolutionStyle;
@@ -2790,9 +3273,15 @@ class Vector {
         this.y -= v.y;
         return this;
     }
-    mult(v) {
-        this.x *= v.x;
-        this.y *= v.y;
+    mult(s) {
+        if (typeof s === "number") {
+            this.x *= s;
+            this.y *= s;
+        }
+        else {
+            this.x *= s.x;
+            this.y *= s.y;
+        }
         return this;
     }
     div(v) {
@@ -3155,32 +3644,6 @@ class Graphic extends Component {
         Engine.graphics.texture(this.texture, this.scenePosition.x, this.scenePosition.y, this.crop, Color.temp.copy(this.color).mult(this.alpha), this.origin, this.scale, this.rotation, this.flipX, this.flipY);
     }
 }
-class Rectsprite extends Component {
-    constructor(width, height, color) {
-        super();
-        this.size = new Vector(0, 0);
-        this.scale = new Vector(1, 1);
-        this.origin = new Vector(0, 0);
-        this.rotation = 0;
-        this.color = Color.white.clone();
-        this.alpha = 1;
-        this.size.x = width;
-        this.size.y = height;
-        this.color = color || Color.white;
-    }
-    get width() { return this.size.x; }
-    set width(val) { this.size.x = val; }
-    get height() { return this.size.y; }
-    set height(val) { this.size.y = val; }
-    render() {
-        if (Engine.graphics.shader.sampler2d != null) {
-            Engine.graphics.texture(Engine.graphics.pixel, this.scenePosition.x, this.scenePosition.y, null, Color.temp.copy(this.color).mult(this.alpha), Vector.temp0.copy(this.origin).div(this.size), Vector.temp1.copy(this.size).mult(this.scale), this.rotation);
-        }
-        else {
-            Engine.graphics.quad(this.scenePosition.x, this.scenePosition.y, this.size.x, this.size.y, Color.temp.copy(this.color).mult(this.alpha), this.origin, this.scale, this.rotation);
-        }
-    }
-}
 class Sprite extends Graphic {
     constructor(animation) {
         super(null);
@@ -3292,8 +3755,10 @@ class Tilemap extends Component {
         return null;
     }
     getTileSubtexture(tileIndex, sub) {
+        console.assert(tileIndex >= 0);
         const x = (Math.floor(tileIndex % this.tileColumns)) * this.tileWidth;
         const y = Math.floor(tileIndex / this.tileColumns) * this.tileHeight;
+        console.assert(x >= 0 && y >= 0);
         const rect = new Rectangle(x, y, this.tileWidth, this.tileHeight);
         return this.texture.getSubtexture(rect, sub);
     }
@@ -4074,6 +4539,14 @@ class Rectangle {
         this.width = w;
         this.height = h;
         return this;
+    }
+    overlapsVertically(rect) {
+        return (rect.top > this.top && rect.top < this.bottom) ||
+            (rect.bottom > this.top && rect.bottom < this.bottom);
+    }
+    overlapsHorizontally(rect) {
+        return (rect.left > this.left && rect.left < this.right) ||
+            (rect.right > this.left && rect.right < this.right);
     }
     cropRect(r) {
         if (r.x < this.x) {
