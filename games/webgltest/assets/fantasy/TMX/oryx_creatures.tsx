@@ -2,7 +2,11 @@
 <tileset name="oryx_creatures" tilewidth="24" tileheight="24" tilecount="486" columns="18">
  <tileoffset x="0" y="-4"/>
  <image source="../oryx_creatures.png" trans="000000" width="432" height="648"/>
- <tile id="324" type="dragon"/>
+ <tile id="324" type="dragon">
+  <properties>
+   <property name="hasShadow" type="bool" value="true"/>
+  </properties>
+ </tile>
  <tile id="369" type="eyeballs">
   <properties>
    <property name="anim_frame" type="int" value="0"/>

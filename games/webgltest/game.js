@@ -7,6 +7,387 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+class Entity {
+    constructor(x, y) {
+        this.position = new Vector(0, 0);
+        this.visible = true;
+        this.active = true;
+        this.isCreated = false;
+        this.isStarted = false;
+        this.components = new ObjectList();
+        this.groups = [];
+        this._depth = 0;
+        if (x !== undefined)
+            this.x = x;
+        if (y !== undefined)
+            this.y = y;
+    }
+    get x() { return this.position.x; }
+    set x(val) { this.position.x = val; }
+    get y() { return this.position.y; }
+    set y(val) { this.position.y = val; }
+    get depth() {
+        return this._depth;
+    }
+    set depth(val) {
+        if (this.scene != null && this._depth != val) {
+            this._depth = val;
+            this.scene.entities.unsorted = true;
+            for (let i = 0; i < this.groups.length; i++)
+                this.scene.groups[this.groups[i]].unsorted = true;
+        }
+    }
+    created() {
+    }
+    added() {
+    }
+    started() {
+    }
+    removed() {
+    }
+    recycled() {
+    }
+    destroyed() {
+    }
+    update() {
+        this.components.each((c) => {
+            if (c.active)
+                c.update();
+        });
+    }
+    render(camera) {
+        this.components.each((c) => {
+            if (c.visible)
+                c.render(camera);
+        });
+    }
+    debugRender(camera) {
+        Engine.graphics.hollowRect(this.x - 5, this.y - 5, 10, 10, 1, Color.white);
+        this.components.each((c) => {
+            if (c.visible)
+                c.debugRender(camera);
+        });
+    }
+    add(component) {
+        this.components.add(component);
+        component.entity = this;
+        component.addedToEntity();
+        if (this.scene != null)
+            this.scene._trackComponent(component);
+        return component;
+    }
+    remove(component) {
+        this.components.remove(component);
+        component.removedFromEntity();
+        component.entity = null;
+        if (this.scene != null)
+            this.scene._untrackComponent(component);
+        return component;
+    }
+    removeAll() {
+        for (let i = this.components.count - 1; i >= 0; i--)
+            this.remove(this.components[i]);
+    }
+    find(className) {
+        let component = null;
+        this.components.each((c) => {
+            if (c instanceof className) {
+                component = c;
+                return false;
+            }
+        });
+        return component;
+    }
+    findAll(className) {
+        let list = [];
+        this.components.each((c) => {
+            if (c instanceof className)
+                list.push(c);
+        });
+        return list;
+    }
+    group(groupType) {
+        this.groups.push(groupType);
+        if (this.scene != null)
+            this.scene._groupEntity(this, groupType);
+    }
+    ungroup(groupType) {
+        let index = this.groups.indexOf(groupType);
+        if (index >= 0) {
+            this.groups.splice(index, 1);
+            if (this.scene != null)
+                this.scene._ungroupEntity(this, groupType);
+        }
+    }
+    ingroup(groupType) {
+        return (this.groups.indexOf(groupType) >= 0);
+    }
+}
+class Clouds extends Entity {
+    constructor(index, depth) {
+        super();
+        this.add(this.sprite = new Graphic(Assets.atlases["gfx"].get("clouds " + index)));
+        this.sprite.origin.set(this.sprite.width / 2, this.sprite.height / 2);
+        this.depth = depth;
+        this.timerY = Math.random() * Math.PI * 2;
+        this.timerX = Math.random() * Math.PI * 2;
+    }
+    update() {
+        this.timerY += Engine.delta;
+        this.timerX += Engine.delta;
+        this.sprite.x = Math.sin(this.timerX * 2) * 4;
+        this.sprite.y = Math.sin(this.timerY) * 2;
+    }
+}
+class Scene {
+    constructor() {
+        this.camera = new Camera();
+        this.entities = new ObjectList();
+        this.renderers = new ObjectList();
+        this.groups = {};
+        this.colliders = {};
+        this.cache = {};
+        this.camera = new Camera();
+        this.addRenderer(new SpriteRenderer());
+    }
+    begin() {
+    }
+    ended() {
+    }
+    dispose() {
+        this.renderers.each((r) => r.dispose());
+        this.renderers.clear();
+        this.entities.each((e) => this.destroy(e));
+        this.entities.clear();
+        this.colliders = {};
+        this.groups = {};
+        this.cache = {};
+    }
+    update() {
+        this.entities.each((e) => {
+            if (!e.isStarted) {
+                e.isStarted = true;
+                e.started();
+            }
+            if (e.active && e.isStarted)
+                e.update();
+        });
+        this.renderers.each((r) => {
+            if (r.visible)
+                r.update();
+        });
+        this.entities.clean();
+        this.renderers.clean();
+        for (let key in this.groups)
+            this.groups[key].clean();
+    }
+    render() {
+        this.entities.sort((a, b) => b.depth - a.depth);
+        for (let key in this.groups)
+            this.groups[key].sort((a, b) => b.depth - a.depth);
+        this.renderers.each((r) => {
+            if (r.visible)
+                r.preRender();
+        });
+        this.renderers.each((r) => {
+            if (r.visible)
+                r.render();
+        });
+        this.renderers.each((r) => {
+            if (r.visible)
+                r.postRender();
+        });
+        if (Engine.debugMode) {
+            Engine.graphics.setRenderTarget(Engine.graphics.buffer);
+            Engine.graphics.shader = Shaders.primitive;
+            Engine.graphics.shader.set("matrix", this.camera.matrix);
+            this.entities.each((e) => {
+                if (e.active)
+                    e.debugRender(this.camera);
+            });
+        }
+    }
+    add(entity, position) {
+        entity.scene = this;
+        this.entities.add(entity);
+        if (position != undefined)
+            entity.position.set(position.x, position.y);
+        if (!entity.isCreated) {
+            entity.isCreated = true;
+            entity.created();
+        }
+        for (let i = 0; i < entity.groups.length; i++)
+            this._groupEntity(entity, entity.groups[i]);
+        entity.components.each((c) => this._trackComponent(c));
+        entity.added();
+        return entity;
+    }
+    recreate(bucket) {
+        if (Array.isArray(this.cache[bucket]) && this.cache[bucket].length > 0) {
+            var entity = this.cache[bucket][0];
+            this.cache[bucket].splice(0, 1);
+            return this.add(entity);
+        }
+        return null;
+    }
+    recycle(bucket, entity) {
+        this.remove(entity);
+        if (this.cache[bucket] == undefined)
+            this.cache[bucket] = [];
+        this.cache[bucket].push(entity);
+        entity.recycled();
+    }
+    remove(entity) {
+        entity.removed();
+        entity.components.each((c) => this._untrackComponent(c));
+        for (let i = 0; i < entity.groups.length; i++)
+            this._ungroupEntity(entity, entity.groups[i]);
+        entity.isStarted = false;
+        entity.scene = null;
+        this.entities.remove(entity);
+    }
+    removeAll() {
+        this.entities.each((e) => this.remove(e));
+    }
+    destroy(entity) {
+        if (entity.scene != null)
+            this.remove(entity);
+        entity.destroyed();
+        entity.isCreated = false;
+    }
+    find(className) {
+        let entity = null;
+        this.entities.each((e) => {
+            if (e instanceof className) {
+                entity = e;
+                return false;
+            }
+        });
+        return entity;
+    }
+    findEach(className, callback) {
+        this.entities.each((e) => {
+            if (e instanceof className)
+                return callback(e);
+        });
+    }
+    findAll(className) {
+        let list = [];
+        this.entities.each((e) => {
+            if (e instanceof className)
+                list.push(e);
+        });
+        return list;
+    }
+    firstInGroup(group) {
+        if (this.groups[group] != undefined && this.groups[group].count > 0)
+            return this.groups[group].first();
+        return null;
+    }
+    eachInGroup(group, callback) {
+        if (this.groups[group] != undefined)
+            this.groups[group].each(callback);
+    }
+    allInGroup(group) {
+        if (this.groups[group] != undefined)
+            return this.groups[group];
+        return null;
+    }
+    eachInGroups(groups, callback) {
+        let stop = false;
+        for (let i = 0; i < groups.length && !stop; i++) {
+            this.eachInGroup(groups[i], (e) => {
+                let result = callback(e);
+                if (result === false)
+                    stop = true;
+                return result;
+            });
+        }
+    }
+    allInGroups(groups, into = null) {
+        if (into == null || into == undefined)
+            into = new ObjectList();
+        for (let i = 0; i < groups.length; i++) {
+            let list = this.allInGroup(groups[i]);
+            if (list != null)
+                list.each((e) => into.add(e));
+        }
+        return into;
+    }
+    firstColliderInTag(tag) {
+        if (this.colliders[tag] != undefined && this.colliders[tag].length > 0)
+            return this.colliders[tag];
+        return null;
+    }
+    allCollidersInTag(tag) {
+        if (this.colliders[tag] != undefined)
+            return this.colliders[tag];
+        return [];
+    }
+    addRenderer(renderer) {
+        renderer.scene = this;
+        this.renderers.add(renderer);
+        return renderer;
+    }
+    removeRenderer(renderer, dispose) {
+        this.renderers.remove(renderer);
+        if (dispose)
+            renderer.dispose();
+        renderer.scene = null;
+        return renderer;
+    }
+    _groupEntity(entity, group) {
+        if (this.groups[group] == undefined)
+            this.groups[group] = new ObjectList();
+        this.groups[group].add(entity);
+    }
+    _ungroupEntity(entity, group) {
+        if (this.groups[group] != undefined)
+            this.groups[group].remove(entity);
+    }
+    _trackComponent(component) {
+        if (component.entity == null || component.entity.scene != this)
+            throw "Component must be added through an existing entity";
+        if (component instanceof Collider) {
+            for (let i = 0; i < component.tags.length; i++)
+                this._trackCollider(component, component.tags[i]);
+        }
+        component.scene = this;
+        component.addedToScene();
+    }
+    _untrackComponent(component) {
+        component.removedFromScene();
+        if (component instanceof Collider) {
+            for (let i = 0; i < component.tags.length; i++)
+                this._untrackCollider(component, component.tags[i]);
+        }
+        component.scene = null;
+    }
+    _trackCollider(collider, tag) {
+        if (this.colliders[tag] == undefined)
+            this.colliders[tag] = [];
+        this.colliders[tag].push(collider);
+    }
+    _untrackCollider(collider, tag) {
+        if (this.colliders[tag] != undefined) {
+            let index = this.colliders[tag].indexOf(collider);
+            if (index >= 0) {
+                this.colliders[tag].splice(index, 1);
+                if (this.colliders[tag].length <= 0)
+                    delete this.colliders[tag];
+            }
+        }
+    }
+}
+function _assign(val, newVal) {
+    if (val instanceof Vector)
+        val.copy(newVal);
+    else if (val instanceof Color)
+        val.copy(newVal);
+    else
+        return false;
+    return true;
+}
 class Component {
     constructor() {
         this._entity = null;
@@ -14,6 +395,19 @@ class Component {
         this.active = true;
         this.visible = true;
         this.position = new Vector(0, 0);
+    }
+    setPrefabValue(name, val) {
+        var currentVal = this[name];
+        if (this.prefabLink) {
+            console.assert(this.prefabLink.length === 2, "prefab needs to be [ctor, {args}]");
+            const [ctor, args] = this.prefabLink;
+            if (name in args) {
+                if (!_assign(args[name], val))
+                    args[name] = val;
+            }
+        }
+        if (!_assign(currentVal, val))
+            this[name] = val;
     }
     get entity() { return this._entity; }
     set entity(val) {
@@ -29,12 +423,162 @@ class Component {
         return new Vector((this._entity ? this._entity.x : 0) + this.position.x, (this._entity ? this._entity.y : 0) + this.position.y);
     }
     addedToEntity() { }
-    addedToScene() { }
+    static require(target, key) {
+        const type = Reflect.getMetadata("design:type", target, key);
+        if (!type)
+            throw `no design:type metadata found for key ${key.toString()} - is experimentalDecorators and emitDecoratorMetadata on in tsconfig.json?`;
+        (target.siblings || (target.siblings = {}))[key] = type;
+    }
+    addedToScene() {
+        if (this.siblings !== undefined)
+            for (const [name, ctor] of Object.entries(this.siblings))
+                this[name] = this.entity.find(ctor);
+    }
     removedFromEntity() { }
     removedFromScene() { }
     update() { }
     render(camera) { }
     debugRender(camera) { }
+}
+class Collider extends Component {
+    constructor() {
+        super(...arguments);
+        this.tags = [];
+    }
+    tag(tag) {
+        this.tags.push(tag);
+        if (this.entity != null && this.entity.scene != null)
+            this.entity.scene._trackCollider(this, tag);
+    }
+    untag(tag) {
+        let index = this.tags.indexOf(tag);
+        if (index >= 0) {
+            this.tags.splice(index, 1);
+            if (this.entity != null && this.entity.scene != null)
+                this.entity.scene._untrackCollider(this, tag);
+        }
+    }
+    check(tag, x, y) {
+        return this.collide(tag, x, y) != null;
+    }
+    checks(tags, x, y) {
+        for (let i = 0; i < tags.length; i++)
+            if (this.collide(tags[i], x, y) != null)
+                return true;
+        return false;
+    }
+    collide(tag, x, y) {
+        var result = null;
+        var against = this.entity.scene.allCollidersInTag(tag);
+        this.x += x || 0;
+        this.y += y || 0;
+        for (let i = 0; i < against.length; i++)
+            if (Collider.overlap(this, against[i])) {
+                result = against[i];
+                break;
+            }
+        this.x -= x || 0;
+        this.y -= y || 0;
+        return result;
+    }
+    collides(tags, x, y) {
+        for (let i = 0; i < tags.length; i++) {
+            let hit = this.collide(tags[i], x, y);
+            if (hit != null)
+                return hit;
+        }
+        return null;
+    }
+    collideAll(tag, x, y) {
+        var list = [];
+        var against = this.entity.scene.allCollidersInTag(tag);
+        this.x += x || 0;
+        this.y += y || 0;
+        for (let i = 0; i < against.length; i++)
+            if (Collider.overlap(this, against[i]))
+                list.push(against[i]);
+        this.x -= x || 0;
+        this.y -= y || 0;
+        return list;
+    }
+    static registerOverlapTest(fromType, toType, test) {
+        if (Collider.overlaptest[fromType.name] == undefined)
+            Collider.overlaptest[fromType.name] = {};
+        if (Collider.overlaptest[toType.name] == undefined)
+            Collider.overlaptest[toType.name] = {};
+        Collider.overlaptest[fromType.name][toType.name] = (a, b) => { return test(a, b); };
+        Collider.overlaptest[toType.name][fromType.name] = (a, b) => { return test(b, a); };
+    }
+    static registerDefaultOverlapTests() {
+        Collider.registerOverlapTest(Hitbox, Hitbox, Collider.overlap_hitbox_hitbox);
+        Collider.registerOverlapTest(Hitbox, Hitgrid, Collider.overlap_hitbox_grid);
+    }
+    static overlap(a, b) {
+        return Collider.overlaptest[a.type][b.type](a, b);
+    }
+    static overlap_hitbox_hitbox(a, b) {
+        return a.sceneRight > b.sceneLeft && a.sceneBottom > b.sceneTop && a.sceneLeft < b.sceneRight && a.sceneTop < b.sceneBottom;
+    }
+    static overlap_hitbox_grid(a, b) {
+        let gridPosition = b.scenePosition;
+        let left = Math.floor((a.sceneLeft - gridPosition.x) / b.tileWidth);
+        let top = Math.floor((a.sceneTop - gridPosition.y) / b.tileHeight);
+        let right = Math.ceil((a.sceneRight - gridPosition.x) / b.tileWidth);
+        let bottom = Math.ceil((a.sceneBottom - gridPosition.y) / b.tileHeight);
+        for (let x = left; x < right; x++)
+            for (let y = top; y < bottom; y++)
+                if (b.has(x, y))
+                    return true;
+        return false;
+    }
+}
+Collider.overlaptest = {};
+class Hitbox extends Collider {
+    get sceneLeft() { return this.scenePosition.x + this.left; }
+    get sceneRight() { return this.scenePosition.x + this.left + this.width; }
+    get sceneTop() { return this.scenePosition.y + this.top; }
+    get sceneBottom() { return this.scenePosition.y + this.top + this.height; }
+    get sceneBounds() { return new Rectangle(this.sceneLeft, this.sceneTop, this.width, this.height); }
+    constructor({ left, top, width, height, tags }) {
+        super();
+        this.type = Hitbox.name;
+        this.left = left;
+        this.top = top;
+        this.width = width;
+        this.height = height;
+        if (tags != undefined)
+            for (let i = 0; i < tags.length; i++)
+                this.tag(tags[i]);
+    }
+    debugRender() {
+        Engine.graphics.hollowRect(this.sceneLeft, this.sceneTop, this.width, this.height, 1, Color.red);
+    }
+}
+class Rectsprite extends Component {
+    constructor(width, height, color) {
+        super();
+        this.size = new Vector(0, 0);
+        this.scale = new Vector(1, 1);
+        this.origin = new Vector(0, 0);
+        this.rotation = 0;
+        this.color = Color.white.clone();
+        this.alpha = 1;
+        this.size.x = width;
+        this.size.y = height;
+        this.color = color || Color.white;
+    }
+    get width() { return this.size.x; }
+    set width(val) { this.size.x = val; }
+    get height() { return this.size.y; }
+    set height(val) { this.size.y = val; }
+    render() {
+        if (Engine.graphics.shader.sampler2d != null) {
+            Engine.graphics.texture(Engine.graphics.pixel, this.scenePosition.x, this.scenePosition.y, null, Color.temp.copy(this.color).mult(this.alpha), Vector.temp0.copy(this.origin).div(this.size), Vector.temp1.copy(this.size).mult(this.scale), this.rotation);
+        }
+        else {
+            Engine.graphics.quad(this.scenePosition.x, this.scenePosition.y, this.size.x, this.size.y, Color.temp.copy(this.color).mult(this.alpha), this.origin, this.scale, this.rotation);
+        }
+    }
 }
 class Color {
     constructor(r, g, b, a) {
@@ -305,503 +849,110 @@ Engine._muted = false;
 Engine.instance = null;
 Engine.started = false;
 Engine.exiting = false;
-class Scene {
-    constructor() {
-        this.camera = new Camera();
-        this.entities = new ObjectList();
-        this.renderers = new ObjectList();
-        this.groups = {};
-        this.colliders = {};
-        this.cache = {};
-        this.camera = new Camera();
-        this.addRenderer(new SpriteRenderer());
-    }
-    begin() {
-    }
-    ended() {
-    }
-    dispose() {
-        this.renderers.each((r) => r.dispose());
-        this.renderers.clear();
-        this.entities.each((e) => this.destroy(e));
-        this.entities.clear();
-        this.colliders = {};
-        this.groups = {};
-        this.cache = {};
-    }
-    update() {
-        this.entities.each((e) => {
-            if (!e.isStarted) {
-                e.isStarted = true;
-                e.started();
-            }
-            if (e.active && e.isStarted)
-                e.update();
-        });
-        this.renderers.each((r) => {
-            if (r.visible)
-                r.update();
-        });
-        this.entities.clean();
-        this.renderers.clean();
-        for (let key in this.groups)
-            this.groups[key].clean();
-    }
-    render() {
-        this.entities.sort((a, b) => b.depth - a.depth);
-        for (let key in this.groups)
-            this.groups[key].sort((a, b) => b.depth - a.depth);
-        this.renderers.each((r) => {
-            if (r.visible)
-                r.preRender();
-        });
-        this.renderers.each((r) => {
-            if (r.visible)
-                r.render();
-        });
-        this.renderers.each((r) => {
-            if (r.visible)
-                r.postRender();
-        });
-        if (Engine.debugMode) {
-            Engine.graphics.setRenderTarget(Engine.graphics.buffer);
-            Engine.graphics.shader = Shaders.primitive;
-            Engine.graphics.shader.set("matrix", this.camera.matrix);
-            this.entities.each((e) => {
-                if (e.active)
-                    e.debugRender(this.camera);
-            });
+define("game/game", ["require", "exports", "game/level"], function (require, exports, level_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Game {
+        static start() {
+            const zoom = 1.2;
+            Engine.start("test", 160 * zoom, 144 * zoom, 5, () => { Game.load(); });
+        }
+        static load() {
+            Engine.graphics.clearColor = Game.COLORS[0].clone();
+            Keyboard.map(Game.KEYS.LEFT, [Key.left, Key.a, Key.j]);
+            Keyboard.map(Game.KEYS.RIGHT, [Key.right, Key.d, Key.l]);
+            Keyboard.map(Game.KEYS.UP, [Key.up, Key.w, Key.i]);
+            Keyboard.map(Game.KEYS.DOWN, [Key.down, Key.s, Key.k]);
+            Keyboard.map(Game.KEYS.A, [Key.z, Key.c]);
+            Keyboard.map(Game.KEYS.B, [Key.x, Key.v]);
+            Keyboard.map(Game.KEYS.RESTART, [Key.r]);
+            Keyboard.map(Game.KEYS.START, [Key.enter]);
+            Keyboard.map(Game.KEYS.SELECT, [Key.shift]);
+            Keyboard.map(Game.KEYS.TELEPORT, [Key.t]);
+            let template = new ParticleTemplate("dust");
+            template.accelX(120, 40);
+            template.accelY(-20, 10);
+            template.colors([Game.COLORS[0]]);
+            template.duration(12);
+            template.scale(1, 0);
+            var assets = new AssetLoader("assets")
+                .addAtlas("gfx", "atlas.png", "atlas.json", AtlasReaders.Aseprite)
+                .addAtlas("sprites", "sprites/atlas.png", "sprites/atlas.json", AtlasReaders.Aseprite)
+                .addAtlas("guy_idle", "sprites/guy_idle.png", "sprites/guy_idle.json", AtlasReaders.DoodleStudio)
+                .addAtlas("guy_walk", "sprites/guy_walk.png", "sprites/guy_walk.json", AtlasReaders.DoodleStudio)
+                .addJson("scenes/bottom.json")
+                .addJson("scenes/bottom2.json")
+                .addSound("slide_stone", "sounds/168821__debsound__stone-door-004.wav")
+                .load(() => { Game.begin(); });
+        }
+        static debugText(s) {
+            if (typeof s === 'object')
+                s = JSON.stringify(s, null, 2);
+            document.getElementById("debug_console").innerText = s.toString();
+        }
+        static begin() {
+            Engine.graphics.clearColor = Game.COLORS[3].clone();
+            Engine.graphics.pixel = Assets.atlases["gfx"].get("pixel");
+            SpriteBank.create("player")
+                .add("idle", 10, Assets.atlases["sprites"].find("player_idle"), true)
+                .add("run", 10, Assets.atlases["sprites"].find("player_run"), true);
+            SpriteBank.create("guy")
+                .add("idle", 6, Assets.atlases["guy_idle"].find("main"), true)
+                .add("run", 10, Assets.atlases["guy_walk"].find("main"), true);
+            Game.SOUNDS.slide_stone = new Sound("slide_stone");
+            Game.SOUNDS.slide_stone.volume = .2;
+            Engine.goto(new level_1.default("bottom", "start"), false);
         }
     }
-    add(entity, position) {
-        entity.scene = this;
-        this.entities.add(entity);
-        if (position != undefined)
-            entity.position.set(position.x, position.y);
-        if (!entity.isCreated) {
-            entity.isCreated = true;
-            entity.created();
+    Game.TAGS = {
+        PLAYER: "player",
+        SOLID: "solid"
+    };
+    Game.KEYS = {
+        LEFT: "left",
+        RIGHT: "right",
+        UP: "up",
+        DOWN: "down",
+        A: "a",
+        B: "b",
+        START: "start",
+        SELECT: "select",
+        TELEPORT: "teleport",
+        RESTART: "restart"
+    };
+    Game.SOUNDS = {};
+    Game.COLORS = [
+        new Color(155 / 255, 188 / 255, 15 / 255, 1),
+        new Color(139 / 255, 172 / 255, 15 / 255, 1),
+        new Color(48 / 255, 98 / 255, 48 / 255, 1),
+        new Color(15 / 255, 56 / 255, 15 / 255, 1)
+    ];
+    exports.default = Game;
+});
+define("game/components/causesdamage", ["require", "exports", "game/game", "game/components/health"], function (require, exports, game_1, health_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class CausesDamage extends Component {
+        constructor() {
+            super(...arguments);
+            this.amount = .1;
         }
-        for (let i = 0; i < entity.groups.length; i++)
-            this._groupEntity(entity, entity.groups[i]);
-        entity.components.each((c) => this._trackComponent(c));
-        entity.added();
-        return entity;
-    }
-    recreate(bucket) {
-        if (Array.isArray(this.cache[bucket]) && this.cache[bucket].length > 0) {
-            var entity = this.cache[bucket][0];
-            this.cache[bucket].splice(0, 1);
-            return this.add(entity);
+        addedToScene() {
+            super.addedToScene();
+            this.hitbox = this.entity.find(Hitbox);
         }
-        return null;
-    }
-    recycle(bucket, entity) {
-        this.remove(entity);
-        if (this.cache[bucket] == undefined)
-            this.cache[bucket] = [];
-        this.cache[bucket].push(entity);
-        entity.recycled();
-    }
-    remove(entity) {
-        entity.removed();
-        entity.components.each((c) => this._untrackComponent(c));
-        for (let i = 0; i < entity.groups.length; i++)
-            this._ungroupEntity(entity, entity.groups[i]);
-        entity.isStarted = false;
-        entity.scene = null;
-        this.entities.remove(entity);
-    }
-    removeAll() {
-        this.entities.each((e) => this.remove(e));
-    }
-    destroy(entity) {
-        if (entity.scene != null)
-            this.remove(entity);
-        entity.destroyed();
-        entity.isCreated = false;
-    }
-    find(className) {
-        let entity = null;
-        this.entities.each((e) => {
-            if (e instanceof className) {
-                entity = e;
-                return false;
-            }
-        });
-        return entity;
-    }
-    findEach(className, callback) {
-        this.entities.each((e) => {
-            if (e instanceof className)
-                return callback(e);
-        });
-    }
-    findAll(className) {
-        let list = [];
-        this.entities.each((e) => {
-            if (e instanceof className)
-                list.push(e);
-        });
-        return list;
-    }
-    firstInGroup(group) {
-        if (this.groups[group] != undefined && this.groups[group].count > 0)
-            return this.groups[group].first();
-        return null;
-    }
-    eachInGroup(group, callback) {
-        if (this.groups[group] != undefined)
-            this.groups[group].each(callback);
-    }
-    allInGroup(group) {
-        if (this.groups[group] != undefined)
-            return this.groups[group];
-        return null;
-    }
-    eachInGroups(groups, callback) {
-        let stop = false;
-        for (let i = 0; i < groups.length && !stop; i++) {
-            this.eachInGroup(groups[i], (e) => {
-                let result = callback(e);
-                if (result === false)
-                    stop = true;
-                return result;
-            });
-        }
-    }
-    allInGroups(groups, into = null) {
-        if (into == null || into == undefined)
-            into = new ObjectList();
-        for (let i = 0; i < groups.length; i++) {
-            let list = this.allInGroup(groups[i]);
-            if (list != null)
-                list.each((e) => into.add(e));
-        }
-        return into;
-    }
-    firstColliderInTag(tag) {
-        if (this.colliders[tag] != undefined && this.colliders[tag].length > 0)
-            return this.colliders[tag];
-        return null;
-    }
-    allCollidersInTag(tag) {
-        if (this.colliders[tag] != undefined)
-            return this.colliders[tag];
-        return [];
-    }
-    addRenderer(renderer) {
-        renderer.scene = this;
-        this.renderers.add(renderer);
-        return renderer;
-    }
-    removeRenderer(renderer, dispose) {
-        this.renderers.remove(renderer);
-        if (dispose)
-            renderer.dispose();
-        renderer.scene = null;
-        return renderer;
-    }
-    _groupEntity(entity, group) {
-        if (this.groups[group] == undefined)
-            this.groups[group] = new ObjectList();
-        this.groups[group].add(entity);
-    }
-    _ungroupEntity(entity, group) {
-        if (this.groups[group] != undefined)
-            this.groups[group].remove(entity);
-    }
-    _trackComponent(component) {
-        if (component.entity == null || component.entity.scene != this)
-            throw "Component must be added through an existing entity";
-        if (component instanceof Collider) {
-            for (let i = 0; i < component.tags.length; i++)
-                this._trackCollider(component, component.tags[i]);
-        }
-        component.scene = this;
-        component.addedToScene();
-    }
-    _untrackComponent(component) {
-        component.removedFromScene();
-        if (component instanceof Collider) {
-            for (let i = 0; i < component.tags.length; i++)
-                this._untrackCollider(component, component.tags[i]);
-        }
-        component.scene = null;
-    }
-    _trackCollider(collider, tag) {
-        if (this.colliders[tag] == undefined)
-            this.colliders[tag] = [];
-        this.colliders[tag].push(collider);
-    }
-    _untrackCollider(collider, tag) {
-        if (this.colliders[tag] != undefined) {
-            let index = this.colliders[tag].indexOf(collider);
-            if (index >= 0) {
-                this.colliders[tag].splice(index, 1);
-                if (this.colliders[tag].length <= 0)
-                    delete this.colliders[tag];
+        update() {
+            super.update();
+            for (let collider of this.hitbox.collideAll(game_1.default.TAGS.PLAYER)) {
+                var health = collider.entity.find(health_1.Health);
+                if (health)
+                    health.tryApplyDamage(this);
             }
         }
     }
-}
-class Collider extends Component {
-    constructor() {
-        super(...arguments);
-        this.tags = [];
-    }
-    tag(tag) {
-        this.tags.push(tag);
-        if (this.entity != null && this.entity.scene != null)
-            this.entity.scene._trackCollider(this, tag);
-    }
-    untag(tag) {
-        let index = this.tags.indexOf(tag);
-        if (index >= 0) {
-            this.tags.splice(index, 1);
-            if (this.entity != null && this.entity.scene != null)
-                this.entity.scene._untrackCollider(this, tag);
-        }
-    }
-    check(tag, x, y) {
-        return this.collide(tag, x, y) != null;
-    }
-    checks(tags, x, y) {
-        for (let i = 0; i < tags.length; i++)
-            if (this.collide(tags[i], x, y) != null)
-                return true;
-        return false;
-    }
-    collide(tag, x, y) {
-        var result = null;
-        var against = this.entity.scene.allCollidersInTag(tag);
-        this.x += x || 0;
-        this.y += y || 0;
-        for (let i = 0; i < against.length; i++)
-            if (Collider.overlap(this, against[i])) {
-                result = against[i];
-                break;
-            }
-        this.x -= x || 0;
-        this.y -= y || 0;
-        return result;
-    }
-    collides(tags, x, y) {
-        for (let i = 0; i < tags.length; i++) {
-            let hit = this.collide(tags[i], x, y);
-            if (hit != null)
-                return hit;
-        }
-        return null;
-    }
-    collideAll(tag, x, y) {
-        var list = [];
-        var against = this.entity.scene.allCollidersInTag(tag);
-        this.x += x || 0;
-        this.y += y || 0;
-        for (let i = 0; i < against.length; i++)
-            if (Collider.overlap(this, against[i]))
-                list.push(against[i]);
-        this.x -= x || 0;
-        this.y -= y || 0;
-        return list;
-    }
-    static registerOverlapTest(fromType, toType, test) {
-        if (Collider.overlaptest[fromType.name] == undefined)
-            Collider.overlaptest[fromType.name] = {};
-        if (Collider.overlaptest[toType.name] == undefined)
-            Collider.overlaptest[toType.name] = {};
-        Collider.overlaptest[fromType.name][toType.name] = (a, b) => { return test(a, b); };
-        Collider.overlaptest[toType.name][fromType.name] = (a, b) => { return test(b, a); };
-    }
-    static registerDefaultOverlapTests() {
-        Collider.registerOverlapTest(Hitbox, Hitbox, Collider.overlap_hitbox_hitbox);
-        Collider.registerOverlapTest(Hitbox, Hitgrid, Collider.overlap_hitbox_grid);
-    }
-    static overlap(a, b) {
-        return Collider.overlaptest[a.type][b.type](a, b);
-    }
-    static overlap_hitbox_hitbox(a, b) {
-        return a.sceneRight > b.sceneLeft && a.sceneBottom > b.sceneTop && a.sceneLeft < b.sceneRight && a.sceneTop < b.sceneBottom;
-    }
-    static overlap_hitbox_grid(a, b) {
-        let gridPosition = b.scenePosition;
-        let left = Math.floor((a.sceneLeft - gridPosition.x) / b.tileWidth);
-        let top = Math.floor((a.sceneTop - gridPosition.y) / b.tileHeight);
-        let right = Math.ceil((a.sceneRight - gridPosition.x) / b.tileWidth);
-        let bottom = Math.ceil((a.sceneBottom - gridPosition.y) / b.tileHeight);
-        for (let x = left; x < right; x++)
-            for (let y = top; y < bottom; y++)
-                if (b.has(x, y))
-                    return true;
-        return false;
-    }
-}
-Collider.overlaptest = {};
-class Hitbox extends Collider {
-    get sceneLeft() { return this.scenePosition.x + this.left; }
-    get sceneRight() { return this.scenePosition.x + this.left + this.width; }
-    get sceneTop() { return this.scenePosition.y + this.top; }
-    get sceneBottom() { return this.scenePosition.y + this.top + this.height; }
-    get sceneBounds() { return new Rectangle(this.sceneLeft, this.sceneTop, this.width, this.height); }
-    constructor(left, top, width, height, tags) {
-        super();
-        this.type = Hitbox.name;
-        this.left = left;
-        this.top = top;
-        this.width = width;
-        this.height = height;
-        if (tags != undefined)
-            for (let i = 0; i < tags.length; i++)
-                this.tag(tags[i]);
-    }
-    debugRender() {
-        Engine.graphics.hollowRect(this.sceneLeft, this.sceneTop, this.width, this.height, 1, Color.red);
-    }
-}
-class Rectsprite extends Component {
-    constructor(width, height, color) {
-        super();
-        this.size = new Vector(0, 0);
-        this.scale = new Vector(1, 1);
-        this.origin = new Vector(0, 0);
-        this.rotation = 0;
-        this.color = Color.white.clone();
-        this.alpha = 1;
-        this.size.x = width;
-        this.size.y = height;
-        this.color = color || Color.white;
-    }
-    get width() { return this.size.x; }
-    set width(val) { this.size.x = val; }
-    get height() { return this.size.y; }
-    set height(val) { this.size.y = val; }
-    render() {
-        if (Engine.graphics.shader.sampler2d != null) {
-            Engine.graphics.texture(Engine.graphics.pixel, this.scenePosition.x, this.scenePosition.y, null, Color.temp.copy(this.color).mult(this.alpha), Vector.temp0.copy(this.origin).div(this.size), Vector.temp1.copy(this.size).mult(this.scale), this.rotation);
-        }
-        else {
-            Engine.graphics.quad(this.scenePosition.x, this.scenePosition.y, this.size.x, this.size.y, Color.temp.copy(this.color).mult(this.alpha), this.origin, this.scale, this.rotation);
-        }
-    }
-}
-class Entity {
-    constructor(x, y) {
-        this.position = new Vector(0, 0);
-        this.visible = true;
-        this.active = true;
-        this.isCreated = false;
-        this.isStarted = false;
-        this.components = new ObjectList();
-        this.groups = [];
-        this._depth = 0;
-        if (x !== undefined)
-            this.x = x;
-        if (y !== undefined)
-            this.y = y;
-    }
-    get x() { return this.position.x; }
-    set x(val) { this.position.x = val; }
-    get y() { return this.position.y; }
-    set y(val) { this.position.y = val; }
-    get depth() {
-        return this._depth;
-    }
-    set depth(val) {
-        if (this.scene != null && this._depth != val) {
-            this._depth = val;
-            this.scene.entities.unsorted = true;
-            for (let i = 0; i < this.groups.length; i++)
-                this.scene.groups[this.groups[i]].unsorted = true;
-        }
-    }
-    created() {
-    }
-    added() {
-    }
-    started() {
-    }
-    removed() {
-    }
-    recycled() {
-    }
-    destroyed() {
-    }
-    update() {
-        this.components.each((c) => {
-            if (c.active)
-                c.update();
-        });
-    }
-    render(camera) {
-        this.components.each((c) => {
-            if (c.visible)
-                c.render(camera);
-        });
-    }
-    debugRender(camera) {
-        Engine.graphics.hollowRect(this.x - 5, this.y - 5, 10, 10, 1, Color.white);
-        this.components.each((c) => {
-            if (c.visible)
-                c.debugRender(camera);
-        });
-    }
-    add(component) {
-        this.components.add(component);
-        component.entity = this;
-        component.addedToEntity();
-        if (this.scene != null)
-            this.scene._trackComponent(component);
-        return component;
-    }
-    remove(component) {
-        this.components.remove(component);
-        component.removedFromEntity();
-        component.entity = null;
-        if (this.scene != null)
-            this.scene._untrackComponent(component);
-        return component;
-    }
-    removeAll() {
-        for (let i = this.components.count - 1; i >= 0; i--)
-            this.remove(this.components[i]);
-    }
-    find(className) {
-        let component = null;
-        this.components.each((c) => {
-            if (c instanceof className) {
-                component = c;
-                return false;
-            }
-        });
-        return component;
-    }
-    findAll(className) {
-        let list = [];
-        this.components.each((c) => {
-            if (c instanceof className)
-                list.push(c);
-        });
-        return list;
-    }
-    group(groupType) {
-        this.groups.push(groupType);
-        if (this.scene != null)
-            this.scene._groupEntity(this, groupType);
-    }
-    ungroup(groupType) {
-        let index = this.groups.indexOf(groupType);
-        if (index >= 0) {
-            this.groups.splice(index, 1);
-            if (this.scene != null)
-                this.scene._ungroupEntity(this, groupType);
-        }
-    }
-    ingroup(groupType) {
-        return (this.groups.indexOf(groupType) >= 0);
-    }
-}
-define("game/health", ["require", "exports"], function (require, exports) {
+    exports.CausesDamage = CausesDamage;
+});
+define("game/components/health", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Health extends Component {
@@ -826,148 +977,11 @@ define("game/health", ["require", "exports"], function (require, exports) {
             return false;
         }
     }
-    exports.default = Health;
-});
-define("game/player", ["require", "exports", "game/game", "game/health"], function (require, exports, game_1, health_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class GraphicHitEffect extends Component {
-        addedToScene() {
-            super.addedToScene();
-            this.health = this.entity.find(health_1.default);
-            this.graphic = this.entity.find(Graphic);
-        }
-        update() {
-            let visibleThisFrame = true;
-            if (this.health.invincible)
-                visibleThisFrame = Engine.frameCount % 2 === 0;
-            this.graphic.visible = visibleThisFrame;
-        }
-    }
-    class KnockBack extends Component {
-        constructor() {
-            super(...arguments);
-            this.factor = 3.4;
-        }
-        addedToScene() {
-            this.health = this.entity.find(health_1.default);
-            this.physics = this.entity.find(Physics);
-            this.health.onDamage.push((damager) => {
-                let speed;
-                {
-                    const hitbox = damager.entity.find(Hitbox);
-                    if (hitbox) {
-                        const pt = Vector.temp0.set(hitbox.sceneLeft + hitbox.width / 2, hitbox.sceneTop + hitbox.height / 2);
-                        speed = Vector.temp1.copy(this.entity.position).sub(pt).normalize().mult(100).mult(this.factor);
-                    }
-                }
-                this.physics.speed.add(speed);
-            });
-        }
-    }
-    class Player extends Entity {
-        constructor() {
-            super();
-            this.add(this.physics = new Physics(-4, -8, 8, 8, [game_1.default.TAGS.PLAYER], [game_1.default.TAGS.SOLID]));
-            this.add(this.sprite = new Sprite("guy"));
-            this.add(new health_1.default());
-            this.add(new KnockBack());
-            this.add(new GraphicHitEffect());
-            this.sprite.play("idle");
-            this.sprite.origin.set(12, 24);
-            this.physics.onCollideX = () => { this.physics.speed.x = 0; };
-            this.physics.onCollideY = () => { this.physics.speed.y = 0; };
-        }
-        update() {
-            super.update();
-            const friction = 200;
-            let speed = 220;
-            let maxSpeed = 48;
-            if (Keyboard.check(game_1.default.KEYS.A)) {
-                speed *= 2;
-                maxSpeed *= 2;
-            }
-            if (Keyboard.pressed(game_1.default.KEYS.TELEPORT))
-                this.position.copy(this.scene.firstInGroup("teleports").position);
-            const delta = speed * Engine.delta;
-            const addedSpeed = Vector.temp0.set((Keyboard.check(game_1.default.KEYS.LEFT) ? -delta : 0) +
-                (Keyboard.check(game_1.default.KEYS.RIGHT) ? delta : 0), (Keyboard.check(game_1.default.KEYS.UP) ? -delta : 0) +
-                (Keyboard.check(game_1.default.KEYS.DOWN) ? delta : 0));
-            this.physics.speed.add(addedSpeed);
-            this.physics.friction(addedSpeed.x == 0 ? friction : 0, addedSpeed.y == 0 ? friction : 0);
-            this.physics.circularMaxspeed(maxSpeed);
-            this.scene.camera.position.set(this.x, this.y - 5);
-            const xSign = Calc.sign(this.physics.speed.x);
-            if (xSign != 0)
-                this.sprite.scale.x = xSign;
-            this.sprite.play(this.physics.speed.length > 0 ? "run" : "idle");
-        }
-    }
-    exports.default = Player;
-});
-define("game/door", ["require", "exports", "game/level", "game/game", "game/player"], function (require, exports, level_1, game_2, player_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class Door extends Entity {
-        constructor(name, gotoScene, gotoDoor, spawnPlayer) {
-            super();
-            this.spawnPlayerTimer = 1;
-            this.playerOn = true;
-            this.isOpen = true;
-            this.closedEase = 1;
-            this.name = name;
-            this.gotoScene = gotoScene;
-            this.gotoDoor = gotoDoor;
-            this.spawnPlayer = spawnPlayer;
-            this.add(this.hitbbox = new Hitbox(-4, -8, 8, 8));
-        }
-        added() {
-            if (this.spawnPlayer)
-                this.scene.camera.position.set(this.x, this.y - 64);
-        }
-        update() {
-            if (this.spawnPlayer && this.spawnPlayerTimer > 0) {
-                this.spawnPlayerTimer -= Engine.delta * 1.25;
-                this.scene.camera.position.set(this.x, this.y - Ease.cubeIn(this.spawnPlayerTimer) * 64);
-                if (this.spawnPlayerTimer <= 0) {
-                    let player;
-                    this.scene.add(player = new player_1.default(), new Vector(this.x, this.y));
-                    player.physics.speed.y = 120;
-                    this.closedEase = 0;
-                }
-            }
-            else {
-                if (this.hitbbox.check(game_2.default.TAGS.PLAYER)) {
-                    if (this.gotoScene.length > 0 && !this.playerOn) {
-                        this.scene.remove(this.scene.find(player_1.default));
-                        this.playerOn = true;
-                        this.scene.doSlide(1, 0, () => { Engine.goto(new level_1.default(this.gotoScene, this.gotoDoor), false); });
-                    }
-                }
-                else {
-                    if (this.isOpen && this.gotoScene.length <= 0) {
-                        this.hitbbox.tag(game_2.default.TAGS.SOLID);
-                        this.isOpen = false;
-                    }
-                    this.playerOn = false;
-                    if (!this.isOpen)
-                        this.closedEase = Calc.approach(this.closedEase, 1, Engine.delta);
-                }
-            }
-        }
-        render() {
-            Engine.graphics.rect(this.x + -6, this.y - 13, 12, 13, game_2.default.COLORS[3]);
-            Engine.graphics.rect(this.x + -5, this.y - 12, 10, 12, game_2.default.COLORS[2]);
-            Engine.graphics.rect(this.x + -4, this.y - 11, 8, 11, game_2.default.COLORS[3]);
-            if (!this.isOpen)
-                Engine.graphics.rect(this.x + -3, this.y - 10, 6, 10 * this.closedEase, game_2.default.COLORS[2]);
-        }
-    }
-    exports.default = Door;
+    exports.Health = Health;
 });
 class Physics extends Hitbox {
-    constructor(left, top, width, height, tags, solids) {
-        super(left, top, width, height, tags);
+    constructor({ left, top, width, height, tags, solids }) {
+        super({ left, top, width, height, tags });
         this.solids = [];
         this.speed = new Vector(0, 0);
         this.remainder = new Vector(0, 0);
@@ -1076,7 +1090,7 @@ class Physics extends Hitbox {
         this.remainder.x = this.remainder.y = 0;
     }
 }
-define("game/pushable", ["require", "exports", "game/game"], function (require, exports, game_3) {
+define("game/components/pushable", ["require", "exports", "game/game"], function (require, exports, game_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Pushable extends Component {
@@ -1086,20 +1100,20 @@ define("game/pushable", ["require", "exports", "game/game"], function (require, 
             this.threshold = 0.5;
         }
         addedToEntity() {
-            const tags = [game_3.default.TAGS.SOLID];
-            const collidesWith = [game_3.default.TAGS.PLAYER];
-            this.entity.add(this.physics = new Physics(0, 0, 24, 24, tags, collidesWith));
-            this.entity.add(this.hitbox = new Hitbox(-1, -1, 26, 26, []));
+            const tags = [game_2.default.TAGS.SOLID];
+            const collidesWith = [game_2.default.TAGS.PLAYER];
+            this.entity.add(this.physics = new Physics({ left: 0, top: 0, width: 24, height: 24, tags: tags, solids: collidesWith }));
+            this.entity.add(this.hitbox = new Hitbox({ left: -1, top: -1, width: 26, height: 26, tags: [] }));
         }
         play_sound() {
-            game_3.default.SOUNDS.slide_stone.play();
+            game_2.default.SOUNDS.slide_stone.play();
         }
         update() {
             super.update();
             const currentTween = this.entity.find(Tween);
             if (currentTween)
                 return;
-            var player = this.hitbox.collide(game_3.default.TAGS.PLAYER, undefined, undefined);
+            var player = this.hitbox.collide(game_2.default.TAGS.PLAYER, undefined, undefined);
             if (!player) {
                 this.pushCounter.set(0, 0);
                 return;
@@ -1120,7 +1134,7 @@ define("game/pushable", ["require", "exports", "game/game"], function (require, 
             const start = this.scenePosition;
             if (Math.abs(this.pushCounter.x) > this.threshold) {
                 const amount = Math.sign(this.pushCounter.x) * tileSize;
-                const withColliders = this.physics.collideAll(game_3.default.TAGS.SOLID, amount, 0);
+                const withColliders = this.physics.collideAll(game_2.default.TAGS.SOLID, amount, 0);
                 if (!this.isBlocked(withColliders)) {
                     this.play_sound();
                     Tween.create(this.entity).start(duration, start.x, start.x + amount, ease, (n) => {
@@ -1131,7 +1145,7 @@ define("game/pushable", ["require", "exports", "game/game"], function (require, 
             }
             if (Math.abs(this.pushCounter.y) > this.threshold) {
                 const amount = Math.sign(this.pushCounter.y) * tileSize;
-                const withColliders = this.physics.collideAll(game_3.default.TAGS.SOLID, 0, amount);
+                const withColliders = this.physics.collideAll(game_2.default.TAGS.SOLID, 0, amount);
                 if (!this.isBlocked(withColliders)) {
                     this.play_sound();
                     Tween.create(this.entity).start(duration, start.y, start.y + amount, ease, (n) => {
@@ -1148,9 +1162,143 @@ define("game/pushable", ["require", "exports", "game/game"], function (require, 
             return false;
         }
     }
-    exports.default = Pushable;
+    exports.Pushable = Pushable;
 });
-define("game/level", ["require", "exports", "game/game", "game/door", "game/pushable", "game/causesdamage", "reflect-metadata"], function (require, exports, game_4, door_1, pushable_1, causesdamage_1) {
+define("game/components/trigger", ["require", "exports", "game/game"], function (require, exports, game_3) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Trigger extends Component {
+        constructor(onTrigger) {
+            super();
+            this.triggerEvery = 1;
+            this.lastTrigger = -1;
+            this.onTrigger = onTrigger;
+        }
+        addedToScene() {
+            super.addedToScene();
+            this.hitbox = this.entity.find(Hitbox);
+        }
+        update() {
+            super.update();
+            if (this.hitbox.check(game_3.default.TAGS.PLAYER)) {
+                const now = Engine.elapsed;
+                if (this.lastTrigger + this.triggerEvery < now) {
+                    this.lastTrigger = now;
+                    this.onTrigger(this);
+                }
+            }
+        }
+    }
+    exports.Trigger = Trigger;
+});
+define("game/components/mover", ["require", "exports", "reflect-metadata"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Mover extends Component {
+        constructor(delta) {
+            super();
+            this.delta = delta;
+        }
+        addedToScene() {
+            super.addedToScene();
+            this.physics.speed.copy(this.delta);
+        }
+    }
+    __decorate([
+        Component.require,
+        __metadata("design:type", Physics)
+    ], Mover.prototype, "physics", void 0);
+    exports.Mover = Mover;
+});
+define("game/prefabs", ["require", "exports", "game/components/index"], function (require, exports, index_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    function instantiatePrefab(prefabName, entity) {
+        const template = prefabs[prefabName];
+        if (!template)
+            throw "no prefab named " + prefabName;
+        for (const [name, componentTemplate] of Object.entries(template)) {
+            let newComponent;
+            if (Array.isArray(componentTemplate)) {
+                console.assert(componentTemplate.length === 2 || componentTemplate.length === 1);
+                console.assert(typeof componentTemplate[0] === 'function');
+                const [ctor, args] = componentTemplate;
+                newComponent = new ctor(args);
+            }
+            else if (typeof (componentTemplate) === "function") {
+                newComponent = componentTemplate();
+                console.assert(newComponent instanceof Component, "expected prefab func to return a component");
+            }
+            newComponent.prefabLink = componentTemplate;
+            entity.add(newComponent);
+        }
+        return entity;
+    }
+    exports.instantiatePrefab = instantiatePrefab;
+    const prefabs = {
+        fireball: {
+            sprite: [Sprite, { animation: "fireball_red" }],
+            spriteAutoPlay: () => new index_1.SpriteAutoPlay("main"),
+            physics: [Physics, { left: 6, top: 3, width: 12, height: 18 }],
+            causesDamage: () => new index_1.CausesDamage(),
+            mover: () => new index_1.Mover(new Vector(-80, 0))
+        },
+        dragon: {
+            sightline: [Hitbox, { left: -80, top: 4, width: 80, height: 8 }],
+            trigger: () => new index_1.Trigger((self) => self.entity.find(index_1.Emitter).emit()),
+            emitter: () => new index_1.Emitter({ prefab: "fireball" }),
+        },
+        eyeballs: {
+            hitbox: [Hitbox, { left: 2, top: 2, width: 20, height: 20 }],
+            causesDamage: () => new index_1.CausesDamage()
+        }
+    };
+    exports.default = prefabs;
+});
+define("game/components/emitter", ["require", "exports", "game/prefabs"], function (require, exports, prefabs_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Emitter extends Component {
+        constructor({ prefab = "" }) {
+            super();
+            this.prefab = prefab;
+        }
+        emit() {
+            const { x, y } = this.scenePosition;
+            this.scene.add(prefabs_1.instantiatePrefab(this.prefab, new Entity(x, y)));
+        }
+    }
+    exports.Emitter = Emitter;
+});
+define("game/components/spriteautoplay", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class SpriteAutoPlay extends Component {
+        constructor(animationName) {
+            super();
+            this.animationName = animationName;
+        }
+        addedToScene() {
+            this.entity.find(Sprite).play(this.animationName);
+        }
+    }
+    exports.SpriteAutoPlay = SpriteAutoPlay;
+});
+define("game/components/index", ["require", "exports", "game/components/health", "game/components/pushable", "game/components/causesdamage", "game/components/trigger", "game/components/mover", "game/components/emitter", "game/components/spriteautoplay"], function (require, exports, health_2, pushable_1, causesdamage_1, trigger_1, mover_1, emitter_1, spriteautoplay_1) {
+    "use strict";
+    function __export(m) {
+        for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+    }
+    Object.defineProperty(exports, "__esModule", { value: true });
+    __export(health_2);
+    __export(pushable_1);
+    __export(causesdamage_1);
+    __export(trigger_1);
+    __export(mover_1);
+    __export(emitter_1);
+    __export(spriteautoplay_1);
+});
+define("game/level", ["require", "exports", "game/game", "game/door", "game/components/index", "game/prefabs"], function (require, exports, game_4, door_1, index_2, prefabs_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     function createSpriteBanksForTileAnimations(tilesetInfo) {
@@ -1171,32 +1319,6 @@ define("game/level", ["require", "exports", "game/game", "game/door", "game/push
         for (const [animName, { frames, speed }] of Object.entries(animations))
             SpriteBank.create(animName)
                 .add("main", speed, frames, true);
-    }
-    class Emitter extends Component {
-        constructor({ prefab = "" }) {
-            super();
-            this.prefab = prefab;
-        }
-        emit() {
-            const { x, y } = this.scenePosition;
-            var e = new Entity(x, y);
-            this.scene.add(instantiatePrefab(this.prefab, e));
-        }
-    }
-    class MyComponent extends Component {
-        constructor() {
-            super(...arguments);
-            this.siblings = {};
-        }
-        addedToScene() {
-            for (const [name, ctor] of Object.entries(this.siblings)) {
-                this[name] = this.entity.find(ctor);
-            }
-        }
-    }
-    function logType(target, key) {
-        var t = Reflect.getMetadata("design:type", target, key);
-        console.log(`${key} type: ${t.name}`);
     }
     function logParamTypes(target, key) {
         var types = Reflect.getMetadata("design:paramtypes", target, key);
@@ -1222,88 +1344,6 @@ define("game/level", ["require", "exports", "game/game", "game/door", "game/push
             });
         }
     }
-    class Mover extends MyComponent {
-        constructor(delta) {
-            super();
-            this.delta = delta;
-        }
-        addedToScene() {
-            this.siblings["physics"] = Physics;
-            super.addedToScene();
-            this.physics.speed.copy(this.delta);
-        }
-    }
-    __decorate([
-        logType,
-        __metadata("design:type", Physics)
-    ], Mover.prototype, "physics", void 0);
-    class Trigger extends Component {
-        constructor(onTrigger) {
-            super();
-            this.triggerEvery = 1;
-            this.lastTrigger = -1;
-            this.onTrigger = onTrigger;
-        }
-        addedToScene() {
-            super.addedToScene();
-            this.hitbox = this.entity.find(Hitbox);
-        }
-        update() {
-            super.update();
-            if (this.hitbox.check(game_4.default.TAGS.PLAYER)) {
-                const now = Engine.elapsed;
-                if (this.lastTrigger + this.triggerEvery < now) {
-                    this.lastTrigger = now;
-                    this.onTrigger(this);
-                }
-            }
-        }
-    }
-    class SpriteAutoPlay extends Component {
-        constructor(animationName) {
-            super();
-            this.animationName = animationName;
-        }
-        addedToScene() {
-            this.entity.find(Sprite).play(this.animationName);
-        }
-    }
-    const prefabs = {
-        fireball: {
-            sprite: () => new Sprite("fireball_red"),
-            spriteAutoPlay: () => new SpriteAutoPlay("main"),
-            physics: () => new Physics(6, 3, 12, 18),
-            causesDamage: () => new causesdamage_1.default(),
-            mover: () => new Mover(new Vector(-80, 0))
-        },
-        dragon: {
-            sightline: () => new Hitbox(-80, 4, 80, 8),
-            trigger: () => new Trigger((self) => self.entity.find(Emitter).emit()),
-            emitter: () => new Emitter({ prefab: "fireball" })
-        },
-        eyeballs: {
-            hitbox: () => new Hitbox(2, 2, 20, 20),
-            causesDamage: () => new causesdamage_1.default(),
-        }
-    };
-    function instantiatePrefab(prefabName, entity) {
-        const template = prefabs[prefabName];
-        if (!template)
-            throw "no prefab named " + prefabName;
-        for (var name in template) {
-            const componentTemplate = template[name];
-            if (Array.isArray(componentTemplate)) {
-                const ctor = componentTemplate[0];
-                const newComponent = new ctor(...componentTemplate.slice(1));
-                entity.add(newComponent);
-            }
-            else if (typeof (componentTemplate) === "function") {
-                const newComponent = componentTemplate();
-                entity.add(newComponent);
-            }
-        }
-        return entity;
-    }
     class Wobble extends Component {
         constructor(graphic) {
             super();
@@ -1326,7 +1366,45 @@ define("game/level", ["require", "exports", "game/game", "game/door", "game/push
             this.name = name;
         }
     }
-    class Level extends Scene {
+    class EditableScene extends Scene {
+        constructor() {
+            super();
+            this.groupsMask = [];
+            this.selection = null;
+            this.dragging = null;
+            this.dragOrigin = new Vector();
+            window['scene'] = this;
+        }
+        update() {
+            super.update();
+            if (!Engine.debugMode)
+                return;
+            const mousePos = this.camera.worldMouse;
+            if (Mouse.leftPressed) {
+                let list = (this.groupsMask.length > 0 ? this.allInGroups(this.groupsMask) : this.entities);
+                list.each((e) => {
+                    if (e.visible) {
+                        var hitbox = e.find(Hitbox);
+                        if (hitbox && hitbox.sceneBounds.containsPoint(mousePos)) {
+                            this.selection = hitbox;
+                            this.dragging = hitbox;
+                            this.dragOrigin.copy(mousePos).sub(Vector.temp1.set(hitbox.left, hitbox.top));
+                        }
+                    }
+                });
+            }
+            else if (Mouse.left && this.dragging) {
+                const newPos = Vector.temp0.copy(mousePos).sub(this.dragOrigin);
+                this.dragging.setPrefabValue("left", newPos.x);
+                this.dragging.setPrefabValue("top", newPos.y);
+                this.dragging.setPrefabValue;
+            }
+            else if (Mouse.leftReleased) {
+                this.dragging = null;
+            }
+        }
+    }
+    class Level extends EditableScene {
         constructor(scene, entrance) {
             super();
             this.slider = 0;
@@ -1520,7 +1598,7 @@ define("game/level", ["require", "exports", "game/game", "game/door", "game/push
                             const tileset = findTileset(tile);
                             this.add(pushable = new Entity(mapX * tileset.tilewidth, mapY * tileset.tileheight));
                             pushable.depth = -10;
-                            pushable.add(new pushable_1.default());
+                            pushable.add(new index_2.Pushable());
                             pushable.add(new Graphic(tileset.tilemap.getTileSubtexture(tile - tileset.firstGid)));
                         }
                     }
@@ -1598,7 +1676,7 @@ define("game/level", ["require", "exports", "game/game", "game/door", "game/push
                                 if (needsWobble)
                                     newEntity.add(new Wobble(mainGraphic));
                                 if (type) {
-                                    instantiatePrefab(type, newEntity);
+                                    prefabs_2.instantiatePrefab(type, newEntity);
                                 }
                                 this.add(newEntity);
                             }
@@ -1709,6 +1787,10 @@ define("game/level", ["require", "exports", "game/game", "game/door", "game/push
             super.update();
             if (Keyboard.pressed(game_4.default.KEYS.SELECT))
                 Engine.debugMode = !Engine.debugMode;
+            if (Keyboard.pressed(game_4.default.KEYS.RESTART)) {
+                Engine.goto(new Level("bottom", "start"), true);
+                return;
+            }
             if (this.slider != this.sliderTo) {
                 this.slider = Calc.approach(this.slider, this.sliderTo, Engine.delta * 1.5);
                 if (this.slider == this.sliderTo && this.sliderOnEnd != undefined && this.sliderOnEnd != null)
@@ -1738,118 +1820,146 @@ define("game/level", ["require", "exports", "game/game", "game/door", "game/push
     }
     exports.default = Level;
 });
-define("game/game", ["require", "exports", "game/level"], function (require, exports, level_2) {
+define("game/player", ["require", "exports", "game/game", "game/components/index"], function (require, exports, game_5, index_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    class Game {
-        static start() {
-            const zoom = 1.2;
-            Engine.start("test", 160 * zoom, 144 * zoom, 5, () => { Game.load(); });
-        }
-        static load() {
-            Engine.graphics.clearColor = Game.COLORS[0].clone();
-            Keyboard.map(Game.KEYS.LEFT, [Key.left, Key.a, Key.j]);
-            Keyboard.map(Game.KEYS.RIGHT, [Key.right, Key.d, Key.l]);
-            Keyboard.map(Game.KEYS.UP, [Key.up, Key.w, Key.i]);
-            Keyboard.map(Game.KEYS.DOWN, [Key.down, Key.s, Key.k]);
-            Keyboard.map(Game.KEYS.A, [Key.z, Key.c]);
-            Keyboard.map(Game.KEYS.B, [Key.x, Key.v]);
-            Keyboard.map(Game.KEYS.START, [Key.enter]);
-            Keyboard.map(Game.KEYS.SELECT, [Key.shift]);
-            Keyboard.map(Game.KEYS.TELEPORT, [Key.t]);
-            let template = new ParticleTemplate("dust");
-            template.accelX(120, 40);
-            template.accelY(-20, 10);
-            template.colors([Game.COLORS[0]]);
-            template.duration(12);
-            template.scale(1, 0);
-            var assets = new AssetLoader("assets")
-                .addAtlas("gfx", "atlas.png", "atlas.json", AtlasReaders.Aseprite)
-                .addAtlas("sprites", "sprites/atlas.png", "sprites/atlas.json", AtlasReaders.Aseprite)
-                .addAtlas("guy_idle", "sprites/guy_idle.png", "sprites/guy_idle.json", AtlasReaders.DoodleStudio)
-                .addAtlas("guy_walk", "sprites/guy_walk.png", "sprites/guy_walk.json", AtlasReaders.DoodleStudio)
-                .addJson("scenes/bottom.json")
-                .addJson("scenes/bottom2.json")
-                .addSound("slide_stone", "sounds/168821__debsound__stone-door-004.wav")
-                .load(() => { Game.begin(); });
-        }
-        static begin() {
-            Engine.graphics.clearColor = Game.COLORS[3].clone();
-            Engine.graphics.pixel = Assets.atlases["gfx"].get("pixel");
-            SpriteBank.create("player")
-                .add("idle", 10, Assets.atlases['sprites'].find("player_idle"), true)
-                .add("run", 10, Assets.atlases['sprites'].find("player_run"), true);
-            SpriteBank.create("guy")
-                .add("idle", 6, Assets.atlases["guy_idle"].find("main"), true)
-                .add("run", 10, Assets.atlases["guy_walk"].find("main"), true);
-            Game.SOUNDS.slide_stone = new Sound("slide_stone");
-            Game.SOUNDS.slide_stone.volume = .2;
-            Engine.goto(new level_2.default("bottom", "start"), false);
+    class GraphicHitEffect extends Component {
+        update() {
+            let visibleThisFrame = true;
+            if (this.health.invincible)
+                visibleThisFrame = Engine.frameCount % 2 === 0;
+            this.graphic.visible = visibleThisFrame;
         }
     }
-    Game.TAGS = {
-        PLAYER: "player",
-        SOLID: "solid"
-    };
-    Game.KEYS = {
-        LEFT: "left",
-        RIGHT: "right",
-        UP: "up",
-        DOWN: "down",
-        A: "a",
-        B: "b",
-        START: "start",
-        SELECT: "select",
-        TELEPORT: "teleport",
-    };
-    Game.SOUNDS = {};
-    Game.COLORS = [
-        new Color(155 / 255, 188 / 255, 15 / 255, 1),
-        new Color(139 / 255, 172 / 255, 15 / 255, 1),
-        new Color(48 / 255, 98 / 255, 48 / 255, 1),
-        new Color(15 / 255, 56 / 255, 15 / 255, 1)
-    ];
-    exports.default = Game;
-});
-define("game/causesdamage", ["require", "exports", "game/game", "game/health"], function (require, exports, game_5, health_2) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class CausesDamage extends Component {
+    __decorate([
+        Component.require,
+        __metadata("design:type", Graphic)
+    ], GraphicHitEffect.prototype, "graphic", void 0);
+    __decorate([
+        Component.require,
+        __metadata("design:type", index_3.Health)
+    ], GraphicHitEffect.prototype, "health", void 0);
+    class KnockBack extends Component {
         constructor() {
             super(...arguments);
-            this.amount = .1;
+            this.factor = 3.4;
         }
         addedToScene() {
-            super.addedToScene();
-            this.hitbox = this.entity.find(Hitbox);
+            this.health = this.entity.find(index_3.Health);
+            this.physics = this.entity.find(Physics);
+            this.health.onDamage.push((damager) => {
+                let speed;
+                {
+                    const hitbox = damager.entity.find(Hitbox);
+                    if (hitbox) {
+                        const pt = Vector.temp0.set(hitbox.sceneLeft + hitbox.width / 2, hitbox.sceneTop + hitbox.height / 2);
+                        speed = Vector.temp1.copy(this.entity.position).sub(pt).normalize().mult(100).mult(this.factor);
+                    }
+                }
+                this.physics.speed.add(speed);
+            });
+        }
+    }
+    class Player extends Entity {
+        constructor() {
+            super();
+            this.add(this.physics = new Physics({ left: -4, top: -8, width: 8, height: 8, tags: [game_5.default.TAGS.PLAYER], solids: [game_5.default.TAGS.SOLID] }));
+            this.add(this.sprite = new Sprite({ animation: "guy" }));
+            this.add(new index_3.Health());
+            this.add(new KnockBack());
+            this.add(new GraphicHitEffect());
+            this.sprite.play("idle");
+            this.sprite.origin.set(12, 24);
+            this.physics.onCollideX = () => { this.physics.speed.x = 0; };
+            this.physics.onCollideY = () => { this.physics.speed.y = 0; };
         }
         update() {
             super.update();
-            for (let collider of this.hitbox.collideAll(game_5.default.TAGS.PLAYER)) {
-                var health = collider.entity.find(health_2.default);
-                if (health)
-                    health.tryApplyDamage(this);
+            const friction = 200;
+            let speed = 220;
+            let maxSpeed = 48;
+            if (Keyboard.check(game_5.default.KEYS.A)) {
+                speed *= 2;
+                maxSpeed *= 2;
             }
+            if (Keyboard.pressed(game_5.default.KEYS.TELEPORT))
+                this.position.copy(this.scene.firstInGroup("teleports").position);
+            const delta = speed * Engine.delta;
+            const addedSpeed = Vector.temp0.set((Keyboard.check(game_5.default.KEYS.LEFT) ? -delta : 0) +
+                (Keyboard.check(game_5.default.KEYS.RIGHT) ? delta : 0), (Keyboard.check(game_5.default.KEYS.UP) ? -delta : 0) +
+                (Keyboard.check(game_5.default.KEYS.DOWN) ? delta : 0));
+            this.physics.speed.add(addedSpeed);
+            this.physics.friction(addedSpeed.x == 0 ? friction : 0, addedSpeed.y == 0 ? friction : 0);
+            this.physics.circularMaxspeed(maxSpeed);
+            this.scene.camera.position.set(this.x, this.y - 5);
+            const xSign = Calc.sign(this.physics.speed.x);
+            if (xSign != 0)
+                this.sprite.scale.x = xSign;
+            this.sprite.play(this.physics.speed.length > 0 ? "run" : "idle");
         }
     }
-    exports.default = CausesDamage;
+    exports.default = Player;
 });
-class Clouds extends Entity {
-    constructor(index, depth) {
-        super();
-        this.add(this.sprite = new Graphic(Assets.atlases["gfx"].get("clouds " + index)));
-        this.sprite.origin.set(this.sprite.width / 2, this.sprite.height / 2);
-        this.depth = depth;
-        this.timerY = Math.random() * Math.PI * 2;
-        this.timerX = Math.random() * Math.PI * 2;
+define("game/door", ["require", "exports", "game/level", "game/game", "game/player"], function (require, exports, level_2, game_6, player_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Door extends Entity {
+        constructor(name, gotoScene, gotoDoor, spawnPlayer) {
+            super();
+            this.spawnPlayerTimer = 1;
+            this.playerOn = true;
+            this.isOpen = true;
+            this.closedEase = 1;
+            this.name = name;
+            this.gotoScene = gotoScene;
+            this.gotoDoor = gotoDoor;
+            this.spawnPlayer = spawnPlayer;
+            this.add(this.hitbbox = new Hitbox({ left: -4, top: -8, width: 8, height: 8 }));
+        }
+        added() {
+            if (this.spawnPlayer)
+                this.scene.camera.position.set(this.x, this.y - 64);
+        }
+        update() {
+            if (this.spawnPlayer && this.spawnPlayerTimer > 0) {
+                this.spawnPlayerTimer -= Engine.delta * 1.25;
+                this.scene.camera.position.set(this.x, this.y - Ease.cubeIn(this.spawnPlayerTimer) * 64);
+                if (this.spawnPlayerTimer <= 0) {
+                    let player;
+                    this.scene.add(player = new player_1.default(), new Vector(this.x, this.y));
+                    player.physics.speed.y = 120;
+                    this.closedEase = 0;
+                }
+            }
+            else {
+                if (this.hitbbox.check(game_6.default.TAGS.PLAYER)) {
+                    if (this.gotoScene.length > 0 && !this.playerOn) {
+                        this.scene.remove(this.scene.find(player_1.default));
+                        this.playerOn = true;
+                        this.scene.doSlide(1, 0, () => { Engine.goto(new level_2.default(this.gotoScene, this.gotoDoor), false); });
+                    }
+                }
+                else {
+                    if (this.isOpen && this.gotoScene.length <= 0) {
+                        this.hitbbox.tag(game_6.default.TAGS.SOLID);
+                        this.isOpen = false;
+                    }
+                    this.playerOn = false;
+                    if (!this.isOpen)
+                        this.closedEase = Calc.approach(this.closedEase, 1, Engine.delta);
+                }
+            }
+        }
+        render() {
+            Engine.graphics.rect(this.x + -6, this.y - 13, 12, 13, game_6.default.COLORS[3]);
+            Engine.graphics.rect(this.x + -5, this.y - 12, 10, 12, game_6.default.COLORS[2]);
+            Engine.graphics.rect(this.x + -4, this.y - 11, 8, 11, game_6.default.COLORS[3]);
+            if (!this.isOpen)
+                Engine.graphics.rect(this.x + -3, this.y - 10, 6, 10 * this.closedEase, game_6.default.COLORS[2]);
+        }
     }
-    update() {
-        this.timerY += Engine.delta;
-        this.timerX += Engine.delta;
-        this.sprite.x = Math.sin(this.timerX * 2) * 4;
-        this.sprite.y = Math.sin(this.timerY) * 2;
-    }
-}
+    exports.default = Door;
+});
 var ResolutionStyle;
 (function (ResolutionStyle) {
     ResolutionStyle[ResolutionStyle["None"] = 0] = "None";
@@ -1890,6 +2000,7 @@ class Graphics {
         this.texToDraw = new Texture(null, new Rectangle(), new Rectangle());
         this.engine = engine;
         this.canvas = document.createElement("canvas");
+        this.canvas.onselectstart = () => false;
         this.gl = this.canvas.getContext('experimental-webgl', {
             alpha: false,
             antialias: false
@@ -3645,7 +3756,7 @@ class Graphic extends Component {
     }
 }
 class Sprite extends Graphic {
-    constructor(animation) {
+    constructor({ animation }) {
         super(null);
         this._animation = null;
         this._playing = null;
@@ -4081,6 +4192,9 @@ class Mouse {
         this._right = this._rightNext;
         this._position = this._positionNext;
     }
+    percent() {
+        return new Vector();
+    }
     static setNextMouseTo(pageX, pageY) {
         let screen = Engine.graphics.canvas.getBoundingClientRect();
         let scaled = Engine.graphics.getOutputBounds();
@@ -4132,6 +4246,7 @@ class Camera {
         this._matrix = new Matrix();
         this._internal = new Matrix();
         this._mouse = new Vector();
+        this._worldMouse = new Vector();
         this.extentsA = new Vector();
         this.extentsB = new Vector();
         this.extentsC = new Vector();
@@ -4157,12 +4272,19 @@ class Camera {
     get mouse() {
         return this._mouse.set(Mouse.x + this.position.x - this.origin.x, Mouse.y + this.position.y - this.origin.y).transform(this.internal.invert());
     }
+    get worldMouse() {
+        const ex = this.extents;
+        return this._worldMouse.copy(Mouse.position).add(Vector.temp0.set(ex.x, ex.y));
+    }
     getExtents() {
         let inverse = this.internal.invert();
         this.extentsA.set(0, 0).transform(inverse);
         this.extentsB.set(Engine.width, 0).transform(inverse);
         this.extentsC.set(0, Engine.height).transform(inverse);
         this.extentsD.set(Engine.width, Engine.height).transform(inverse);
+    }
+    screenToWorld(point, into) {
+        const e = this.extents;
     }
     get extents() {
         this.getExtents();
@@ -4539,6 +4661,9 @@ class Rectangle {
         this.width = w;
         this.height = h;
         return this;
+    }
+    containsPoint(point) {
+        return this.x <= point.x && this.right > point.x && this.y <= point.y && this.bottom > point.y;
     }
     overlapsVertically(rect) {
         return (rect.top > this.top && rect.top < this.bottom) ||
