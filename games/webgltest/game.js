@@ -7,6 +7,31 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+define("game/autosprite", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    function loadAutoSprites() {
+        const autoSprites = {};
+        for (const [atlasName, atlas] of Object.entries(Assets.atlases)) {
+            const els = atlasName.split("_");
+            if (els.length < 2 || atlas.reader !== AtlasReaders.DoodleStudio)
+                continue;
+            const [spriteName, animName] = els;
+            let spriteList = (autoSprites[spriteName] || (autoSprites[spriteName] = []));
+            spriteList.push(atlas);
+        }
+        for (const [spriteName, atlasList] of Object.entries(autoSprites)) {
+            const spriteBank = SpriteBank.create(spriteName);
+            for (const atlas of atlasList) {
+                const atlasName = atlas.name;
+                console.assert(atlasName.startsWith(spriteName));
+                const subName = atlasName.slice(spriteName.length + 1);
+                spriteBank.add(subName, 10, atlas.find("main"), true);
+            }
+        }
+    }
+    exports.loadAutoSprites = loadAutoSprites;
+});
 class Entity {
     constructor(x, y) {
         this.position = new Vector(0, 0);
@@ -178,12 +203,12 @@ class Scene {
         });
         this.entities.clean();
         this.renderers.clean();
-        for (let key in this.groups)
+        for (const key in this.groups)
             this.groups[key].clean();
     }
     render() {
         this.entities.sort((a, b) => b.depth - a.depth);
-        for (let key in this.groups)
+        for (const key in this.groups)
             this.groups[key].sort((a, b) => b.depth - a.depth);
         this.renderers.each((r) => {
             if (r.visible)
@@ -210,21 +235,21 @@ class Scene {
     add(entity, position) {
         entity.scene = this;
         this.entities.add(entity);
-        if (position != undefined)
+        if (position !== undefined)
             entity.position.set(position.x, position.y);
         if (!entity.isCreated) {
             entity.isCreated = true;
             entity.created();
         }
-        for (let i = 0; i < entity.groups.length; i++)
-            this._groupEntity(entity, entity.groups[i]);
+        for (const group of entity.groups)
+            this._groupEntity(entity, group);
         entity.components.each((c) => this._trackComponent(c));
         entity.added();
         return entity;
     }
     recreate(bucket) {
         if (Array.isArray(this.cache[bucket]) && this.cache[bucket].length > 0) {
-            var entity = this.cache[bucket][0];
+            const entity = this.cache[bucket][0];
             this.cache[bucket].splice(0, 1);
             return this.add(entity);
         }
@@ -232,7 +257,7 @@ class Scene {
     }
     recycle(bucket, entity) {
         this.remove(entity);
-        if (this.cache[bucket] == undefined)
+        if (this.cache[bucket] === undefined)
             this.cache[bucket] = [];
         this.cache[bucket].push(entity);
         entity.recycled();
@@ -240,8 +265,8 @@ class Scene {
     remove(entity) {
         entity.removed();
         entity.components.each((c) => this._untrackComponent(c));
-        for (let i = 0; i < entity.groups.length; i++)
-            this._ungroupEntity(entity, entity.groups[i]);
+        for (const group of entity.groups)
+            this._ungroupEntity(entity, group);
         entity.isStarted = false;
         entity.scene = null;
         this.entities.remove(entity);
@@ -272,7 +297,7 @@ class Scene {
         });
     }
     findAll(className) {
-        let list = [];
+        const list = [];
         this.entities.each((e) => {
             if (e instanceof className)
                 list.push(e);
@@ -280,16 +305,16 @@ class Scene {
         return list;
     }
     firstInGroup(group) {
-        if (this.groups[group] != undefined && this.groups[group].count > 0)
+        if (this.groups[group] !== undefined && this.groups[group].count > 0)
             return this.groups[group].first();
         return null;
     }
     eachInGroup(group, callback) {
-        if (this.groups[group] != undefined)
+        if (this.groups[group] !== undefined)
             this.groups[group].each(callback);
     }
     allInGroup(group) {
-        if (this.groups[group] != undefined)
+        if (this.groups[group] !== undefined)
             return this.groups[group];
         return null;
     }
@@ -297,7 +322,7 @@ class Scene {
         let stop = false;
         for (let i = 0; i < groups.length && !stop; i++) {
             this.eachInGroup(groups[i], (e) => {
-                let result = callback(e);
+                const result = callback(e);
                 if (result === false)
                     stop = true;
                 return result;
@@ -305,22 +330,22 @@ class Scene {
         }
     }
     allInGroups(groups, into = null) {
-        if (into == null || into == undefined)
+        if (into == null || into === undefined)
             into = new ObjectList();
-        for (let i = 0; i < groups.length; i++) {
-            let list = this.allInGroup(groups[i]);
+        for (const group of groups) {
+            const list = this.allInGroup(group);
             if (list != null)
                 list.each((e) => into.add(e));
         }
         return into;
     }
     firstColliderInTag(tag) {
-        if (this.colliders[tag] != undefined && this.colliders[tag].length > 0)
+        if (this.colliders[tag] !== undefined && this.colliders[tag].length > 0)
             return this.colliders[tag];
         return null;
     }
     allCollidersInTag(tag) {
-        if (this.colliders[tag] != undefined)
+        if (this.colliders[tag] !== undefined)
             return this.colliders[tag];
         return [];
     }
@@ -337,20 +362,20 @@ class Scene {
         return renderer;
     }
     _groupEntity(entity, group) {
-        if (this.groups[group] == undefined)
+        if (this.groups[group] === undefined)
             this.groups[group] = new ObjectList();
         this.groups[group].add(entity);
     }
     _ungroupEntity(entity, group) {
-        if (this.groups[group] != undefined)
+        if (this.groups[group] !== undefined)
             this.groups[group].remove(entity);
     }
     _trackComponent(component) {
-        if (component.entity == null || component.entity.scene != this)
-            throw "Component must be added through an existing entity";
+        if (component.entity == null || component.entity.scene !== this)
+            throw new Error("Component must be added through an existing entity");
         if (component instanceof Collider) {
-            for (let i = 0; i < component.tags.length; i++)
-                this._trackCollider(component, component.tags[i]);
+            for (const tag of component.tags)
+                this._trackCollider(component, tag);
         }
         component.scene = this;
         component.addedToScene();
@@ -358,19 +383,19 @@ class Scene {
     _untrackComponent(component) {
         component.removedFromScene();
         if (component instanceof Collider) {
-            for (let i = 0; i < component.tags.length; i++)
-                this._untrackCollider(component, component.tags[i]);
+            for (const tag of component.tags)
+                this._untrackCollider(component, tag);
         }
         component.scene = null;
     }
     _trackCollider(collider, tag) {
-        if (this.colliders[tag] == undefined)
+        if (this.colliders[tag] === undefined)
             this.colliders[tag] = [];
         this.colliders[tag].push(collider);
     }
     _untrackCollider(collider, tag) {
-        if (this.colliders[tag] != undefined) {
-            let index = this.colliders[tag].indexOf(collider);
+        if (this.colliders[tag] !== undefined) {
+            const index = this.colliders[tag].indexOf(collider);
             if (index >= 0) {
                 this.colliders[tag].splice(index, 1);
                 if (this.colliders[tag].length <= 0)
@@ -396,23 +421,25 @@ class Component {
         this.visible = true;
         this.position = new Vector(0, 0);
     }
-    setPrefabValue(name, val) {
-        var currentVal = this[name];
+    setPrefabValues(vals) {
         if (this.prefabLink) {
             console.assert(this.prefabLink.length === 2, "prefab needs to be [ctor, {args}]");
             const [ctor, args] = this.prefabLink;
-            if (name in args) {
-                if (!_assign(args[name], val))
-                    args[name] = val;
-            }
+            for (const [name, val] of Object.entries(vals))
+                if (name in args)
+                    if (!_assign(args[name], val))
+                        args[name] = val;
         }
-        if (!_assign(currentVal, val))
-            this[name] = val;
+        for (const [name, val] of Object.entries(vals)) {
+            const currentVal = this[name];
+            if (!_assign(currentVal, val))
+                this[name] = val;
+        }
     }
     get entity() { return this._entity; }
     set entity(val) {
         if (this._entity != null && val != null)
-            throw "This Component is already attached to an Entity";
+            throw new Error("This Component is already attached to an Entity");
         this._entity = val;
     }
     get x() { return this.position.x; }
@@ -423,16 +450,28 @@ class Component {
         return new Vector((this._entity ? this._entity.x : 0) + this.position.x, (this._entity ? this._entity.y : 0) + this.position.y);
     }
     addedToEntity() { }
+    static register(target) {
+        if (target.name in Component.registeredComponents)
+            throw new Error("already a Component named " + target.name);
+        Component.registeredComponents[target.name] = target;
+    }
     static require(target, key) {
         const type = Reflect.getMetadata("design:type", target, key);
-        if (!type)
-            throw `no design:type metadata found for key ${key.toString()} - is experimentalDecorators and emitDecoratorMetadata on in tsconfig.json?`;
+        if (!type) {
+            let msg = `no design:type metadata found for key ${key.toString()}`;
+            msg += ` - is experimentalDecorators and emitDecoratorMetadata on in tsconfig.json?`;
+            throw msg;
+        }
         (target.siblings || (target.siblings = {}))[key] = type;
     }
     addedToScene() {
         if (this.siblings !== undefined)
-            for (const [name, ctor] of Object.entries(this.siblings))
-                this[name] = this.entity.find(ctor);
+            for (const [name, ctor] of Object.entries(this.siblings)) {
+                const siblingComponent = this.entity.find(ctor);
+                if (!siblingComponent)
+                    throw new Error("@Component.require needs " + ctor.name + " but it is missing");
+                this[name] = siblingComponent;
+            }
     }
     removedFromEntity() { }
     removedFromScene() { }
@@ -440,6 +479,7 @@ class Component {
     render(camera) { }
     debugRender(camera) { }
 }
+Component.registeredComponents = {};
 class Collider extends Component {
     constructor() {
         super(...arguments);
@@ -451,7 +491,7 @@ class Collider extends Component {
             this.entity.scene._trackCollider(this, tag);
     }
     untag(tag) {
-        let index = this.tags.indexOf(tag);
+        const index = this.tags.indexOf(tag);
         if (index >= 0) {
             this.tags.splice(index, 1);
             if (this.entity != null && this.entity.scene != null)
@@ -462,19 +502,19 @@ class Collider extends Component {
         return this.collide(tag, x, y) != null;
     }
     checks(tags, x, y) {
-        for (let i = 0; i < tags.length; i++)
-            if (this.collide(tags[i], x, y) != null)
+        for (const tag of tags)
+            if (this.collide(tag, x, y) != null)
                 return true;
         return false;
     }
     collide(tag, x, y) {
-        var result = null;
-        var against = this.entity.scene.allCollidersInTag(tag);
+        let result = null;
+        const against = this.entity.scene.allCollidersInTag(tag);
         this.x += x || 0;
         this.y += y || 0;
-        for (let i = 0; i < against.length; i++)
-            if (Collider.overlap(this, against[i])) {
-                result = against[i];
+        for (const col of against)
+            if (Collider.overlap(this, col)) {
+                result = col;
                 break;
             }
         this.x -= x || 0;
@@ -482,32 +522,32 @@ class Collider extends Component {
         return result;
     }
     collides(tags, x, y) {
-        for (let i = 0; i < tags.length; i++) {
-            let hit = this.collide(tags[i], x, y);
+        for (const tag of tags) {
+            const hit = this.collide(tag, x, y);
             if (hit != null)
                 return hit;
         }
         return null;
     }
     collideAll(tag, x, y) {
-        var list = [];
-        var against = this.entity.scene.allCollidersInTag(tag);
+        const list = [];
+        const against = this.entity.scene.allCollidersInTag(tag);
         this.x += x || 0;
         this.y += y || 0;
-        for (let i = 0; i < against.length; i++)
-            if (Collider.overlap(this, against[i]))
-                list.push(against[i]);
+        for (const col of against)
+            if (Collider.overlap(this, col))
+                list.push(col);
         this.x -= x || 0;
         this.y -= y || 0;
         return list;
     }
     static registerOverlapTest(fromType, toType, test) {
-        if (Collider.overlaptest[fromType.name] == undefined)
+        if (Collider.overlaptest[fromType.name] === undefined)
             Collider.overlaptest[fromType.name] = {};
-        if (Collider.overlaptest[toType.name] == undefined)
+        if (Collider.overlaptest[toType.name] === undefined)
             Collider.overlaptest[toType.name] = {};
-        Collider.overlaptest[fromType.name][toType.name] = (a, b) => { return test(a, b); };
-        Collider.overlaptest[toType.name][fromType.name] = (a, b) => { return test(b, a); };
+        Collider.overlaptest[fromType.name][toType.name] = (a, b) => test(a, b);
+        Collider.overlaptest[toType.name][fromType.name] = (a, b) => test(b, a);
     }
     static registerDefaultOverlapTests() {
         Collider.registerOverlapTest(Hitbox, Hitbox, Collider.overlap_hitbox_hitbox);
@@ -517,14 +557,17 @@ class Collider extends Component {
         return Collider.overlaptest[a.type][b.type](a, b);
     }
     static overlap_hitbox_hitbox(a, b) {
-        return a.sceneRight > b.sceneLeft && a.sceneBottom > b.sceneTop && a.sceneLeft < b.sceneRight && a.sceneTop < b.sceneBottom;
+        return a.sceneRight > b.sceneLeft
+            && a.sceneBottom > b.sceneTop
+            && a.sceneLeft < b.sceneRight
+            && a.sceneTop < b.sceneBottom;
     }
     static overlap_hitbox_grid(a, b) {
-        let gridPosition = b.scenePosition;
-        let left = Math.floor((a.sceneLeft - gridPosition.x) / b.tileWidth);
-        let top = Math.floor((a.sceneTop - gridPosition.y) / b.tileHeight);
-        let right = Math.ceil((a.sceneRight - gridPosition.x) / b.tileWidth);
-        let bottom = Math.ceil((a.sceneBottom - gridPosition.y) / b.tileHeight);
+        const gridPosition = b.scenePosition;
+        const left = Math.floor((a.sceneLeft - gridPosition.x) / b.tileWidth);
+        const top = Math.floor((a.sceneTop - gridPosition.y) / b.tileHeight);
+        const right = Math.ceil((a.sceneRight - gridPosition.x) / b.tileWidth);
+        const bottom = Math.ceil((a.sceneBottom - gridPosition.y) / b.tileHeight);
         for (let x = left; x < right; x++)
             for (let y = top; y < bottom; y++)
                 if (b.has(x, y))
@@ -546,9 +589,9 @@ class Hitbox extends Collider {
         this.top = top;
         this.width = width;
         this.height = height;
-        if (tags != undefined)
-            for (let i = 0; i < tags.length; i++)
-                this.tag(tags[i]);
+        if (tags !== undefined)
+            for (const tag of tags)
+                this.tag(tag);
     }
     debugRender() {
         Engine.graphics.hollowRect(this.sceneLeft, this.sceneTop, this.width, this.height, 1, Color.red);
@@ -719,16 +762,24 @@ class Engine {
     constructor() {
         this.scene = null;
         this.nextScene = null;
+        this.dt = 0;
+        this.elapsed = 0;
+        this.paused = false;
         this.frameCount = 0;
+        this.lastTime = 0;
+        this.timeScale = 1;
+        this.useStats = false;
         if (Engine.instance != null)
-            throw "Engine has already been instantiated";
+            throw new Error("Engine has already been instantiated");
         if (!Engine.started)
-            throw "Engine must be instantiated through static Engine.start";
+            throw new Error("Engine must be instantiated through static Engine.start");
         Engine.instance = this;
         this.client = Client.Web;
-        if (window && window.process && window.process.versions && window.process.versions.electron)
+        if (window &&
+            window.process && window.process.versions && window.process.versions.electron)
             this.client = Client.Desktop;
         this.startTime = Date.now();
+        this.lastTime = Date.now();
     }
     static get root() { return Engine.instance.root; }
     static get client() { return Engine.instance.client; }
@@ -739,21 +790,25 @@ class Engine {
     static get height() { return Engine.instance.height; }
     static get debugMode() { return Engine.instance.debuggerEnabled; }
     static set debugMode(v) { Engine.instance.debuggerEnabled = v; }
-    static get delta() { return Engine.instance.dt; }
+    static get delta() { return Engine.instance.paused ? 0 : Engine.instance.dt; }
     static get elapsed() { return Engine.instance.elapsed; }
+    static get paused() { return Engine.instance.paused; }
+    static set paused(v) { Engine.instance.paused = v; }
+    static get timeScale() { return Engine.instance.timeScale; }
+    static set timeScale(v) { Engine.instance.timeScale = v; }
     static get frameCount() { return Engine.instance.frameCount; }
     static get graphics() { return Engine.instance.graphics; }
     static get volume() { return Engine._volume; }
     static set volume(n) {
         Engine._volume = n;
-        for (let i = 0; i < Sound.active.length; i++)
-            Sound.active[i].volume = Sound.active[i].volume;
+        for (const sound of Sound.active)
+            sound.volume = sound.volume;
     }
     static get muted() { return Engine._muted; }
     static set muted(m) {
         Engine._muted = m;
-        for (let i = 0; i < Sound.active.length; i++)
-            Sound.active[i].muted = Sound.active[i].muted;
+        for (const sound of Sound.active)
+            sound.muted = sound.muted;
     }
     static start(title, width, height, scale, ready) {
         Engine.started = true;
@@ -762,8 +817,9 @@ class Engine {
         GameWindow.title = title;
         GameWindow.resize(width * scale, height * scale);
         GameWindow.center();
-        window.onload = function () {
-            var c = String.fromCharCode(0x25cf);
+        const onloadFunc = () => {
+            const c = String.fromCharCode(0x25cf);
+            console.log("%c " + c + " ENGINE START " + c + " ", "background: #222; color: #ff44aa;");
             Engine.instance.root = document.getElementsByTagName("body")[0];
             Collider.registerDefaultOverlapTests();
             FosterIO.init();
@@ -775,12 +831,16 @@ class Engine {
             Keyboard.init();
             GamepadManager.init();
             Engine.instance.step();
-            if (ready != undefined)
+            if (ready !== undefined)
                 ready();
         };
+        if (document.readyState === "complete")
+            onloadFunc();
+        else
+            window.onload = onloadFunc;
     }
     static goto(scene, disposeLastScene) {
-        let lastScene = Engine.scene;
+        const lastScene = Engine.scene;
         Engine.instance.nextScene = scene;
         Engine.instance.disposeLastScene = disposeLastScene;
         return scene;
@@ -800,11 +860,18 @@ class Engine {
         return value;
     }
     step() {
-        var time = Date.now();
-        this.elapsed = Math.floor(time - this.startTime) / 1000;
-        this.dt = Math.floor(time - this.lastTime) / 1000;
+        if (this.useStats && !this._stats) {
+            this._stats = new Stats();
+            this._stats.showPanel(0);
+            document.body.appendChild(this._stats.dom);
+        }
+        if (this._stats)
+            this._stats.begin();
+        const time = Date.now();
+        this.dt = this.paused ? 0 : Math.floor(time - this.lastTime) / 1000 * this.timeScale;
         this.lastTime = time;
         this.frameCount++;
+        this.elapsed += this.dt;
         this.graphics.update();
         Mouse.update();
         Keyboard.update();
@@ -827,8 +894,10 @@ class Engine {
                 this.scene.render();
             this.graphics.finalize();
         }
-        for (let i = 0; i < Sound.active.length; i++)
-            Sound.active[i].update();
+        for (const sound of Sound.active)
+            sound.update();
+        if (this._stats)
+            this._stats.end();
         if (!Engine.exiting)
             requestAnimationFrame(this.step.bind(this));
     }
@@ -836,9 +905,9 @@ class Engine {
         Engine.exiting = true;
         Assets.unload();
         Engine.graphics.unload();
-        if (Engine.client == Client.Desktop) {
-            var remote = require("electron").remote;
-            var win = remote.getCurrentWindow();
+        if (Engine.client === Client.Desktop) {
+            const remote = require("electron").remote;
+            const win = remote.getCurrentWindow();
             win.close();
         }
     }
@@ -849,13 +918,101 @@ Engine._muted = false;
 Engine.instance = null;
 Engine.started = false;
 Engine.exiting = false;
-define("game/game", ["require", "exports", "game/level"], function (require, exports, level_1) {
+define("game/prefabs", ["require", "exports", "game/components/index", "game/game"], function (require, exports, index_1, game_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    function instantiatePrefab(prefabName, entity) {
+        const template = prefabs[prefabName];
+        if (!template)
+            throw new Error("no prefab named " + prefabName);
+        for (const [name, componentTemplate] of Object.entries(template)) {
+            let newComponent;
+            if (Array.isArray(componentTemplate)) {
+                console.assert(componentTemplate.length === 2 || componentTemplate.length === 1);
+                let ctor = componentTemplate[0];
+                const args = componentTemplate[1];
+                if (typeof ctor === "string")
+                    ctor = index_1.getComponentByName(ctor);
+                console.assert(typeof ctor === "function");
+                newComponent = new ctor(args);
+            }
+            else if (typeof (componentTemplate) === "function") {
+                newComponent = componentTemplate();
+                console.assert(newComponent instanceof Component, "expected prefab func to return a component");
+            }
+            newComponent.prefabLink = componentTemplate;
+            entity.add(newComponent);
+        }
+        return entity;
+    }
+    exports.instantiatePrefab = instantiatePrefab;
+    let prefabs = {};
+    function getPrefabs() {
+        return prefabs;
+    }
+    exports.getPrefabs = getPrefabs;
+    function setPrefabs(newPrefabs) {
+        console.assert(!!newPrefabs);
+        prefabs = newPrefabs;
+    }
+    exports.setPrefabs = setPrefabs;
+    let _ignoreNextPrefabUpdate = 0;
+    function initPrefabs() {
+        const liveReload = window["LiveReload"];
+        if (!liveReload)
+            return;
+        function Foo() { }
+        Foo.identifier = "Foo2";
+        Foo.prototype.reload = (path, options) => {
+            if (_ignoreNextPrefabUpdate > 0 && path.endsWith("prefabs.json")) {
+                console.log("!IGNORING LIVERELOAD FOR " + path);
+                _ignoreNextPrefabUpdate -= 1;
+                return true;
+            }
+            else {
+                console.log("about to reload for " + path);
+            }
+            return false;
+        };
+        liveReload.addPlugin(Foo);
+    }
+    exports.initPrefabs = initPrefabs;
+    function sendPrefabsToServer() {
+        function checkStatus(response) {
+            if (response.status >= 200 && response.status < 300) {
+                return response;
+            }
+            else {
+                const error = new Error(response.statusText);
+                error.response = response;
+                throw error;
+            }
+        }
+        _ignoreNextPrefabUpdate = 2;
+        fetch("/prefabs", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(getPrefabs())
+        })
+            .then(checkStatus)
+            .then((data) => {
+            game_1.default.debugText("prefabs saved at " + Engine.elapsed);
+        }).catch((err) => {
+            console.error("post to /prefabs failed", err);
+        });
+    }
+    exports.sendPrefabsToServer = sendPrefabsToServer;
+    exports.default = prefabs;
+});
+define("game/game", ["require", "exports", "game/level", "game/prefabs", "game/autosprite"], function (require, exports, level_1, prefabs_1, autosprite_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Game {
         static start() {
             const zoom = 1.2;
-            Engine.start("test", 160 * zoom, 144 * zoom, 5, () => { Game.load(); });
+            Engine.start(":) ;) >:-]", 160 * zoom, 144 * zoom, 5, () => {
+                Game.load();
+            });
         }
         static load() {
             Engine.graphics.clearColor = Game.COLORS[0].clone();
@@ -869,36 +1026,53 @@ define("game/game", ["require", "exports", "game/level"], function (require, exp
             Keyboard.map(Game.KEYS.START, [Key.enter]);
             Keyboard.map(Game.KEYS.SELECT, [Key.shift]);
             Keyboard.map(Game.KEYS.TELEPORT, [Key.t]);
-            let template = new ParticleTemplate("dust");
+            Keyboard.map(Game.KEYS.PAUSE, [Key.p]);
+            Keyboard.map(Game.KEYS.FAST_FORWARD, [Key.graveAccent]);
+            const template = new ParticleTemplate("dust");
             template.accelX(120, 40);
             template.accelY(-20, 10);
             template.colors([Game.COLORS[0]]);
             template.duration(12);
             template.scale(1, 0);
-            var assets = new AssetLoader("assets")
+            const self = this;
+            new AssetLoader("")
+                .addJson("prefabs.json")
+                .addJson("assets.json")
+                .load(() => {
+                prefabs_1.setPrefabs(Assets.json["/prefabs.json"]);
+                Game.loadAssets(Assets.json["/assets.json"]);
+            });
+        }
+        static loadAssets(jsonAssets) {
+            const loader = new AssetLoader("assets");
+            for (const { name, image, data } of jsonAssets.atlases)
+                loader.addAtlas(name, image, data, AtlasReaders.DoodleStudio);
+            loader
                 .addAtlas("gfx", "atlas.png", "atlas.json", AtlasReaders.Aseprite)
                 .addAtlas("sprites", "sprites/atlas.png", "sprites/atlas.json", AtlasReaders.Aseprite)
-                .addAtlas("guy_idle", "sprites/guy_idle.png", "sprites/guy_idle.json", AtlasReaders.DoodleStudio)
-                .addAtlas("guy_walk", "sprites/guy_walk.png", "sprites/guy_walk.json", AtlasReaders.DoodleStudio)
                 .addJson("scenes/bottom.json")
                 .addJson("scenes/bottom2.json")
                 .addSound("slide_stone", "sounds/168821__debsound__stone-door-004.wav")
                 .load(() => { Game.begin(); });
         }
         static debugText(s) {
-            if (typeof s === 'object')
-                s = JSON.stringify(s, null, 2);
-            document.getElementById("debug_console").innerText = s.toString();
+            s = (typeof s === "object") ? JSON.stringify(s, null, 2) : s;
+            Game.getConsoleEl().innerText = s.toString();
+        }
+        static getConsoleEl() {
+            let consoleEl = document.getElementById("debug_console");
+            if (!consoleEl) {
+                consoleEl = document.createElement("pre");
+                consoleEl.setAttribute("id", "debug_console");
+                document.body.appendChild(consoleEl);
+            }
+            return consoleEl;
         }
         static begin() {
+            prefabs_1.initPrefabs();
+            autosprite_1.loadAutoSprites();
             Engine.graphics.clearColor = Game.COLORS[3].clone();
             Engine.graphics.pixel = Assets.atlases["gfx"].get("pixel");
-            SpriteBank.create("player")
-                .add("idle", 10, Assets.atlases["sprites"].find("player_idle"), true)
-                .add("run", 10, Assets.atlases["sprites"].find("player_run"), true);
-            SpriteBank.create("guy")
-                .add("idle", 6, Assets.atlases["guy_idle"].find("main"), true)
-                .add("run", 10, Assets.atlases["guy_walk"].find("main"), true);
             Game.SOUNDS.slide_stone = new Sound("slide_stone");
             Game.SOUNDS.slide_stone.volume = .2;
             Engine.goto(new level_1.default("bottom", "start"), false);
@@ -906,7 +1080,7 @@ define("game/game", ["require", "exports", "game/level"], function (require, exp
     }
     Game.TAGS = {
         PLAYER: "player",
-        SOLID: "solid"
+        SOLID: "solid",
     };
     Game.KEYS = {
         LEFT: "left",
@@ -918,39 +1092,19 @@ define("game/game", ["require", "exports", "game/level"], function (require, exp
         START: "start",
         SELECT: "select",
         TELEPORT: "teleport",
-        RESTART: "restart"
+        RESTART: "restart",
+        PAUSE: "pause",
+        FAST_FORWARD: "fast_forward",
     };
     Game.SOUNDS = {};
     Game.COLORS = [
         new Color(155 / 255, 188 / 255, 15 / 255, 1),
         new Color(139 / 255, 172 / 255, 15 / 255, 1),
         new Color(48 / 255, 98 / 255, 48 / 255, 1),
-        new Color(15 / 255, 56 / 255, 15 / 255, 1)
+        new Color(15 / 255, 56 / 255, 15 / 255, 1),
     ];
+    Game.debugConsoleId = "debug_console";
     exports.default = Game;
-});
-define("game/components/causesdamage", ["require", "exports", "game/game", "game/components/health"], function (require, exports, game_1, health_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class CausesDamage extends Component {
-        constructor() {
-            super(...arguments);
-            this.amount = .1;
-        }
-        addedToScene() {
-            super.addedToScene();
-            this.hitbox = this.entity.find(Hitbox);
-        }
-        update() {
-            super.update();
-            for (let collider of this.hitbox.collideAll(game_1.default.TAGS.PLAYER)) {
-                var health = collider.entity.find(health_1.Health);
-                if (health)
-                    health.tryApplyDamage(this);
-            }
-        }
-    }
-    exports.CausesDamage = CausesDamage;
 });
 define("game/components/health", ["require", "exports"], function (require, exports) {
     "use strict";
@@ -979,24 +1133,64 @@ define("game/components/health", ["require", "exports"], function (require, expo
     }
     exports.Health = Health;
 });
+define("game/components/causesdamage", ["require", "exports", "game/game", "game/components/health"], function (require, exports, game_2, health_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class CausesDamage extends Component {
+        constructor() {
+            super(...arguments);
+            this.amount = .1;
+        }
+        bar() { }
+        addedToScene() {
+            super.addedToScene();
+            this.hitbox = this.entity.find(Hitbox);
+        }
+        update() {
+            super.update();
+            for (const collider of this.hitbox.collideAll(game_2.default.TAGS.PLAYER)) {
+                const health = collider.entity.find(health_1.Health);
+                if (health)
+                    health.tryApplyDamage(this);
+            }
+        }
+    }
+    exports.CausesDamage = CausesDamage;
+});
+define("game/components/emitter", ["require", "exports", "game/prefabs"], function (require, exports, prefabs_2) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Emitter extends Component {
+        constructor({ prefab = "" }) {
+            super();
+            this.prefab = prefab;
+        }
+        emit() {
+            const { x, y } = this.scenePosition;
+            this.scene.add(prefabs_2.instantiatePrefab(this.prefab, new Entity(x, y)));
+        }
+    }
+    exports.Emitter = Emitter;
+});
 class Physics extends Hitbox {
     constructor({ left, top, width, height, tags, solids }) {
         super({ left, top, width, height, tags });
         this.solids = [];
+        this.onCollide = [];
         this.speed = new Vector(0, 0);
         this.remainder = new Vector(0, 0);
-        if (solids != undefined)
+        if (solids !== undefined)
             this.solids = solids;
     }
     update() {
-        if (this.speed.x != 0)
+        if (this.speed.x !== 0)
             this.moveX(this.speed.x * Engine.delta);
         if (this.speed.y != 0)
             this.moveY(this.speed.y * Engine.delta);
     }
     moveBy(amount) {
-        var movedX = this.moveX(amount.x);
-        var movedY = this.moveY(amount.y);
+        const movedX = this.moveX(amount.x);
+        const movedY = this.moveY(amount.y);
         return movedX && movedY;
     }
     move(x, y) {
@@ -1023,6 +1217,8 @@ class Physics extends Hitbox {
                     this.remainder.x = 0;
                     if (this.onCollideX != null)
                         this.onCollideX(hit);
+                    for (const cb of this.onCollide)
+                        cb(true, hit);
                     return false;
                 }
                 else {
@@ -1052,6 +1248,8 @@ class Physics extends Hitbox {
                     this.remainder.y = 0;
                     if (this.onCollideY != null)
                         this.onCollideY(hit);
+                    for (const cb of this.onCollide)
+                        cb(false, hit);
                     return false;
                 }
                 else {
@@ -1090,7 +1288,7 @@ class Physics extends Hitbox {
         this.remainder.x = this.remainder.y = 0;
     }
 }
-define("game/components/pushable", ["require", "exports", "game/game"], function (require, exports, game_2) {
+define("game/components/pushable", ["require", "exports", "game/game"], function (require, exports, game_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Pushable extends Component {
@@ -1100,20 +1298,20 @@ define("game/components/pushable", ["require", "exports", "game/game"], function
             this.threshold = 0.5;
         }
         addedToEntity() {
-            const tags = [game_2.default.TAGS.SOLID];
-            const collidesWith = [game_2.default.TAGS.PLAYER];
+            const tags = [game_3.default.TAGS.SOLID];
+            const collidesWith = [game_3.default.TAGS.PLAYER];
             this.entity.add(this.physics = new Physics({ left: 0, top: 0, width: 24, height: 24, tags: tags, solids: collidesWith }));
             this.entity.add(this.hitbox = new Hitbox({ left: -1, top: -1, width: 26, height: 26, tags: [] }));
         }
         play_sound() {
-            game_2.default.SOUNDS.slide_stone.play();
+            game_3.default.SOUNDS.slide_stone.play();
         }
         update() {
             super.update();
             const currentTween = this.entity.find(Tween);
             if (currentTween)
                 return;
-            var player = this.hitbox.collide(game_2.default.TAGS.PLAYER, undefined, undefined);
+            var player = this.hitbox.collide(game_3.default.TAGS.PLAYER, undefined, undefined);
             if (!player) {
                 this.pushCounter.set(0, 0);
                 return;
@@ -1134,7 +1332,7 @@ define("game/components/pushable", ["require", "exports", "game/game"], function
             const start = this.scenePosition;
             if (Math.abs(this.pushCounter.x) > this.threshold) {
                 const amount = Math.sign(this.pushCounter.x) * tileSize;
-                const withColliders = this.physics.collideAll(game_2.default.TAGS.SOLID, amount, 0);
+                const withColliders = this.physics.collideAll(game_3.default.TAGS.SOLID, amount, 0);
                 if (!this.isBlocked(withColliders)) {
                     this.play_sound();
                     Tween.create(this.entity).start(duration, start.x, start.x + amount, ease, (n) => {
@@ -1145,7 +1343,7 @@ define("game/components/pushable", ["require", "exports", "game/game"], function
             }
             if (Math.abs(this.pushCounter.y) > this.threshold) {
                 const amount = Math.sign(this.pushCounter.y) * tileSize;
-                const withColliders = this.physics.collideAll(game_2.default.TAGS.SOLID, 0, amount);
+                const withColliders = this.physics.collideAll(game_3.default.TAGS.SOLID, 0, amount);
                 if (!this.isBlocked(withColliders)) {
                     this.play_sound();
                     Tween.create(this.entity).start(duration, start.y, start.y + amount, ease, (n) => {
@@ -1164,40 +1362,68 @@ define("game/components/pushable", ["require", "exports", "game/game"], function
     }
     exports.Pushable = Pushable;
 });
-define("game/components/trigger", ["require", "exports", "game/game"], function (require, exports, game_3) {
+define("game/components/graphichiteffect", ["require", "exports", "game/components/health", "reflect-metadata"], function (require, exports, health_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    class Trigger extends Component {
-        constructor(onTrigger) {
-            super();
-            this.triggerEvery = 1;
-            this.lastTrigger = -1;
-            this.onTrigger = onTrigger;
+    class GraphicHitEffect extends Component {
+        update() {
+            let visibleThisFrame = true;
+            if (this.health.invincible)
+                visibleThisFrame = Engine.frameCount % 2 === 0;
+            this.graphic.visible = visibleThisFrame;
+        }
+    }
+    __decorate([
+        Component.require,
+        __metadata("design:type", Graphic)
+    ], GraphicHitEffect.prototype, "graphic", void 0);
+    __decorate([
+        Component.require,
+        __metadata("design:type", health_2.Health)
+    ], GraphicHitEffect.prototype, "health", void 0);
+    exports.GraphicHitEffect = GraphicHitEffect;
+});
+define("game/components/knockback", ["require", "exports", "game/components/health", "reflect-metadata"], function (require, exports, health_3) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class KnockBack extends Component {
+        constructor() {
+            super(...arguments);
+            this.factor = 3.4;
         }
         addedToScene() {
             super.addedToScene();
-            this.hitbox = this.entity.find(Hitbox);
-        }
-        update() {
-            super.update();
-            if (this.hitbox.check(game_3.default.TAGS.PLAYER)) {
-                const now = Engine.elapsed;
-                if (this.lastTrigger + this.triggerEvery < now) {
-                    this.lastTrigger = now;
-                    this.onTrigger(this);
+            this.health.onDamage.push((damager) => {
+                let speed;
+                {
+                    const hitbox = damager.entity.find(Hitbox);
+                    if (hitbox) {
+                        const pt = Vector.temp0.set(hitbox.sceneLeft + hitbox.width / 2, hitbox.sceneTop + hitbox.height / 2);
+                        speed = Vector.temp1.copy(this.entity.position).sub(pt).normalize().mult(100).mult(this.factor);
+                    }
                 }
-            }
+                this.physics.speed.add(speed);
+            });
         }
     }
-    exports.Trigger = Trigger;
+    __decorate([
+        Component.require,
+        __metadata("design:type", health_3.Health)
+    ], KnockBack.prototype, "health", void 0);
+    __decorate([
+        Component.require,
+        __metadata("design:type", Physics)
+    ], KnockBack.prototype, "physics", void 0);
+    exports.KnockBack = KnockBack;
 });
 define("game/components/mover", ["require", "exports", "reflect-metadata"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Mover extends Component {
-        constructor(delta) {
+        constructor({ x, y }) {
             super();
-            this.delta = delta;
+            this.delta = new Vector();
+            this.delta.set(x, y);
         }
         addedToScene() {
             super.addedToScene();
@@ -1210,71 +1436,11 @@ define("game/components/mover", ["require", "exports", "reflect-metadata"], func
     ], Mover.prototype, "physics", void 0);
     exports.Mover = Mover;
 });
-define("game/prefabs", ["require", "exports", "game/components/index"], function (require, exports, index_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    function instantiatePrefab(prefabName, entity) {
-        const template = prefabs[prefabName];
-        if (!template)
-            throw "no prefab named " + prefabName;
-        for (const [name, componentTemplate] of Object.entries(template)) {
-            let newComponent;
-            if (Array.isArray(componentTemplate)) {
-                console.assert(componentTemplate.length === 2 || componentTemplate.length === 1);
-                console.assert(typeof componentTemplate[0] === 'function');
-                const [ctor, args] = componentTemplate;
-                newComponent = new ctor(args);
-            }
-            else if (typeof (componentTemplate) === "function") {
-                newComponent = componentTemplate();
-                console.assert(newComponent instanceof Component, "expected prefab func to return a component");
-            }
-            newComponent.prefabLink = componentTemplate;
-            entity.add(newComponent);
-        }
-        return entity;
-    }
-    exports.instantiatePrefab = instantiatePrefab;
-    const prefabs = {
-        fireball: {
-            sprite: [Sprite, { animation: "fireball_red" }],
-            spriteAutoPlay: () => new index_1.SpriteAutoPlay("main"),
-            physics: [Physics, { left: 6, top: 3, width: 12, height: 18 }],
-            causesDamage: () => new index_1.CausesDamage(),
-            mover: () => new index_1.Mover(new Vector(-80, 0))
-        },
-        dragon: {
-            sightline: [Hitbox, { left: -80, top: 4, width: 80, height: 8 }],
-            trigger: () => new index_1.Trigger((self) => self.entity.find(index_1.Emitter).emit()),
-            emitter: () => new index_1.Emitter({ prefab: "fireball" }),
-        },
-        eyeballs: {
-            hitbox: [Hitbox, { left: 2, top: 2, width: 20, height: 20 }],
-            causesDamage: () => new index_1.CausesDamage()
-        }
-    };
-    exports.default = prefabs;
-});
-define("game/components/emitter", ["require", "exports", "game/prefabs"], function (require, exports, prefabs_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class Emitter extends Component {
-        constructor({ prefab = "" }) {
-            super();
-            this.prefab = prefab;
-        }
-        emit() {
-            const { x, y } = this.scenePosition;
-            this.scene.add(prefabs_1.instantiatePrefab(this.prefab, new Entity(x, y)));
-        }
-    }
-    exports.Emitter = Emitter;
-});
 define("game/components/spriteautoplay", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class SpriteAutoPlay extends Component {
-        constructor(animationName) {
+        constructor({ animationName }) {
             super();
             this.animationName = animationName;
         }
@@ -1284,31 +1450,306 @@ define("game/components/spriteautoplay", ["require", "exports"], function (requi
     }
     exports.SpriteAutoPlay = SpriteAutoPlay;
 });
-define("game/components/index", ["require", "exports", "game/components/health", "game/components/pushable", "game/components/causesdamage", "game/components/trigger", "game/components/mover", "game/components/emitter", "game/components/spriteautoplay"], function (require, exports, health_2, pushable_1, causesdamage_1, trigger_1, mover_1, emitter_1, spriteautoplay_1) {
+define("game/components/trigger", ["require", "exports", "game/game", "game/components/index"], function (require, exports, game_4, index_2) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Trigger extends Component {
+        constructor({ componentName, methodName }) {
+            super();
+            this.triggerEvery = 1;
+            this.lastTrigger = -1;
+            this.componentName = componentName;
+            this.methodName = methodName;
+        }
+        addedToScene() {
+            super.addedToScene();
+            const componentClass = index_2.getComponentByName(this.componentName);
+            const component = this.entity.find(componentClass);
+            console.assert(!!component);
+            const func = component[this.methodName];
+            console.assert(typeof func === "function");
+            this.onTrigger = func.bind(component);
+        }
+        update() {
+            super.update();
+            if (this.hitbox.check(game_4.default.TAGS.PLAYER)) {
+                const now = Engine.elapsed;
+                if (this.lastTrigger + this.triggerEvery < now) {
+                    this.lastTrigger = now;
+                    this.onTrigger(this);
+                }
+            }
+        }
+    }
+    __decorate([
+        Component.require,
+        __metadata("design:type", Hitbox)
+    ], Trigger.prototype, "hitbox", void 0);
+    exports.Trigger = Trigger;
+});
+define("game/components/wonder", ["require", "exports", "reflect-metadata"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var Direction;
+    (function (Direction) {
+        Direction["left"] = "left";
+        Direction["right"] = "right";
+        Direction["up"] = "up";
+        Direction["down"] = "down";
+    })(Direction || (Direction = {}));
+    class Wonder extends Component {
+        constructor({ speed }) {
+            super();
+            this.speed = 15;
+            this.speed = speed;
+        }
+        addedToScene() {
+            super.addedToScene();
+            this.dir = "right";
+        }
+        onCollide(hit) {
+            if (this.dir === "right")
+                this.dir = "up";
+            else if (this.dir === "left")
+                this.dir = "down";
+            else if (this.dir === "down")
+                this.dir = "right";
+            else if (this.dir === "up")
+                this.dir = "left";
+        }
+        update() {
+            super.update();
+            this.physics.onCollideX = (hit) => { this.onCollide(hit); };
+            this.physics.onCollideY = (hit) => { this.onCollide(hit); };
+            const vec = Vector[this.dir];
+            this.physics.speed.set(this.speed * vec.x, this.speed * vec.y);
+        }
+    }
+    __decorate([
+        Component.require,
+        __metadata("design:type", Physics)
+    ], Wonder.prototype, "physics", void 0);
+    exports.Wonder = Wonder;
+});
+define("game/components/index", ["require", "exports", "game/components/causesdamage", "game/components/emitter", "game/components/pushable", "game/components/graphichiteffect", "game/components/health", "game/components/knockback", "game/components/mover", "game/components/spriteautoplay", "game/components/trigger", "game/components/wonder", "reflect-metadata"], function (require, exports, causesdamage_1, emitter_1, pushable_1, graphichiteffect_1, health_4, knockback_1, mover_1, spriteautoplay_1, trigger_1, wonder_1) {
     "use strict";
     function __export(m) {
         for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
     }
     Object.defineProperty(exports, "__esModule", { value: true });
-    __export(health_2);
-    __export(pushable_1);
     __export(causesdamage_1);
-    __export(trigger_1);
-    __export(mover_1);
     __export(emitter_1);
+    __export(pushable_1);
+    __export(graphichiteffect_1);
+    __export(health_4);
+    __export(knockback_1);
+    __export(mover_1);
     __export(spriteautoplay_1);
+    __export(trigger_1);
+    __export(wonder_1);
+    let Rotater = class Rotater extends Component {
+        constructor() {
+            super(...arguments);
+            this.degrees = 0;
+            this.speed = 2;
+        }
+        update() {
+            super.update();
+            this.degrees += Engine.delta * this.speed;
+            this.graphic.rotation = this.degrees;
+        }
+    };
+    __decorate([
+        Component.require,
+        __metadata("design:type", Graphic)
+    ], Rotater.prototype, "graphic", void 0);
+    Rotater = __decorate([
+        Component.register
+    ], Rotater);
+    for (const ctor of [Hitbox, Physics, Sprite])
+        Component.register(ctor);
+    function getComponentByName(name) {
+        if (!name)
+            throw new Error("must pass a non-empty non-null name to getComponentByName");
+        const ctor = Component.registeredComponents[name];
+        if (ctor)
+            return ctor;
+        const nameLower = name.toLowerCase();
+        return require("game/components/" + nameLower)[name];
+    }
+    exports.getComponentByName = getComponentByName;
 });
-define("game/level", ["require", "exports", "game/game", "game/door", "game/components/index", "game/prefabs"], function (require, exports, game_4, door_1, index_2, prefabs_2) {
+define("game/editablescene", ["require", "exports", "game/prefabs"], function (require, exports, prefabs_3) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var RectBorder;
+    (function (RectBorder) {
+        RectBorder["None"] = "None";
+        RectBorder["TopLeft"] = "TopLeft";
+        RectBorder["Top"] = "Top";
+        RectBorder["TopRight"] = "TopRight";
+        RectBorder["Left"] = "Left";
+        RectBorder["Right"] = "Right";
+        RectBorder["BottomLeft"] = "BottomLeft";
+        RectBorder["Bottom"] = "Bottom";
+        RectBorder["BottomRight"] = "BottomRight";
+    })(RectBorder || (RectBorder = {}));
+    class EditableScene extends Scene {
+        constructor() {
+            super();
+            this.groupsMask = [];
+            this.selection = null;
+            this.dragging = null;
+            this.dragOrigin = new Vector();
+            this.draggingRect = new Rectangle();
+            window["scene"] = this;
+        }
+        static borderContainsPoint(rect, { x, y }, borderWidth = 3) {
+            const { left, top, right, bottom } = rect;
+            const onLeft = Math.abs(left - x) <= borderWidth;
+            const onRight = Math.abs(right - x) <= borderWidth;
+            const onTop = Math.abs(top - y) <= borderWidth;
+            const onBottom = Math.abs(bottom - y) <= borderWidth;
+            if (onLeft && onTop)
+                return "TopLeft";
+            if (onRight && onTop)
+                return "TopRight";
+            if (onLeft && onBottom)
+                return "BottomLeft";
+            if (onRight && onBottom)
+                return "BottomRight";
+            const betweenHorizontal = left < x && x < right;
+            const betweenVertical = top < y && y < bottom;
+            if (onTop && betweenHorizontal)
+                return "Top";
+            if (onBottom && betweenHorizontal)
+                return "Bottom";
+            if (onLeft && betweenVertical)
+                return "Left";
+            if (onRight && betweenVertical)
+                return "Right";
+            return "None";
+        }
+        static cursorForRectBorder(rectBorder) {
+            switch (rectBorder) {
+                case "Top": return "n-resize";
+                case "Bottom": return "s-resize";
+                case "Left": return "w-resize";
+                case "Right": return "e-resize";
+                case "TopLeft": return "nw-resize";
+                case "TopRight": return "ne-resize";
+                case "BottomLeft": return "sw-resize";
+                case "BottomRight": return "se-resize";
+                case "None": return "inherit";
+                default:
+                    throw new Error("unexpected RectBorder value");
+            }
+        }
+        findUnder(mousePos) {
+            const list = (this.groupsMask.length > 0 ? this.allInGroups(this.groupsMask) : this.entities);
+            let found = null;
+            list.each((e) => {
+                if (!e.visible)
+                    return;
+                const hitbox = e.find(Hitbox);
+                if (!hitbox)
+                    return;
+                const bounds = hitbox.sceneBounds;
+                if (bounds.containsPoint(mousePos)) {
+                    found = hitbox;
+                    return false;
+                }
+            });
+            return found;
+        }
+        update() {
+            super.update();
+            if (!Engine.debugMode)
+                return;
+            const borderWidth = 3;
+            const mousePos = this.camera.worldMouse;
+            if (Mouse.leftPressed) {
+                const list = (this.groupsMask.length > 0 ? this.allInGroups(this.groupsMask) : this.entities);
+                const hitbox = this.findUnder(mousePos);
+                if (hitbox) {
+                    this.selection = hitbox;
+                    this.dragging = hitbox;
+                    this.draggingMode = EditableScene.borderContainsPoint(hitbox.sceneBounds, mousePos, borderWidth);
+                    this.draggingRect.copy(hitbox.sceneBounds);
+                    this.dragOrigin.copy(mousePos).sub(Vector.temp1.set(hitbox.left, hitbox.top));
+                }
+            }
+            else if (Mouse.left && this.dragging) {
+                const newPos = Vector.temp0.copy(mousePos).sub(this.dragOrigin);
+                const extend = Vector.temp1.copy(mousePos).sub(Vector.temp2.set(this.draggingRect.x, this.draggingRect.y));
+                const pull = Vector.temp3.set(this.draggingRect.right, this.draggingRect.bottom).sub(mousePos);
+                extend.x += 1;
+                extend.y += 1;
+                let vals = {};
+                switch (this.draggingMode) {
+                    case "None":
+                        vals = { left: newPos.x, top: newPos.y };
+                        break;
+                    case "Top":
+                        vals = { top: newPos.y, height: pull.y };
+                        break;
+                    case "Bottom":
+                        vals = { height: extend.y };
+                        break;
+                    case "Left":
+                        vals = { left: newPos.x, width: pull.x };
+                        break;
+                    case "Right":
+                        vals = { width: extend.x };
+                        break;
+                    case "BottomRight":
+                        vals = { width: extend.x, height: extend.y };
+                        break;
+                    case "TopLeft":
+                        vals = { top: newPos.y, height: pull.y, left: newPos.x, width: pull.x };
+                        break;
+                    case "TopRight":
+                        vals = { top: newPos.y, height: pull.y, width: extend.x };
+                        break;
+                    case "BottomLeft":
+                        vals = { height: extend.y, left: newPos.x, width: pull.x };
+                        break;
+                    default:
+                        throw new Error("unexpected RectBorder");
+                }
+                this.dragging.setPrefabValues(vals);
+            }
+            else if (!Mouse.left) {
+                let cursor = "inherit";
+                const hitbox = this.findUnder(mousePos);
+                if (hitbox) {
+                    const bounds = hitbox.sceneBounds;
+                    const rectBorder = EditableScene.borderContainsPoint(bounds, mousePos, borderWidth);
+                    cursor = rectBorder === "None" ? "move" : EditableScene.cursorForRectBorder(rectBorder);
+                }
+                Engine.graphics.canvas.style.cursor = cursor;
+            }
+            if (Mouse.leftReleased) {
+                if (this.dragging) {
+                    this.dragging = null;
+                    prefabs_3.sendPrefabsToServer();
+                }
+            }
+        }
+    }
+    exports.default = EditableScene;
+});
+define("game/level", ["require", "exports", "game/components/index", "game/door", "game/editablescene", "game/game", "game/prefabs"], function (require, exports, index_3, door_1, editablescene_1, game_5, prefabs_4) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     function createSpriteBanksForTileAnimations(tilesetInfo) {
-        let animations = {};
-        let animSpeeds = {};
+        const animations = {};
+        const animSpeeds = {};
         for (const [localIdString, { anim_name, anim_frame, anim_speed }] of Object.entries(tilesetInfo.tileproperties)) {
             if (anim_name && anim_frame !== undefined) {
                 const localId = parseInt(localIdString, 10);
                 console.assert(!isNaN(localId));
-                console.assert(typeof (anim_frame) === 'number');
+                console.assert(typeof (anim_frame) === "number");
                 if (animations[anim_name] === undefined)
                     animations[anim_name] = { frames: new Array(), speed: 2.2 };
                 animations[anim_name].frames.splice(anim_frame, 0, tilesetInfo.tilemap.getTileSubtexture(localId));
@@ -1320,91 +1761,7 @@ define("game/level", ["require", "exports", "game/game", "game/door", "game/comp
             SpriteBank.create(animName)
                 .add("main", speed, frames, true);
     }
-    function logParamTypes(target, key) {
-        var types = Reflect.getMetadata("design:paramtypes", target, key);
-        var s = types.map((a) => a.name).join();
-        console.log(`${key} param types: ${s}`);
-    }
-    function logProperty(target, key) {
-        var _val = this[key];
-        var getter = function () {
-            console.log(`Get: ${key} => ${_val}`);
-            return _val;
-        };
-        var setter = function (newVal) {
-            console.log(`Set: ${key} => ${newVal}`);
-            _val = newVal;
-        };
-        if (delete this[key]) {
-            Object.defineProperty(target, key, {
-                get: getter,
-                set: setter,
-                enumerable: true,
-                configurable: true
-            });
-        }
-    }
-    class Wobble extends Component {
-        constructor(graphic) {
-            super();
-            this.intensity = .07;
-            this.frequency = 2.1;
-            this.graphic = graphic;
-        }
-        addedToScene() {
-            super.addedToScene();
-            this.startPos = this.graphic.position;
-        }
-        update() {
-            super.update();
-            this.graphic.y = this.startPos.y + Math.sin(Engine.elapsed * this.frequency) * this.intensity;
-        }
-    }
-    class Teleport extends Component {
-        constructor(name) {
-            super();
-            this.name = name;
-        }
-    }
-    class EditableScene extends Scene {
-        constructor() {
-            super();
-            this.groupsMask = [];
-            this.selection = null;
-            this.dragging = null;
-            this.dragOrigin = new Vector();
-            window['scene'] = this;
-        }
-        update() {
-            super.update();
-            if (!Engine.debugMode)
-                return;
-            const mousePos = this.camera.worldMouse;
-            if (Mouse.leftPressed) {
-                let list = (this.groupsMask.length > 0 ? this.allInGroups(this.groupsMask) : this.entities);
-                list.each((e) => {
-                    if (e.visible) {
-                        var hitbox = e.find(Hitbox);
-                        if (hitbox && hitbox.sceneBounds.containsPoint(mousePos)) {
-                            this.selection = hitbox;
-                            this.dragging = hitbox;
-                            this.dragOrigin.copy(mousePos).sub(Vector.temp1.set(hitbox.left, hitbox.top));
-                        }
-                    }
-                });
-            }
-            else if (Mouse.left && this.dragging) {
-                const newPos = Vector.temp0.copy(mousePos).sub(this.dragOrigin);
-                this.dragging.setPrefabValue("left", newPos.x);
-                this.dragging.setPrefabValue("top", newPos.y);
-                this.dragging.setPrefabValue;
-            }
-            else if (Mouse.leftReleased) {
-                this.dragging = null;
-            }
-        }
-    }
-    class Level extends EditableScene {
+    class Level extends editablescene_1.default {
         constructor(scene, entrance) {
             super();
             this.slider = 0;
@@ -1417,30 +1774,30 @@ define("game/level", ["require", "exports", "game/game", "game/door", "game/comp
             const jsonPath = dirName + jsonFile;
             const level = Assets.json[jsonPath];
             if (!level)
-                throw "no level at " + jsonPath;
+                throw new Error("no level at " + jsonPath);
             const tilesets = [];
             function getNumber(obj, key) {
-                var val = obj[key];
-                var valType = typeof (val);
+                const val = obj[key];
+                const valType = typeof (val);
                 if (valType !== "number")
-                    throw `expected ${key} to be a number, got ${valType}`;
+                    throw new Error(`expected ${key} to be a number, got ${valType}`);
                 if (isNaN(val))
-                    throw `expected ${key} to be a number, got NaN`;
+                    throw new Error(`expected ${key} to be a number, got NaN`);
                 return val;
             }
             for (const tileset of level.tilesets) {
                 const firstGid = tileset.firstgid;
                 if (tileset.source !== undefined) {
                     const assetName = dirName + tileset.source;
-                    var xmlTilesetInfo = Assets.xml[assetName];
-                    let tilesetEl = xmlTilesetInfo['documentElement'];
+                    const xmlTilesetInfo = Assets.xml[assetName];
+                    const tilesetEl = xmlTilesetInfo["documentElement"];
                     function parseAndCheckInt(s) {
-                        let n = parseInt(s, 10);
+                        const n = parseInt(s, 10);
                         if (isNaN(n))
-                            throw `expected a number, got ${s}`;
+                            throw new Error(`expected a number, got ${s}`);
                         return n;
                     }
-                    let getInt = (s) => parseAndCheckInt(tilesetEl.getAttribute(s));
+                    const getInt = (s) => parseAndCheckInt(tilesetEl.getAttribute(s));
                     const columns = getInt("columns");
                     const tilewidth = getInt("tilewidth");
                     const tileheight = getInt("tileheight");
@@ -1451,7 +1808,7 @@ define("game/level", ["require", "exports", "game/game", "game/door", "game/comp
                     let image;
                     let tilesPerRow;
                     let tileoffset = null;
-                    let tileproperties = {};
+                    const tileproperties = {};
                     for (let q = 0; q < tilesetEl.children.length; ++q) {
                         const child = tilesetEl.children[q];
                         switch (child.nodeName) {
@@ -1482,42 +1839,42 @@ define("game/level", ["require", "exports", "game/game", "game/door", "game/comp
                                         switch (subChild.nodeName) {
                                             case "properties":
                                                 {
-                                                    const props = tileproperties[gid] || (tileproperties[gid] = {});
+                                                    const tileprops = tileproperties[gid] || (tileproperties[gid] = {});
                                                     for (let p = 0; p < subChild.children.length; ++p) {
                                                         const property = subChild.children[p];
                                                         console.assert(property.nodeName === "property");
                                                         const key = property.getAttribute("name");
-                                                        console.assert(typeof (key) === 'string');
+                                                        console.assert(typeof (key) === "string");
                                                         const val = property.getAttribute("value");
                                                         const propType = property.getAttribute("type");
                                                         switch (propType) {
                                                             case "int":
-                                                                props[key] = parseInt(val, 10);
-                                                                console.assert(!isNaN(props[key]));
+                                                                tileprops[key] = parseInt(val, 10);
+                                                                console.assert(!isNaN(tileprops[key]));
                                                                 break;
                                                             case "float":
-                                                                props[key] = parseFloat(val);
-                                                                console.assert(!isNaN(props[key]));
+                                                                tileprops[key] = parseFloat(val);
+                                                                console.assert(!isNaN(tileprops[key]));
                                                                 break;
                                                             case "bool":
-                                                                props[key] = val.toString() === "true" ? true : false;
+                                                                tileprops[key] = val.toString() === "true" ? true : false;
                                                                 break;
                                                             case "string":
                                                             default:
-                                                                props[key] = val.toString();
+                                                                tileprops[key] = val.toString();
                                                                 break;
                                                         }
                                                     }
                                                     break;
                                                 }
                                             default:
-                                                throw `unknown <tile/> child ${subChild.nodeName}`;
+                                                throw new Error(`unknown <tile/> child ${subChild.nodeName}`);
                                         }
                                     }
                                     break;
                                 }
                             default:
-                                throw `unknown node name ${child.nodeName}`;
+                                throw new Error(`unknown node name ${child.nodeName}`);
                         }
                     }
                     const tilesetInfo = {
@@ -1540,7 +1897,7 @@ define("game/level", ["require", "exports", "game/game", "game/door", "game/comp
                         tilesPerRow: Math.floor(tileset.imagewidth / tileset.tilewidth),
                         tileproperties: tileset.tileproperties,
                         image: tileset.image,
-                        tilemap: null
+                        tilemap: null,
                     };
                     tilesets.push(tilesetInfo);
                 }
@@ -1569,14 +1926,13 @@ define("game/level", ["require", "exports", "game/game", "game/door", "game/comp
                 if (!tileset)
                     return null;
                 const tilesetLocalId = gid - tileset.firstGid;
-                const props = tileset.tileproperties != null ? tileset.tileproperties[tilesetLocalId] : undefined;
-                if (!props)
+                const tileprops = tileset.tileproperties != null ? tileset.tileproperties[tilesetLocalId] : undefined;
+                if (!tileprops)
                     return null;
-                return props;
+                return tileprops;
             }
-            for (let i = 0; i < level.layers.length; i++) {
-                const layer = level.layers[i];
-                if (layer.name == "objects") {
+            for (const layer of level.layers) {
+                if (layer.name === "objects") {
                     let mapX = 0;
                     let mapY = 0;
                     let first = true;
@@ -1590,36 +1946,34 @@ define("game/level", ["require", "exports", "game/game", "game/door", "game/comp
                         else {
                             first = false;
                         }
-                        var props = getTileProps(tile);
-                        if (!props)
+                        const tileprops = getTileProps(tile);
+                        if (!tileprops)
                             continue;
-                        if (props.pushable) {
+                        if (tileprops.pushable) {
                             let pushable;
                             const tileset = findTileset(tile);
                             this.add(pushable = new Entity(mapX * tileset.tilewidth, mapY * tileset.tileheight));
                             pushable.depth = -10;
-                            pushable.add(new index_2.Pushable());
+                            pushable.add(new index_3.Pushable());
                             pushable.add(new Graphic(tileset.tilemap.getTileSubtexture(tile - tileset.firstGid)));
                         }
                     }
                 }
                 if (layer.name === "terrain" || layer.name === "shadows" || layer.name === "corners") {
-                    let tilemap = undefined;
+                    const tilemap = undefined;
                     let mapX = 0;
                     let mapY = 0;
                     const tiles = layer.data;
-                    for (let j = 0; j < tiles.length; ++j) {
-                        const tile = tiles[j];
+                    for (const tile of tiles) {
                         if (tile !== 0) {
                             const tilesetInfo = findTileset(tile);
                             if (!tilesetInfo)
-                                throw `couldn't find a tilesetInfo for tile ${tile} at (${mapX}, ${mapY}) in layer ${layer.name}`;
-                            const tilemap = tilesetInfo.tilemap;
+                                throw new Error(`couldn't find a tilesetInfo for tile ${tile} at (${mapX}, ${mapY}) in layer ${layer.name}`);
                             const tileI = tile - tilesetInfo.firstGid;
                             console.assert(tileI >= 0 && tile < tilesetInfo.lastGid);
                             const tileY = Math.floor(tileI / tilesetInfo.tilesPerRow);
                             const tileX = Math.floor(tileI % tilesetInfo.tilesPerRow);
-                            tilemap.set(tileX, tileY, mapX, mapY);
+                            tilesetInfo.tilemap.set(tileX, tileY, mapX, mapY);
                         }
                         if (++mapX >= layer.width) {
                             mapX = 0;
@@ -1627,68 +1981,71 @@ define("game/level", ["require", "exports", "game/game", "game/door", "game/comp
                         }
                     }
                 }
-                else if (layer.name == "entities") {
-                    for (let j = 0; j < layer.objects.length; j++) {
-                        const entity = layer.objects[j];
-                        if (entity.type == "door") {
+                else if (layer.name === "entities") {
+                    for (const entity of layer.objects) {
+                        if (entity.type === "door") {
                             const doorName = entity.name;
-                            const spawnPlayer = doorName == this.entrance;
-                            this.add(new door_1.default(doorName, entity.gotoScene || "", entity.gotoDoor || "", spawnPlayer), new Vector(parseInt(entity.x), parseInt(entity.y)));
+                            const spawnPlayer = doorName === this.entrance;
+                            this.add(new door_1.default(doorName, entity.gotoScene || "", entity.gotoDoor || "", spawnPlayer), new Vector(parseInt(entity.x, 10), parseInt(entity.y, 10)));
                         }
-                        else if (entity.type == "teleport") {
+                        else if (entity.type === "teleport") {
                             const teleport = new Entity(entity.x, entity.y);
                             teleport.add(new Teleport(entity.name));
                             this.add(teleport);
                             teleport.group("teleports");
                         }
                         else {
+                            const newEntity = new Entity(entity.x, entity.y);
+                            newEntity.depth = -2000;
+                            let type;
                             const gid = entity.gid;
                             if (typeof (gid) === "number" && gid >= 1) {
-                                const newEntity = new Entity(entity.x, entity.y);
-                                let type;
-                                var props = getTileProps(gid);
+                                const props = getTileProps(gid);
                                 const tileset = findTileset(gid);
                                 if (props && props.type)
                                     type = props.type;
-                                newEntity.depth = -2000;
                                 let mainGraphic = null;
                                 let needsWobble = false;
                                 if (props && props.hasShadow) {
                                     needsWobble = true;
-                                    function makeShadow(tileset) {
-                                        for (let localIdString in tileset.tileproperties) {
+                                    function makeShadow(tilesetInfo) {
+                                        for (const [localIdString, tileprops] of Object.entries(tilesetInfo.tileproperties)) {
                                             const localId = parseInt(localIdString, 10);
-                                            let props = tileset.tileproperties[localId];
-                                            if (typeof (props.shadow) === "number") {
-                                                const tex = tileset.tilemap.getTileSubtexture(localId);
+                                            if (typeof (tileprops.shadow) === "number") {
+                                                const tex = tilesetInfo.tilemap.getTileSubtexture(localId);
                                                 return new Graphic(tex);
                                             }
                                         }
                                         return null;
                                     }
                                     const shadow = makeShadow(tileset);
-                                    if (shadow) {
+                                    if (shadow)
                                         newEntity.add(shadow);
-                                    }
                                 }
                                 if (tileset)
                                     newEntity.add(mainGraphic = new Graphic(tileset.tilemap.getTileSubtexture(gid - tileset.firstGid)));
                                 if (needsWobble)
                                     newEntity.add(new Wobble(mainGraphic));
-                                if (type) {
-                                    prefabs_2.instantiatePrefab(type, newEntity);
-                                }
-                                this.add(newEntity);
                             }
+                            else {
+                                type = entity.type;
+                            }
+                            if (type)
+                                prefabs_4.instantiatePrefab(type, newEntity);
+                            if (newEntity.components.count > 0)
+                                this.add(newEntity);
+                            else
+                                console.warn("entity with zero components: ", entity);
                         }
                     }
                 }
-                else if (layer.name == "solids") {
-                    const solids = new Hitgrid(level.tilewidth, level.tileheight, [game_4.default.TAGS.SOLID]);
+                else if (layer.name === "solids") {
+                    const solids = new Hitgrid(level.tilewidth, level.tileheight, [game_5.default.TAGS.SOLID]);
                     terrain.add(solids);
-                    let mapX = 0, mapY = 0;
-                    for (let i = 0; i < layer.data.length; ++i) {
-                        if (layer.data[i] !== 0)
+                    let mapX = 0;
+                    let mapY = 0;
+                    for (const tile of layer.data) {
+                        if (tile !== 0)
                             solids.set(true, mapX, mapY);
                         if (++mapX >= layer.width) {
                             mapX = 0;
@@ -1699,51 +2056,49 @@ define("game/level", ["require", "exports", "game/game", "game/door", "game/comp
             }
         }
         loadOgmo(jsonPath, terrain) {
-            let level = Assets.json[jsonPath];
-            for (let i = 0; i < level.layers.length; i++) {
-                let layer = level.layers[i];
-                if (layer.name == "terrain") {
-                    let tilemap = new Tilemap(Assets.atlases["gfx"].get("tilemap"), 8, 8);
+            const level = Assets.json[jsonPath];
+            for (const layer of level.layers) {
+                if (layer.name === "terrain") {
+                    const tilemap = new Tilemap(Assets.atlases["gfx"].get("tilemap"), 8, 8);
                     terrain.add(tilemap);
-                    let rows = layer.data.split('\n');
+                    const rows = layer.data.split("\n");
                     for (let y = 0; y < rows.length; y++) {
                         let x = 0;
-                        let tiles = rows[y].split(',');
+                        const tiles = rows[y].split(",");
                         for (let j = 0; j < tiles.length - 1; j++) {
-                            if (tiles[j] == "-1") {
+                            if (tiles[j] === "-1") {
                                 x++;
                                 continue;
                             }
-                            let tx = tiles[j];
-                            let ty = tiles[j + 1];
-                            tilemap.set(parseInt(tx), parseInt(ty), x, y);
+                            const tx = tiles[j];
+                            const ty = tiles[j + 1];
+                            tilemap.set(parseInt(tx, 10), parseInt(ty, 10), x, y);
                             x++;
                             j++;
                         }
                     }
                 }
-                else if (layer.name == "solids") {
-                    let solids = new Hitgrid(8, 8, [game_4.default.TAGS.SOLID]);
+                else if (layer.name === "solids") {
+                    const solids = new Hitgrid(8, 8, [game_5.default.TAGS.SOLID]);
                     terrain.add(solids);
-                    let rows = layer.data.split('\n');
+                    const rows = layer.data.split("\n");
                     for (let y = 0; y < rows.length; y++)
                         for (let x = 0; x < rows[y].length; x++)
-                            if (rows[y][x] == '1')
+                            if (rows[y][x] === "1")
                                 solids.set(true, x, y);
                 }
-                else if (layer.name == "bgclouds") {
-                    for (let j = 0; j < layer.entities.length; j++)
-                        this.add(new Clouds(layer.entities[j].index, 10), new Vector(layer.entities[j].x, layer.entities[j].y));
+                else if (layer.name === "bgclouds") {
+                    for (const { index, x, y } of layer.entities)
+                        this.add(new Clouds(index, 10), new Vector(x, y));
                 }
-                else if (layer.name == "fgclouds") {
-                    for (let j = 0; j < layer.entities.length; j++)
-                        this.add(new Clouds(layer.entities[j].index, -10), new Vector(layer.entities[j].x, layer.entities[j].y));
+                else if (layer.name === "fgclouds") {
+                    for (const { index, x, y } of layer.entities)
+                        this.add(new Clouds(index, -10), new Vector(x, y));
                 }
-                else if (layer.name == "entities") {
-                    for (let j = 0; j < layer.entities.length; j++) {
-                        let entity = layer.entities[j];
-                        if (entity.name == "door") {
-                            this.add(new door_1.default(entity.doorName, entity.gotoScene, entity.gotoDoor, entity.doorName == this.entrance), new Vector(parseInt(entity.x), parseInt(entity.y)));
+                else if (layer.name === "entities") {
+                    for (const entity of layer.entities) {
+                        if (entity.name === "door") {
+                            this.add(new door_1.default(entity.doorName, entity.gotoScene, entity.gotoDoor, entity.doorName === this.entrance), new Vector(parseInt(entity.x, 10), parseInt(entity.y, 10)));
                         }
                     }
                 }
@@ -1774,7 +2129,7 @@ define("game/level", ["require", "exports", "game/game", "game/door", "game/comp
         afterLoad() {
             this.camera.origin.set(Engine.width / 2, Engine.height / 2);
             this.camera.position.set(Engine.width / 2, Engine.height / 2);
-            let terrain = this.add(new Entity());
+            const terrain = this.add(new Entity());
             terrain.depth = 1;
             this.loadTiled("assets/fantasy/TMX/", "puzzle.json", terrain);
         }
@@ -1785,15 +2140,18 @@ define("game/level", ["require", "exports", "game/game", "game/door", "game/comp
         }
         update() {
             super.update();
-            if (Keyboard.pressed(game_4.default.KEYS.SELECT))
+            if (Keyboard.pressed(game_5.default.KEYS.SELECT))
                 Engine.debugMode = !Engine.debugMode;
-            if (Keyboard.pressed(game_4.default.KEYS.RESTART)) {
+            if (Keyboard.pressed(game_5.default.KEYS.PAUSE))
+                Engine.paused = !Engine.paused;
+            Engine.timeScale = Keyboard.check(game_5.default.KEYS.FAST_FORWARD) ? 7 : 1;
+            if (Keyboard.pressed(game_5.default.KEYS.RESTART)) {
                 Engine.goto(new Level("bottom", "start"), true);
                 return;
             }
-            if (this.slider != this.sliderTo) {
+            if (this.slider !== this.sliderTo) {
                 this.slider = Calc.approach(this.slider, this.sliderTo, Engine.delta * 1.5);
-                if (this.slider == this.sliderTo && this.sliderOnEnd != undefined && this.sliderOnEnd != null)
+                if (this.slider === this.sliderTo && this.sliderOnEnd !== undefined && this.sliderOnEnd !== null)
                     this.sliderOnEnd();
             }
             if (!this.loaded)
@@ -1804,70 +2162,43 @@ define("game/level", ["require", "exports", "game/game", "game/door", "game/comp
         render() {
             super.render();
             if (this.slider > -1 || this.slider < 1) {
-                let color = game_4.default.COLORS[0];
-                let px = this.camera.position.x + Ease.cubeInOut(this.slider) * (Engine.width + 32);
-                let py = this.camera.position.y - Engine.height / 2;
-                let left = px - Engine.width / 2;
-                let right = px + Engine.width / 2;
+                const color = game_5.default.COLORS[0];
+                const px = this.camera.position.x + Ease.cubeInOut(this.slider) * (Engine.width + 32);
+                const py = this.camera.position.y - Engine.height / 2;
+                const left = px - Engine.width / 2;
+                const right = px + Engine.width / 2;
                 Engine.graphics.setRenderTarget(Engine.graphics.buffer);
                 Engine.graphics.shader = Shaders.texture;
                 Engine.graphics.shader.set("matrix", this.camera.matrix);
                 Engine.graphics.rect(left - 1, py, Engine.width + 2, Engine.height, color);
-                Engine.graphics.triangle(new Vector(left, py), new Vector(left - 32, py + Engine.height), new Vector(left, py + Engine.height), color);
-                Engine.graphics.triangle(new Vector(right, py), new Vector(right + 32, py), new Vector(right, py + Engine.height), color);
+                {
+                    const p1 = Vector.temp0.set(left, py);
+                    const p2 = Vector.temp1.set(left - 32, py + Engine.height);
+                    const p3 = Vector.temp2.set(left, py + Engine.height);
+                    Engine.graphics.triangle(p1, p2, p3, color);
+                }
+                {
+                    const p1 = Vector.temp0.set(right, py);
+                    const p2 = Vector.temp1.set(right + 32, py);
+                    const p3 = Vector.temp1.set(right, py + Engine.height);
+                    Engine.graphics.triangle(p1, p2, p3, color);
+                }
             }
         }
     }
     exports.default = Level;
 });
-define("game/player", ["require", "exports", "game/game", "game/components/index"], function (require, exports, game_5, index_3) {
+define("game/player", ["require", "exports", "game/components/index", "game/game", "game/prefabs"], function (require, exports, index_4, game_6, prefabs_5) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    class GraphicHitEffect extends Component {
-        update() {
-            let visibleThisFrame = true;
-            if (this.health.invincible)
-                visibleThisFrame = Engine.frameCount % 2 === 0;
-            this.graphic.visible = visibleThisFrame;
-        }
-    }
-    __decorate([
-        Component.require,
-        __metadata("design:type", Graphic)
-    ], GraphicHitEffect.prototype, "graphic", void 0);
-    __decorate([
-        Component.require,
-        __metadata("design:type", index_3.Health)
-    ], GraphicHitEffect.prototype, "health", void 0);
-    class KnockBack extends Component {
-        constructor() {
-            super(...arguments);
-            this.factor = 3.4;
-        }
-        addedToScene() {
-            this.health = this.entity.find(index_3.Health);
-            this.physics = this.entity.find(Physics);
-            this.health.onDamage.push((damager) => {
-                let speed;
-                {
-                    const hitbox = damager.entity.find(Hitbox);
-                    if (hitbox) {
-                        const pt = Vector.temp0.set(hitbox.sceneLeft + hitbox.width / 2, hitbox.sceneTop + hitbox.height / 2);
-                        speed = Vector.temp1.copy(this.entity.position).sub(pt).normalize().mult(100).mult(this.factor);
-                    }
-                }
-                this.physics.speed.add(speed);
-            });
-        }
-    }
     class Player extends Entity {
         constructor() {
             super();
-            this.add(this.physics = new Physics({ left: -4, top: -8, width: 8, height: 8, tags: [game_5.default.TAGS.PLAYER], solids: [game_5.default.TAGS.SOLID] }));
+            this.add(this.physics = new Physics({ left: -4, top: -8, width: 8, height: 8, tags: [game_6.default.TAGS.PLAYER], solids: [game_6.default.TAGS.SOLID] }));
             this.add(this.sprite = new Sprite({ animation: "guy" }));
-            this.add(new index_3.Health());
-            this.add(new KnockBack());
-            this.add(new GraphicHitEffect());
+            this.add(new index_4.Health());
+            this.add(new index_4.KnockBack());
+            this.add(new index_4.GraphicHitEffect());
             this.sprite.play("idle");
             this.sprite.origin.set(12, 24);
             this.physics.onCollideX = () => { this.physics.speed.x = 0; };
@@ -1878,29 +2209,35 @@ define("game/player", ["require", "exports", "game/game", "game/components/index
             const friction = 200;
             let speed = 220;
             let maxSpeed = 48;
-            if (Keyboard.check(game_5.default.KEYS.A)) {
+            if (Keyboard.check(game_6.default.KEYS.A)) {
                 speed *= 2;
                 maxSpeed *= 2;
             }
-            if (Keyboard.pressed(game_5.default.KEYS.TELEPORT))
+            if (Keyboard.pressed(game_6.default.KEYS.B)) {
+                let e;
+                this.scene.add(e = new Entity(this.x, this.y));
+                prefabs_5.instantiatePrefab("lightning_bolt", e);
+            }
+            if (Keyboard.pressed(game_6.default.KEYS.TELEPORT))
                 this.position.copy(this.scene.firstInGroup("teleports").position);
             const delta = speed * Engine.delta;
-            const addedSpeed = Vector.temp0.set((Keyboard.check(game_5.default.KEYS.LEFT) ? -delta : 0) +
-                (Keyboard.check(game_5.default.KEYS.RIGHT) ? delta : 0), (Keyboard.check(game_5.default.KEYS.UP) ? -delta : 0) +
-                (Keyboard.check(game_5.default.KEYS.DOWN) ? delta : 0));
+            const addedSpeed = Vector.temp0.set((Keyboard.check(game_6.default.KEYS.LEFT) ? -delta : 0) +
+                (Keyboard.check(game_6.default.KEYS.RIGHT) ? delta : 0), (Keyboard.check(game_6.default.KEYS.UP) ? -delta : 0) +
+                (Keyboard.check(game_6.default.KEYS.DOWN) ? delta : 0));
             this.physics.speed.add(addedSpeed);
-            this.physics.friction(addedSpeed.x == 0 ? friction : 0, addedSpeed.y == 0 ? friction : 0);
+            this.physics.friction(addedSpeed.x === 0 ? friction : 0, addedSpeed.y === 0 ? friction : 0);
             this.physics.circularMaxspeed(maxSpeed);
-            this.scene.camera.position.set(this.x, this.y - 5);
+            const camPos = Vector.temp0.set(this.x, this.y - 5).max(Vector.temp1.set(100, 100));
+            this.scene.camera.position.copy(camPos);
             const xSign = Calc.sign(this.physics.speed.x);
-            if (xSign != 0)
+            if (xSign !== 0)
                 this.sprite.scale.x = xSign;
-            this.sprite.play(this.physics.speed.length > 0 ? "run" : "idle");
+            this.sprite.play(this.physics.speed.length > 0 ? "walk" : "idle");
         }
     }
     exports.default = Player;
 });
-define("game/door", ["require", "exports", "game/level", "game/game", "game/player"], function (require, exports, level_2, game_6, player_1) {
+define("game/door", ["require", "exports", "game/game", "game/level", "game/player"], function (require, exports, game_7, level_2, player_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Door extends Entity {
@@ -1932,7 +2269,7 @@ define("game/door", ["require", "exports", "game/level", "game/game", "game/play
                 }
             }
             else {
-                if (this.hitbbox.check(game_6.default.TAGS.PLAYER)) {
+                if (this.hitbbox.check(game_7.default.TAGS.PLAYER)) {
                     if (this.gotoScene.length > 0 && !this.playerOn) {
                         this.scene.remove(this.scene.find(player_1.default));
                         this.playerOn = true;
@@ -1941,7 +2278,7 @@ define("game/door", ["require", "exports", "game/level", "game/game", "game/play
                 }
                 else {
                     if (this.isOpen && this.gotoScene.length <= 0) {
-                        this.hitbbox.tag(game_6.default.TAGS.SOLID);
+                        this.hitbbox.tag(game_7.default.TAGS.SOLID);
                         this.isOpen = false;
                     }
                     this.playerOn = false;
@@ -1951,15 +2288,38 @@ define("game/door", ["require", "exports", "game/level", "game/game", "game/play
             }
         }
         render() {
-            Engine.graphics.rect(this.x + -6, this.y - 13, 12, 13, game_6.default.COLORS[3]);
-            Engine.graphics.rect(this.x + -5, this.y - 12, 10, 12, game_6.default.COLORS[2]);
-            Engine.graphics.rect(this.x + -4, this.y - 11, 8, 11, game_6.default.COLORS[3]);
+            Engine.graphics.rect(this.x + -6, this.y - 13, 12, 13, game_7.default.COLORS[3]);
+            Engine.graphics.rect(this.x + -5, this.y - 12, 10, 12, game_7.default.COLORS[2]);
+            Engine.graphics.rect(this.x + -4, this.y - 11, 8, 11, game_7.default.COLORS[3]);
             if (!this.isOpen)
-                Engine.graphics.rect(this.x + -3, this.y - 10, 6, 10 * this.closedEase, game_6.default.COLORS[2]);
+                Engine.graphics.rect(this.x + -3, this.y - 10, 6, 10 * this.closedEase, game_7.default.COLORS[2]);
         }
     }
     exports.default = Door;
 });
+class Teleport extends Component {
+    constructor(name) {
+        super();
+        this.name = name;
+    }
+}
+class Wobble extends Component {
+    constructor(graphic) {
+        super();
+        this.intensity = .07;
+        this.frequency = 2.1;
+        this.graphic = graphic;
+    }
+    addedToScene() {
+        super.addedToScene();
+        this.startPos = this.graphic.position;
+    }
+    update() {
+        super.update();
+        if (Engine.delta > 0)
+            this.graphic.y = this.startPos.y + Math.sin(Engine.elapsed * this.frequency) * this.intensity;
+    }
+}
 var ResolutionStyle;
 (function (ResolutionStyle) {
     ResolutionStyle[ResolutionStyle["None"] = 0] = "None";
@@ -2452,133 +2812,131 @@ class AssetLoader {
     get loading() { return this._loading; }
     get loaded() { return this._loaded; }
     get percent() { return this.assetsLoaded / this.assets; }
-    addTexture(path, colorKey = null) {
+    checkLoading() {
         if (this.loading || this.loaded)
-            throw "Cannot add more assets when already loaded";
+            throw new Error("Cannot add more assets when already loaded");
+    }
+    addTexture(path, colorKey = null) {
+        this.checkLoading();
         this.textures.push({ path, colorKey });
         this.assets++;
         return this;
     }
     addJson(path) {
-        if (this.loading || this.loaded)
-            throw "Cannot add more assets when already loaded";
+        this.checkLoading();
         this.jsons.push(path);
         this.assets++;
         return this;
     }
     addXml(path) {
-        if (this.loading || this.loaded)
-            throw "Cannot add more assets when already loaded";
+        this.checkLoading();
         this.xmls.push(path);
         this.assets++;
         return this;
     }
     addText(path) {
-        if (this.loading || this.loaded)
-            throw "Cannot add more assets when already loaded";
+        this.checkLoading();
         this.texts.push(path);
         this.assets++;
         return this;
     }
     addSound(handle, path) {
-        if (this.loading || this.loaded)
-            throw "Cannot add more assets when already loaded";
-        this.sounds.push({ handle: handle, path: path });
+        this.checkLoading();
+        this.sounds.push({ handle, path });
         this.assets++;
         return this;
     }
     addAtlas(name, image, data, loader) {
-        if (this.loading || this.loaded)
-            throw "Cannot add more assets when already loaded";
-        this.atlases.push({ name: name, image: image, data: data, loader: loader });
+        this.checkLoading();
+        this.atlases.push({ name, image, data, loader });
         this.assets += 3;
         return this;
     }
     load(callback) {
         this._loading = true;
         this.callback = callback;
-        for (let i = 0; i < this.textures.length; i++) {
-            const fullPath = FosterIO.join(this.root, this.textures[i].path);
-            this.loadTexture({ path: fullPath, colorKey: this.textures[i].colorKey });
+        for (const texture of this.textures) {
+            const fullPath = FosterIO.join(this.root, texture.path);
+            this.loadTexture({ path: fullPath, colorKey: texture.colorKey });
         }
-        for (let i = 0; i < this.jsons.length; i++)
-            this.loadJson(FosterIO.join(this.root, this.jsons[i]));
-        for (let i = 0; i < this.xmls.length; i++)
-            this.loadXml(FosterIO.join(this.root, this.xmls[i]));
-        for (let i = 0; i < this.texts.length; i++)
-            this.loadText(FosterIO.join(this.root, this.texts[i]));
-        for (let i = 0; i < this.sounds.length; i++)
-            this.loadSound(this.sounds[i].handle, FosterIO.join(this.root, this.sounds[i].path));
-        for (let i = 0; i < this.atlases.length; i++)
-            this.loadAtlas(this.atlases[i]);
+        for (const json of this.jsons)
+            this.loadJson(FosterIO.join(this.root, json));
+        for (const xml of this.xmls)
+            this.loadXml(FosterIO.join(this.root, xml));
+        for (const text of this.texts)
+            this.loadText(FosterIO.join(this.root, text));
+        for (const sound of this.sounds)
+            this.loadSound(sound.handle, FosterIO.join(this.root, sound.path));
+        for (const atlas of this.atlases)
+            this.loadAtlas(atlas);
     }
     unload() {
         if (this.loading)
-            throw "Cannot unload until finished loading";
+            throw new Error("Cannot unload until finished loading");
         if (!this.loaded)
-            throw "Cannot unload before loading";
-        throw "Asset Unloading not Implemented";
+            throw new Error("Cannot unload before loading");
+        throw new Error("Asset Unloading not Implemented");
     }
     loadTexture(info, callback) {
         const path = info.path;
-        let gl = Engine.graphics.gl;
-        let img = new Image();
-        img.addEventListener('load', () => {
-            let tex = Texture.create(img, info.colorKey);
+        const gl = Engine.graphics.gl;
+        const img = new Image();
+        img.addEventListener("load", () => {
+            const tex = Texture.create(img, info.colorKey);
             tex.texture.path = path;
             Assets.textures[this.pathify(path)] = tex;
-            if (callback != undefined)
+            if (callback !== undefined)
                 callback(tex);
             this.incrementLoader();
         });
         img.src = path;
     }
     loadJson(path, callback) {
-        var self = this;
+        const self = this;
         FosterIO.read(path, (data) => {
-            let p = this.pathify(path);
+            const p = this.pathify(path);
             Assets.json[p] = JSON.parse(data);
-            if (callback != undefined)
+            if (callback !== undefined)
                 callback(Assets.json[p]);
             self.incrementLoader();
         });
     }
     loadXml(path, callback) {
         FosterIO.read(path, (data) => {
-            let p = this.pathify(path);
+            const p = this.pathify(path);
             Assets.xml[p] = (new DOMParser()).parseFromString(data, "text/xml");
-            if (callback != undefined)
+            if (callback !== undefined)
                 callback(Assets.xml[p]);
             this.incrementLoader();
         });
     }
     loadText(path, callback) {
         FosterIO.read(path, (data) => {
-            let p = this.pathify(path);
+            const p = this.pathify(path);
             Assets.text[p] = data;
-            if (callback != undefined)
+            if (callback !== undefined)
                 callback(Assets.text[p]);
             this.incrementLoader();
         });
     }
     loadSound(handle, path, callback) {
-        let audio = new Audio();
+        const audio = new Audio();
         audio.addEventListener("loadeddata", () => {
             Assets.sounds[handle] = new AudioSource(path, audio);
-            if (callback != undefined)
+            if (callback !== undefined)
                 callback(Assets.sounds[handle]);
             this.incrementLoader();
         });
         audio.src = path;
     }
     loadAtlas(data) {
-        var self = this;
-        var texture = null;
-        var atlasdata = null;
+        const self = this;
+        let texture = null;
+        let atlasdata = null;
         function check() {
             if (texture == null || atlasdata == null)
                 return;
-            let atlas = new Atlas(data.name, texture, atlasdata, data.loader);
+            const atlas = new Atlas(data.name, texture, atlasdata, data.loader);
             Assets.atlases[atlas.name] = atlas;
             self.incrementLoader();
         }
@@ -2587,10 +2945,10 @@ class AssetLoader {
     }
     incrementLoader() {
         this.assetsLoaded++;
-        if (this.assetsLoaded == this.assets) {
+        if (this.assetsLoaded === this.assets) {
             this._loaded = true;
             this._loading = false;
-            if (this.callback != undefined)
+            if (this.callback !== undefined)
                 this.callback();
         }
     }
@@ -3384,6 +3742,16 @@ class Vector {
         this.y -= v.y;
         return this;
     }
+    max(v) {
+        this.x = Math.max(this.x, v.x);
+        this.y = Math.max(this.y, v.y);
+        return this;
+    }
+    min(v) {
+        this.x = Math.min(this.x, v.x);
+        this.y = Math.min(this.x, v.y);
+        return this;
+    }
     mult(s) {
         if (typeof s === "number") {
             this.x *= s;
@@ -3447,6 +3815,13 @@ Vector.directions = [
 Vector.temp0 = new Vector();
 Vector.temp1 = new Vector();
 Vector.temp2 = new Vector();
+Vector.temp3 = new Vector();
+Vector.temp4 = new Vector();
+Vector.temp5 = new Vector();
+Vector.up = new Vector(0, -1);
+Vector.down = new Vector(0, 1);
+Vector.left = new Vector(-1, 0);
+Vector.right = new Vector(1, 0);
 Vector._zero = new Vector();
 class ParticleSystem extends Component {
     constructor(template) {
@@ -3755,16 +4130,28 @@ class Graphic extends Component {
         Engine.graphics.texture(this.texture, this.scenePosition.x, this.scenePosition.y, this.crop, Color.temp.copy(this.color).mult(this.alpha), this.origin, this.scale, this.rotation, this.flipX, this.flipY);
     }
 }
+var Origin;
+(function (Origin) {
+    Origin["center"] = "center";
+    Origin["topLeft"] = "topLeft";
+})(Origin || (Origin = {}));
 class Sprite extends Graphic {
-    constructor({ animation }) {
+    constructor({ animation, origin, scale, play }) {
         super(null);
         this._animation = null;
         this._playing = null;
         this._frame = 0;
         this.rate = 1;
+        if (scale && scale.x !== undefined)
+            this.scale.set(scale.x, scale.y);
         Engine.assert(SpriteBank.has(animation), "Missing animation '" + animation + "'!");
         this._animation = SpriteBank.get(animation);
         this.texture = this._animation.first.frames[0];
+        if (origin === "center") {
+            this.origin.set(this.width * .5, this.height * .5);
+        }
+        if (play)
+            this.play(play);
     }
     get animation() { return this._animation; }
     get playing() { return this._playing; }
@@ -3779,8 +4166,10 @@ class Sprite extends Graphic {
     play(name, restart) {
         if (this.animation == null)
             return;
-        let next = this.animation.get(name);
-        if (next != null && (this.playing != next || restart)) {
+        const next = this.animation.get(name);
+        if (next == null)
+            console.warn(`no animation named '${name}'`);
+        if (next != null && (this.playing !== next || restart)) {
             this._playing = next;
             this._frame = 0;
             this.active = true;
@@ -3802,7 +4191,7 @@ class Sprite extends Graphic {
                         this._frame += this.playing.frames.length;
                 }
                 else if (this.playing.goto != null && this.playing.goto.length > 0) {
-                    let next = this.playing.goto[Math.floor(Math.random() * this.playing.goto.length)];
+                    const next = this.playing.goto[Math.floor(Math.random() * this.playing.goto.length)];
                     this.play(next, true);
                 }
                 else {
@@ -4282,9 +4671,6 @@ class Camera {
         this.extentsB.set(Engine.width, 0).transform(inverse);
         this.extentsC.set(0, Engine.height).transform(inverse);
         this.extentsD.set(Engine.width, Engine.height).transform(inverse);
-    }
-    screenToWorld(point, into) {
-        const e = this.extents;
     }
     get extents() {
         this.getExtents();

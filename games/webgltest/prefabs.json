@@ -1,0 +1,139 @@
+{
+  "lightning_bolt": {
+    "sprite": [
+      "Sprite",
+      {
+        "animation": "lightning",
+        "play": "bolt",
+        "origin": "center",
+        "scale": {
+          "x": 0.1,
+          "y": 0.1
+        }
+      }
+    ],
+    "physics": [
+      "Physics",
+      {
+        "left": -10.807277339021141,
+        "top": -8.208540958090737,
+        "width": 20.127759266732,
+        "height": 14.508753471460281
+      }
+    ],
+    "mover": [
+      "Mover",
+      {
+        "x": 100,
+        "y": 0
+      }
+    ]
+  },
+  "fireball": {
+    "sprite": [
+      "Sprite",
+      {
+        "animation": "fireball_red"
+      }
+    ],
+    "spriteAutoPlay": [
+      "SpriteAutoPlay",
+      {
+        "animationName": "main"
+      }
+    ],
+    "physics": [
+      "Physics",
+      {
+        "left": 6,
+        "top": 5.102957283680169,
+        "width": 12,
+        "height": 14.952510397729966
+      }
+    ],
+    "causesDamage": [
+      "CausesDamage"
+    ],
+    "mover": [
+      "Mover",
+      {
+        "x": -80,
+        "y": 0
+      }
+    ]
+  },
+  "dragon": {
+    "rotater": ["Rotater"],
+    "sightline": [
+      "Hitbox",
+      {
+        "left": -160.76954401337412,
+        "top": 6.343358505793461,
+        "width": 166.63122078621188,
+        "height": 19.130133566001078
+      }
+    ],
+    "trigger": [
+      "Trigger",
+      {
+        "componentName": "Emitter",
+        "methodName": "emit"
+      }
+    ],
+    "emitter": [
+      "Emitter",
+      {
+        "prefab": "fireball"
+      }
+    ]
+  },
+  "eyeballs": {
+    "hitbox": [
+      "Hitbox",
+      {
+        "left": 2,
+        "top": 3.61684210526316,
+        "width": 20,
+        "height": 20
+      }
+    ],
+    "causesDamage": [
+      "CausesDamage"
+    ]
+  },
+  "skull": {
+    "sprite": [
+      "Sprite",
+      {
+        "animation": "skull"
+      }
+    ],
+    "spriteAutoPlay": [
+      "SpriteAutoPlay",
+      {
+        "animationName": "idle"
+      }
+    ],
+    "physics": [
+      "Physics",
+      {
+        "left": 4.7873684210526335,
+        "top": 2.595789473684249,
+        "width": 16.100976496169622,
+        "height": 16.062693245229525,
+        "solids": [
+          "solid"
+        ]
+      }
+    ],
+    "causesDamage": [
+      "CausesDamage"
+    ],
+    "wonder": [
+      "Wonder",
+      {
+        "speed": 30
+      }
+    ]
+  }
+}

@@ -1,14 +1,17 @@
 <html>
     <head>
-        <style> html, body, canvas {
-            width: 100%; height: 100%; padding: 0; margin: 0; background: #000;
+        <style>
+            html, body, canvas {
+                width: 100%; height: 100%; padding: 0; margin: 0; background: #000;
             }
-            canvas {user-select: none;}
+            canvas {
+                user-select: none;
+            }
             #debug_console {
                 position: fixed;
                 bottom: 0;
                 margin: 0;
-                padding: 40px;
+                padding: 8px;
                 left: 0;
                 width: 30%;
                 background: rgba(0, 0, 0, .7);
@@ -18,6 +21,9 @@
         </style>
         <!--<script src="lib/foster.js"></script>-->
         <script src="require.js"></script>
+        <script>window.oldRequire = require; window.require = undefined;</script>
+        <!--<script src="stats.min.js"></script>-->
+        <script>window.require = oldRequire; window.oldRequire = undefined;</script>
         <script src="game.js"></script>
         <script>
             require(['game/game'], function(game) {
@@ -26,6 +32,5 @@
         </script>
     </head>
     <body>
-        <pre id="debug_console">this is a test.</pre>
     </body>
 </html>

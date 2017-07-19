@@ -1,0 +1,29 @@
+{
+  "atlases": [
+    {
+      "name": "guy_idle",
+      "image": "sprites\\guy_idle.png",
+      "data": "sprites\\guy_idle.json"
+    },
+    {
+      "name": "guy_walk",
+      "image": "sprites\\guy_walk.png",
+      "data": "sprites\\guy_walk.json"
+    },
+    {
+      "name": "lightning_bolt",
+      "image": "sprites\\lightning_bolt.png",
+      "data": "sprites\\lightning_bolt.json"
+    },
+    {
+      "name": "skull_blockize",
+      "image": "sprites\\skull_blockize.png",
+      "data": "sprites\\skull_blockize.json"
+    },
+    {
+      "name": "skull_idle",
+      "image": "sprites\\skull_idle.png",
+      "data": "sprites\\skull_idle.json"
+    }
+  ]
+}
