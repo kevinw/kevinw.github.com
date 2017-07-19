@@ -1035,12 +1035,12 @@ define("game/game", ["require", "exports", "game/level", "game/prefabs", "game/a
             template.duration(12);
             template.scale(1, 0);
             const self = this;
-            new AssetLoader("")
+            new AssetLoader("assets")
                 .addJson("prefabs.json")
                 .addJson("assets.json")
                 .load(() => {
-                prefabs_1.setPrefabs(Assets.json["/prefabs.json"]);
-                Game.loadAssets(Assets.json["/assets.json"]);
+                prefabs_1.setPrefabs(Assets.json["assets/prefabs.json"]);
+                Game.loadAssets(Assets.json["assets/assets.json"]);
             });
         }
         static loadAssets(jsonAssets) {
