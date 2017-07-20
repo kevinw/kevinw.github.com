@@ -1,71 +1,5 @@
 {
-  "pushableBlock": {
-    "pushable": [
-      "Pushable"
-    ]
-  },
-  "exit": {
-    "exit": [
-      "Exit"
-    ],
-    "hitbox": [
-      "Hitbox",
-      {
-        "left": 0,
-        "top": 0,
-        "width": 24,
-        "height": 24,
-        "tags": [
-          "solid"
-        ]
-      }
-    ]
-  },
-  "treasure": {
-    "pickup": [
-      "Pickup"
-    ],
-    "treasure": [
-      "Treasure"
-    ],
-    "hitbox": [
-      "Hitbox",
-      {
-        "left": 0,
-        "top": 0,
-        "width": 24,
-        "height": 24,
-        "tags": [
-          "solid",
-          "treasure"
-        ]
-      }
-    ]
-  },
-  "heart": {
-    "pickup": [
-      "Pickup"
-    ],
-    "hitbox": [
-      "Hitbox",
-      {
-        "left": 2.2606790799561907,
-        "top": 2.2606790799561907,
-        "width": 13.027382256297926,
-        "height": 11.273819511221348,
-        "tags": [
-          "heart"
-        ]
-      }
-    ]
-  },
   "player": {
-    "controls": [
-      "TopDownControls",
-      {
-        "maxSpeed": 60
-      }
-    ],
     "sprite": [
       "Sprite",
       {
@@ -80,18 +14,15 @@
       "KnockBack"
     ],
     "hiteffect": [
-      "GraphicHitEffect",
-      {
-        "deathAnim": "die"
-      }
+      "GraphicHitEffect"
     ],
     "physics": [
       "Physics",
       {
-        "left": 7.938888339706011,
-        "top": 11.373285198555962,
-        "width": 10.855335487008801,
-        "height": 12.222379619722318,
+        "left": 2.7061371841155335,
+        "top": 9.883032490974756,
+        "width": 19.34368231046932,
+        "height": 12.922021660649818,
         "tags": [
           "player"
         ],
@@ -152,19 +83,13 @@
         "animationName": "main"
       }
     ],
-    "diesOnCollision": [
-      "DiesOnCollision"
-    ],
     "physics": [
       "Physics",
       {
         "left": 6,
         "top": 5.102957283680169,
         "width": 12,
-        "height": 14.952510397729966,
-        "solids": [
-          "solid"
-        ]
+        "height": 14.952510397729966
       }
     ],
     "causesDamage": [
@@ -173,7 +98,7 @@
     "mover": [
       "Mover",
       {
-        "x": -110,
+        "x": -80,
         "y": 0
       }
     ]
@@ -185,7 +110,7 @@
         "left": -160.76954401337412,
         "top": 6.343358505793461,
         "width": 166.63122078621188,
-        "height": 17.586602341365676
+        "height": 19.130133566001078
       }
     ],
     "trigger": [

@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 define("game/autosprite", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    const VERBOSE = false;
     function loadAutoSprites() {
         const autoSprites = {};
         for (const [atlasName, atlas] of Object.entries(Assets.atlases)) {
@@ -17,16 +18,22 @@ define("game/autosprite", ["require", "exports"], function (require, exports) {
             if (els.length < 2 || atlas.reader !== AtlasReaders.DoodleStudio)
                 continue;
             const [spriteName, animName] = els;
-            let spriteList = (autoSprites[spriteName] || (autoSprites[spriteName] = []));
+            const spriteList = (autoSprites[spriteName] || (autoSprites[spriteName] = []));
             spriteList.push(atlas);
         }
         for (const [spriteName, atlasList] of Object.entries(autoSprites)) {
             const spriteBank = SpriteBank.create(spriteName);
+            if (VERBOSE)
+                console.debug("spritebank " + spriteName);
             for (const atlas of atlasList) {
                 const atlasName = atlas.name;
                 console.assert(atlasName.startsWith(spriteName));
                 const subName = atlasName.slice(spriteName.length + 1);
-                spriteBank.add(subName, 10, atlas.find("main"), true);
+                const frames = atlas.find("main");
+                const loops = frames[0].metadata["loops"];
+                if (VERBOSE)
+                    console.debug("  " + subName + ` (loops=${loops})`);
+                spriteBank.add(subName, 10, atlas.find("main"), loops);
             }
         }
     }
@@ -55,11 +62,11 @@ class Entity {
         return this._depth;
     }
     set depth(val) {
-        if (this.scene != null && this._depth != val) {
+        if (this.scene != null && this._depth !== val) {
             this._depth = val;
             this.scene.entities.unsorted = true;
-            for (let i = 0; i < this.groups.length; i++)
-                this.scene.groups[this.groups[i]].unsorted = true;
+            for (const group of this.groups)
+                this.scene.groups[group].unsorted = true;
         }
     }
     created() {
@@ -124,7 +131,7 @@ class Entity {
         return component;
     }
     findAll(className) {
-        let list = [];
+        const list = [];
         this.components.each((c) => {
             if (c instanceof className)
                 list.push(c);
@@ -137,7 +144,7 @@ class Entity {
             this.scene._groupEntity(this, groupType);
     }
     ungroup(groupType) {
-        let index = this.groups.indexOf(groupType);
+        const index = this.groups.indexOf(groupType);
         if (index >= 0) {
             this.groups.splice(index, 1);
             if (this.scene != null)
@@ -280,6 +287,11 @@ class Scene {
         entity.destroyed();
         entity.isCreated = false;
     }
+    findAllComponents(className) {
+        const components = [];
+        this.entities.each((e) => { components.push(...e.findAll(className)); });
+        return components;
+    }
     find(className) {
         let entity = null;
         this.entities.each((e) => {
@@ -341,7 +353,7 @@ class Scene {
     }
     firstColliderInTag(tag) {
         if (this.colliders[tag] !== undefined && this.colliders[tag].length > 0)
-            return this.colliders[tag];
+            return this.colliders[tag][0];
         return null;
     }
     allCollidersInTag(tag) {
@@ -447,7 +459,13 @@ class Component {
     get y() { return this.position.y; }
     set y(val) { this.position.y = val; }
     get scenePosition() {
-        return new Vector((this._entity ? this._entity.x : 0) + this.position.x, (this._entity ? this._entity.y : 0) + this.position.y);
+        const v = new Vector();
+        this.getScenePosition(v);
+        return v;
+    }
+    getScenePosition(v) {
+        v.set((this._entity ? this._entity.x : 0) + this.position.x, (this._entity ? this._entity.y : 0) + this.position.y);
+        return v;
     }
     addedToEntity() { }
     static register(target) {
@@ -925,6 +943,8 @@ define("game/prefabs", ["require", "exports", "game/components/index", "game/gam
         const template = prefabs[prefabName];
         if (!template)
             throw new Error("no prefab named " + prefabName);
+        if (!entity)
+            entity = new Entity();
         for (const [name, componentTemplate] of Object.entries(template)) {
             let newComponent;
             if (Array.isArray(componentTemplate)) {
@@ -995,8 +1015,9 @@ define("game/prefabs", ["require", "exports", "game/components/index", "game/gam
             body: JSON.stringify(getPrefabs())
         })
             .then(checkStatus)
+            .then((response) => response.text())
             .then((data) => {
-            game_1.default.debugText("prefabs saved at " + Engine.elapsed);
+            game_1.default.debugText(`Saved prefabs at ${Engine.elapsed}: ${data}`);
         }).catch((err) => {
             console.error("post to /prefabs failed", err);
         });
@@ -1004,12 +1025,12 @@ define("game/prefabs", ["require", "exports", "game/components/index", "game/gam
     exports.sendPrefabsToServer = sendPrefabsToServer;
     exports.default = prefabs;
 });
-define("game/game", ["require", "exports", "game/level", "game/prefabs", "game/autosprite"], function (require, exports, level_1, prefabs_1, autosprite_1) {
+define("game/game", ["require", "exports", "game/autosprite", "game/level", "game/prefabs"], function (require, exports, autosprite_1, level_1, prefabs_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Game {
         static start() {
-            const zoom = 1.2;
+            const zoom = 2.15;
             Engine.start(":) ;) >:-]", 160 * zoom, 144 * zoom, 5, () => {
                 Game.load();
             });
@@ -1075,7 +1096,7 @@ define("game/game", ["require", "exports", "game/level", "game/prefabs", "game/a
             Engine.graphics.pixel = Assets.atlases["gfx"].get("pixel");
             Game.SOUNDS.slide_stone = new Sound("slide_stone");
             Game.SOUNDS.slide_stone.volume = .2;
-            Engine.goto(new level_1.default("bottom", "start"), false);
+            Engine.goto(new level_1.default("level0", "start"), false);
         }
     }
     Game.TAGS = {
@@ -1116,16 +1137,22 @@ define("game/components/health", ["require", "exports"], function (require, expo
             this.invincibilityTime = 1;
             this.lastHitTime = -1000;
             this.onDamage = [];
+            this.onDie = [];
         }
+        get dead() { return this.health <= 0; }
         get invincible() {
-            return Engine.elapsed - this.lastHitTime < this.invincibilityTime;
+            return !this.dead && Engine.elapsed - this.lastHitTime < this.invincibilityTime;
         }
         tryApplyDamage(source) {
             if (!this.invincible) {
+                const oldHealth = this.health;
                 this.health -= source.amount;
                 this.lastHitTime = Engine.elapsed;
                 for (const cb of this.onDamage)
                     cb(source);
+                if (oldHealth > 0 && this.health <= 0)
+                    for (const cb of this.onDie)
+                        cb(source);
                 return true;
             }
             return false;
@@ -1139,7 +1166,7 @@ define("game/components/causesdamage", ["require", "exports", "game/game", "game
     class CausesDamage extends Component {
         constructor() {
             super(...arguments);
-            this.amount = .1;
+            this.amount = 1;
         }
         bar() { }
         addedToScene() {
@@ -1172,6 +1199,44 @@ define("game/components/emitter", ["require", "exports", "game/prefabs"], functi
     }
     exports.Emitter = Emitter;
 });
+define("game/components/exit", ["require", "exports", "game/game", "reflect-metadata"], function (require, exports, game_3) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    let Exit = class Exit extends Component {
+        constructor() {
+            super(...arguments);
+            this.isOpen = false;
+            this.triggered = false;
+        }
+        addedToScene() {
+            super.addedToScene();
+            this.sprite.play("closed");
+        }
+        update() {
+            if (!this.isOpen && this.scene.allCollidersInTag("treasure").length === 0) {
+                this.isOpen = true;
+                this.sprite.play("open");
+                this.hitbox.untag(game_3.default.TAGS.SOLID);
+            }
+            else if (!this.triggered && this.isOpen && this.hitbox.check(game_3.default.TAGS.PLAYER)) {
+                this.triggered = true;
+                this.scene.nextLevel();
+            }
+        }
+    };
+    __decorate([
+        Component.require,
+        __metadata("design:type", Sprite)
+    ], Exit.prototype, "sprite", void 0);
+    __decorate([
+        Component.require,
+        __metadata("design:type", Hitbox)
+    ], Exit.prototype, "hitbox", void 0);
+    Exit = __decorate([
+        Component.register
+    ], Exit);
+    exports.Exit = Exit;
+});
 class Physics extends Hitbox {
     constructor({ left, top, width, height, tags, solids }) {
         super({ left, top, width, height, tags });
@@ -1185,7 +1250,7 @@ class Physics extends Hitbox {
     update() {
         if (this.speed.x !== 0)
             this.moveX(this.speed.x * Engine.delta);
-        if (this.speed.y != 0)
+        if (this.speed.y !== 0)
             this.moveY(this.speed.y * Engine.delta);
     }
     moveBy(amount) {
@@ -1194,8 +1259,8 @@ class Physics extends Hitbox {
         return movedX && movedY;
     }
     move(x, y) {
-        var movedX = this.moveX(x);
-        var movedY = this.moveY(y);
+        const movedX = this.moveX(x);
+        const movedY = this.moveY(y);
         return movedX && movedY;
     }
     moveX(amount) {
@@ -1209,10 +1274,10 @@ class Physics extends Hitbox {
             this.entity.x += Math.round(amount);
         }
         else {
-            let sign = Calc.sign(amount);
+            const sign = Calc.sign(amount);
             amount = Math.abs(Math.round(amount));
             while (amount > 0) {
-                let hit = this.collides(this.solids, sign, 0);
+                const hit = this.collides(this.solids, sign, 0);
                 if (hit != null) {
                     this.remainder.x = 0;
                     if (this.onCollideX != null)
@@ -1240,10 +1305,10 @@ class Physics extends Hitbox {
             this.entity.y += Math.round(amount);
         }
         else {
-            let sign = Calc.sign(amount);
+            const sign = Calc.sign(amount);
             amount = Math.abs(Math.round(amount));
             while (amount > 0) {
-                let hit = this.collides(this.solids, 0, sign);
+                const hit = this.collides(this.solids, 0, sign);
                 if (hit != null) {
                     this.remainder.y = 0;
                     if (this.onCollideY != null)
@@ -1272,9 +1337,9 @@ class Physics extends Hitbox {
         return this;
     }
     maxspeed(mx, my) {
-        if (mx != undefined && mx != null)
+        if (mx !== undefined && mx !== null)
             this.speed.x = Math.max(-mx, Math.min(mx, this.speed.x));
-        if (my != undefined && my != null)
+        if (my !== undefined && my !== null)
             this.speed.y = Math.max(-my, Math.min(my, this.speed.y));
         return this;
     }
@@ -1288,51 +1353,133 @@ class Physics extends Hitbox {
         this.remainder.x = this.remainder.y = 0;
     }
 }
-define("game/components/pushable", ["require", "exports", "game/game"], function (require, exports, game_3) {
+define("game/components/topdowncontrols", ["require", "exports", "game/game", "game/prefabs"], function (require, exports, game_4, prefabs_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    class Pushable extends Component {
+    class TopDownControls extends Component {
+        constructor({ maxSpeed }) {
+            super();
+            this.movingEnabled = true;
+            this.maxSpeed = 52;
+            this.addedSpeed = new Vector(0, 0);
+            this.maxSpeed = maxSpeed;
+        }
+        addedToScene() {
+            super.addedToScene();
+            this.physics.onCollideX = () => { this.physics.speed.x = 0; };
+            this.physics.onCollideY = () => { this.physics.speed.y = 0; };
+        }
+        update() {
+            super.update();
+            const friction = 200;
+            let speed = 220;
+            let maxSpeed = this.maxSpeed;
+            if (Keyboard.check(game_4.default.KEYS.A)) {
+                speed *= 2;
+                maxSpeed *= 2;
+            }
+            if (Keyboard.pressed(game_4.default.KEYS.B)) {
+                let e;
+                this.scene.add(e = new Entity(this.x, this.y));
+                prefabs_3.instantiatePrefab("lightning_bolt", e);
+            }
+            if (Keyboard.pressed(game_4.default.KEYS.TELEPORT))
+                this.position.copy(this.scene.firstInGroup("teleports").position);
+            const delta = speed * Engine.delta;
+            const addedSpeed = this.addedSpeed.set(0, 0);
+            if (this.movingEnabled)
+                addedSpeed.set((Keyboard.check(game_4.default.KEYS.LEFT) ? -delta : 0) +
+                    (Keyboard.check(game_4.default.KEYS.RIGHT) ? delta : 0), (Keyboard.check(game_4.default.KEYS.UP) ? -delta : 0) +
+                    (Keyboard.check(game_4.default.KEYS.DOWN) ? delta : 0));
+            this.physics.speed.add(addedSpeed);
+            this.physics.friction(addedSpeed.x === 0 ? friction : 0, addedSpeed.y === 0 ? friction : 0);
+            this.physics.circularMaxspeed(maxSpeed);
+            const xSign = Calc.sign(this.physics.speed.x);
+            if (xSign !== 0) {
+                this.sprite.scale.x = xSign;
+                this.sprite.x = xSign > 0 ? 0 : this.sprite.width;
+            }
+            if (this.movingEnabled)
+                this.sprite.play(this.physics.speed.length > 0 ? "walk" : "idle");
+        }
+    }
+    __decorate([
+        Component.require,
+        __metadata("design:type", Physics)
+    ], TopDownControls.prototype, "physics", void 0);
+    __decorate([
+        Component.require,
+        __metadata("design:type", Sprite)
+    ], TopDownControls.prototype, "sprite", void 0);
+    exports.TopDownControls = TopDownControls;
+});
+define("game/components/pushable", ["require", "exports", "game/game", "game/components/topdowncontrols"], function (require, exports, game_5, topdowncontrols_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    const VERBOSE = false;
+    let Pushable = class Pushable extends Component {
         constructor() {
             super(...arguments);
-            this.pushCounter = new Vector();
             this.threshold = 0.5;
+            this.tileWidth = 24;
+            this.tileHeight = 24;
+            this.pushCounter = new Vector();
         }
         addedToEntity() {
-            const tags = [game_3.default.TAGS.SOLID];
-            const collidesWith = [game_3.default.TAGS.PLAYER];
-            this.entity.add(this.physics = new Physics({ left: 0, top: 0, width: 24, height: 24, tags: tags, solids: collidesWith }));
-            this.entity.add(this.hitbox = new Hitbox({ left: -1, top: -1, width: 26, height: 26, tags: [] }));
+            const tags = [game_5.default.TAGS.SOLID];
+            const collidesWith = [game_5.default.TAGS.PLAYER];
+            const padding = 1;
+            this.entity.add(this.physics = new Physics({
+                left: 0, top: 0,
+                width: this.tileWidth, height: this.tileHeight,
+                tags, solids: collidesWith
+            }));
+            this.entity.add(this.hitbox = new Hitbox({ left: -padding, top: -padding,
+                width: this.tileWidth + padding * 2, height: this.tileHeight + padding * 2,
+                tags: [] }));
         }
         play_sound() {
-            game_3.default.SOUNDS.slide_stone.play();
+            game_5.default.SOUNDS.slide_stone.play();
         }
         update() {
             super.update();
             const currentTween = this.entity.find(Tween);
             if (currentTween)
                 return;
-            var player = this.hitbox.collide(game_3.default.TAGS.PLAYER, undefined, undefined);
+            const player = this.hitbox.collide(game_5.default.TAGS.PLAYER, undefined, undefined);
             if (!player) {
+                if (VERBOSE && Vector.temp2.set(0, 0).sub(this.pushCounter).length > .01)
+                    console.log("no player in hitbox, resetting push counter");
                 this.pushCounter.set(0, 0);
                 return;
             }
             const p = player.entity.find(Physics);
             {
-                let xSign = Math.sign(p.speed.x);
-                let ySign = Math.sign(p.speed.y);
-                if (xSign != 0 && !this.physics.sceneBounds.overlapsVertically(p.sceneBounds))
+                const { addedSpeed } = player.entity.find(topdowncontrols_1.TopDownControls);
+                let xSign = Math.sign(addedSpeed.x);
+                let ySign = Math.sign(addedSpeed.y);
+                const playerBounds = p.sceneBounds;
+                const myBounds = this.physics.sceneBounds;
+                if (xSign !== 0 && !myBounds.overlapsVertically(playerBounds)) {
+                    if (VERBOSE)
+                        console.log("out of rect vertically, resetting");
                     xSign = 0;
-                if (ySign != 0 && !this.physics.sceneBounds.overlapsHorizontally(p.sceneBounds))
+                }
+                if (ySign !== 0 && !myBounds.overlapsHorizontally(playerBounds)) {
+                    if (VERBOSE)
+                        console.log("out of rect horizontally");
                     ySign = 0;
-                this.pushCounter.set(xSign == 0 ? 0 : (this.pushCounter.x + Engine.delta * xSign), ySign == 0 ? 0 : (this.pushCounter.y + Engine.delta * ySign));
+                }
+                this.pushCounter.set(xSign === 0 ? 0 : (this.pushCounter.x + Engine.delta * xSign), ySign === 0 ? 0 : (this.pushCounter.y + Engine.delta * ySign));
             }
             const duration = .42;
             const ease = Ease.sineInOut;
-            const tileSize = 24;
             const start = this.scenePosition;
+            if (VERBOSE)
+                game_5.default.debugText({ pushCounter: this.pushCounter, threshold: this.threshold });
             if (Math.abs(this.pushCounter.x) > this.threshold) {
-                const amount = Math.sign(this.pushCounter.x) * tileSize;
-                const withColliders = this.physics.collideAll(game_3.default.TAGS.SOLID, amount, 0);
+                const amount = Math.sign(this.pushCounter.x) * this.tileWidth;
+                const withColliders = this.physics.collideAll(game_5.default.TAGS.SOLID, amount, 0);
                 if (!this.isBlocked(withColliders)) {
                     this.play_sound();
                     Tween.create(this.entity).start(duration, start.x, start.x + amount, ease, (n) => {
@@ -1342,8 +1489,8 @@ define("game/components/pushable", ["require", "exports", "game/game"], function
                 }
             }
             if (Math.abs(this.pushCounter.y) > this.threshold) {
-                const amount = Math.sign(this.pushCounter.y) * tileSize;
-                const withColliders = this.physics.collideAll(game_3.default.TAGS.SOLID, 0, amount);
+                const amount = Math.sign(this.pushCounter.y) * this.tileHeight;
+                const withColliders = this.physics.collideAll(game_5.default.TAGS.SOLID, 0, amount);
                 if (!this.isBlocked(withColliders)) {
                     this.play_sound();
                     Tween.create(this.entity).start(duration, start.y, start.y + amount, ease, (n) => {
@@ -1355,21 +1502,33 @@ define("game/components/pushable", ["require", "exports", "game/game"], function
         }
         isBlocked(colliders) {
             for (const c of colliders)
-                if (c.entity != this.entity)
+                if (c.entity !== this.entity)
                     return true;
             return false;
         }
-    }
+    };
+    Pushable = __decorate([
+        Component.register
+    ], Pushable);
     exports.Pushable = Pushable;
 });
 define("game/components/graphichiteffect", ["require", "exports", "game/components/health", "reflect-metadata"], function (require, exports, health_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class GraphicHitEffect extends Component {
+        constructor({ deathAnim }) {
+            super();
+            this.playedDead = false;
+            this.deathAnim = deathAnim;
+        }
         update() {
             let visibleThisFrame = true;
             if (this.health.invincible)
                 visibleThisFrame = Engine.frameCount % 2 === 0;
+            if (!this.playedDead && this.deathAnim && this.health.dead) {
+                this.playedDead = true;
+                this.graphic.play(this.deathAnim);
+            }
             this.graphic.visible = visibleThisFrame;
         }
     }
@@ -1450,7 +1609,40 @@ define("game/components/spriteautoplay", ["require", "exports"], function (requi
     }
     exports.SpriteAutoPlay = SpriteAutoPlay;
 });
-define("game/components/trigger", ["require", "exports", "game/game", "game/components/index"], function (require, exports, game_4, index_2) {
+define("game/components/treasure", ["require", "exports", "game/game", "reflect-metadata"], function (require, exports, game_6) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    let Treasure = class Treasure extends Component {
+        constructor() {
+            super(...arguments);
+            this.isOpen = false;
+        }
+        addedToScene() {
+            super.addedToScene();
+            this.sprite.play("closed");
+        }
+        update() {
+            if (!this.isOpen && this.scene.allCollidersInTag("heart").length === 0) {
+                this.isOpen = true;
+                this.sprite.play("open");
+                this.hitbox.untag(game_6.default.TAGS.SOLID);
+            }
+        }
+    };
+    __decorate([
+        Component.require,
+        __metadata("design:type", Sprite)
+    ], Treasure.prototype, "sprite", void 0);
+    __decorate([
+        Component.require,
+        __metadata("design:type", Hitbox)
+    ], Treasure.prototype, "hitbox", void 0);
+    Treasure = __decorate([
+        Component.register
+    ], Treasure);
+    exports.Treasure = Treasure;
+});
+define("game/components/trigger", ["require", "exports", "game/game", "game/components/index"], function (require, exports, game_7, index_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Trigger extends Component {
@@ -1472,7 +1664,7 @@ define("game/components/trigger", ["require", "exports", "game/game", "game/comp
         }
         update() {
             super.update();
-            if (this.hitbox.check(game_4.default.TAGS.PLAYER)) {
+            if (this.hitbox.check(game_7.default.TAGS.PLAYER)) {
                 const now = Engine.elapsed;
                 if (this.lastTrigger + this.triggerEvery < now) {
                     this.lastTrigger = now;
@@ -1531,7 +1723,7 @@ define("game/components/wonder", ["require", "exports", "reflect-metadata"], fun
     ], Wonder.prototype, "physics", void 0);
     exports.Wonder = Wonder;
 });
-define("game/components/index", ["require", "exports", "game/components/causesdamage", "game/components/emitter", "game/components/pushable", "game/components/graphichiteffect", "game/components/health", "game/components/knockback", "game/components/mover", "game/components/spriteautoplay", "game/components/trigger", "game/components/wonder", "reflect-metadata"], function (require, exports, causesdamage_1, emitter_1, pushable_1, graphichiteffect_1, health_4, knockback_1, mover_1, spriteautoplay_1, trigger_1, wonder_1) {
+define("game/components/index", ["require", "exports", "game/components/causesdamage", "game/components/emitter", "game/components/exit", "game/components/pushable", "game/components/graphichiteffect", "game/components/health", "game/components/knockback", "game/components/mover", "game/components/spriteautoplay", "game/components/topdowncontrols", "game/components/treasure", "game/components/trigger", "game/components/wonder", "reflect-metadata"], function (require, exports, causesdamage_1, emitter_1, exit_1, pushable_1, graphichiteffect_1, health_4, knockback_1, mover_1, spriteautoplay_1, topdowncontrols_2, treasure_1, trigger_1, wonder_1) {
     "use strict";
     function __export(m) {
         for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
@@ -1539,14 +1731,75 @@ define("game/components/index", ["require", "exports", "game/components/causesda
     Object.defineProperty(exports, "__esModule", { value: true });
     __export(causesdamage_1);
     __export(emitter_1);
+    __export(exit_1);
     __export(pushable_1);
     __export(graphichiteffect_1);
     __export(health_4);
     __export(knockback_1);
     __export(mover_1);
     __export(spriteautoplay_1);
+    __export(topdowncontrols_2);
+    __export(treasure_1);
     __export(trigger_1);
     __export(wonder_1);
+    let Pickup = class Pickup extends Component {
+        constructor() {
+            super(...arguments);
+            this.pickedUp = false;
+        }
+        update() {
+            if (!this.pickedUp && this.hitbox.check("player")) {
+                this.pickedUp = true;
+                const duration = .3;
+                Tween.create(this.entity).start(duration, this.graphic.alpha, 0, Ease.linear, (n) => {
+                    this.graphic.alpha = n;
+                }, true).setOnComplete(() => {
+                    this.entity.scene.remove(this.entity);
+                }).restart();
+            }
+        }
+    };
+    __decorate([
+        Component.require,
+        __metadata("design:type", Graphic)
+    ], Pickup.prototype, "graphic", void 0);
+    __decorate([
+        Component.require,
+        __metadata("design:type", Hitbox)
+    ], Pickup.prototype, "hitbox", void 0);
+    Pickup = __decorate([
+        Component.register
+    ], Pickup);
+    exports.Pickup = Pickup;
+    let DiesOnCollision = class DiesOnCollision extends Component {
+        addedToScene() {
+            super.addedToScene();
+            this.physics.onCollide.push(() => {
+                Alarm.create(this.entity).start(.01, () => {
+                    this.entity.scene.remove(this.entity);
+                });
+            });
+        }
+    };
+    __decorate([
+        Component.require,
+        __metadata("design:type", Physics)
+    ], DiesOnCollision.prototype, "physics", void 0);
+    DiesOnCollision = __decorate([
+        Component.register
+    ], DiesOnCollision);
+    exports.DiesOnCollision = DiesOnCollision;
+    let MapLocation = class MapLocation extends Component {
+        constructor({ name }) {
+            super();
+            this.name = name;
+        }
+    };
+    MapLocation = __decorate([
+        Component.register,
+        __metadata("design:paramtypes", [Object])
+    ], MapLocation);
+    exports.MapLocation = MapLocation;
     let Rotater = class Rotater extends Component {
         constructor() {
             super(...arguments);
@@ -1579,7 +1832,7 @@ define("game/components/index", ["require", "exports", "game/components/causesda
     }
     exports.getComponentByName = getComponentByName;
 });
-define("game/editablescene", ["require", "exports", "game/prefabs"], function (require, exports, prefabs_3) {
+define("game/editablescene", ["require", "exports", "game/prefabs"], function (require, exports, prefabs_4) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var RectBorder;
@@ -1732,34 +1985,54 @@ define("game/editablescene", ["require", "exports", "game/prefabs"], function (r
             if (Mouse.leftReleased) {
                 if (this.dragging) {
                     this.dragging = null;
-                    prefabs_3.sendPrefabsToServer();
+                    prefabs_4.sendPrefabsToServer();
                 }
             }
         }
     }
     exports.default = EditableScene;
 });
-define("game/level", ["require", "exports", "game/components/index", "game/door", "game/editablescene", "game/game", "game/prefabs"], function (require, exports, index_3, door_1, editablescene_1, game_5, prefabs_4) {
+define("game/player", ["require", "exports", "game/components/index", "game/prefabs"], function (require, exports, index_3, prefabs_5) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Player extends Entity {
+        constructor() {
+            super();
+            prefabs_5.instantiatePrefab("player", this);
+            this.find(index_3.Health).onDie.push(() => {
+                const controls = this.find(index_3.TopDownControls);
+                controls.movingEnabled = false;
+                Alarm.create(this).start(2.4, () => { this.scene.reloadLevel(); });
+            });
+        }
+    }
+    exports.default = Player;
+});
+define("game/level", ["require", "exports", "game/components/index", "game/door", "game/editablescene", "game/game", "game/player", "game/prefabs"], function (require, exports, index_4, door_1, editablescene_1, game_8, player_1, prefabs_6) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     function createSpriteBanksForTileAnimations(tilesetInfo) {
         const animations = {};
-        const animSpeeds = {};
-        for (const [localIdString, { anim_name, anim_frame, anim_speed }] of Object.entries(tilesetInfo.tileproperties)) {
+        for (const [localIdString, { anim_name, anim_frame, anim_speed, anim_track }] of Object.entries(tilesetInfo.tileproperties)) {
             if (anim_name && anim_frame !== undefined) {
                 const localId = parseInt(localIdString, 10);
                 console.assert(!isNaN(localId));
                 console.assert(typeof (anim_frame) === "number");
+                const track = anim_track || "main";
                 if (animations[anim_name] === undefined)
-                    animations[anim_name] = { frames: new Array(), speed: 2.2 };
-                animations[anim_name].frames.splice(anim_frame, 0, tilesetInfo.tilemap.getTileSubtexture(localId));
+                    animations[anim_name] = {};
+                if (animations[anim_name][track] === undefined)
+                    animations[anim_name][track] = { frames: new Array(), speed: 2.2 };
+                animations[anim_name][track].frames.splice(anim_frame, 0, tilesetInfo.tilemap.getTileSubtexture(localId));
                 if (anim_speed !== undefined)
                     animations[anim_name].speed = anim_speed;
             }
         }
-        for (const [animName, { frames, speed }] of Object.entries(animations))
-            SpriteBank.create(animName)
-                .add("main", speed, frames, true);
+        for (const [animName, tracks] of Object.entries(animations)) {
+            const spriteBank = SpriteBank.create(animName);
+            for (const [track, { speed, frames }] of Object.entries(tracks))
+                spriteBank.add(track, speed, frames, true);
+        }
     }
     class Level extends editablescene_1.default {
         constructor(scene, entrance) {
@@ -1902,6 +2175,9 @@ define("game/level", ["require", "exports", "game/components/index", "game/door"
                     tilesets.push(tilesetInfo);
                 }
             }
+            const solids = new Hitgrid(level.tilewidth, level.tileheight, [game_8.default.TAGS.SOLID]);
+            terrain.add(solids);
+            const solidTiles = {};
             for (const tilesetInfo of tilesets) {
                 const textureName = dirName + tilesetInfo.image;
                 const tex = Assets.textures[textureName];
@@ -1913,6 +2189,12 @@ define("game/level", ["require", "exports", "game/components/index", "game/door"
                 tilesetInfo.tilemap = tilemap;
                 terrain.add(tilemap);
                 createSpriteBanksForTileAnimations(tilesetInfo);
+                for (const [localId, props] of Object.entries(tilesetInfo.tileproperties)) {
+                    if (!props)
+                        continue;
+                    const gid = parseInt(localId, 10) - tilesetInfo.firstGid;
+                    solidTiles[gid] = props.solid;
+                }
             }
             function findTileset(gid) {
                 for (const tileset of tilesets)
@@ -1954,8 +2236,24 @@ define("game/level", ["require", "exports", "game/components/index", "game/door"
                             const tileset = findTileset(tile);
                             this.add(pushable = new Entity(mapX * tileset.tilewidth, mapY * tileset.tileheight));
                             pushable.depth = -10;
-                            pushable.add(new index_3.Pushable());
+                            pushable.add(new index_4.Pushable());
                             pushable.add(new Graphic(tileset.tilemap.getTileSubtexture(tile - tileset.firstGid)));
+                        }
+                        else if (tileprops.type) {
+                            const tileset = findTileset(tile);
+                            const deltaX = (level.tilewidth - tileset.tilewidth) * .5;
+                            const deltaY = (level.tileheight - tileset.tilewidth) * .5;
+                            const x = mapX * level.tilewidth + deltaX;
+                            const y = mapY * level.tileheight + deltaY;
+                            const e = prefabs_6.instantiatePrefab(tileprops.type);
+                            e.position.set(x, y);
+                            if (!e.find(Graphic) && !e.find(index_4.MapLocation)) {
+                                if (tileprops.anim_name)
+                                    e.add(new Sprite({ animation: tileprops.anim_name }));
+                                else
+                                    e.add(new Graphic(tileset.tilemap.getTileSubtexture(tile - tileset.firstGid)));
+                            }
+                            this.add(e);
                         }
                     }
                 }
@@ -1966,6 +2264,8 @@ define("game/level", ["require", "exports", "game/components/index", "game/door"
                     const tiles = layer.data;
                     for (const tile of tiles) {
                         if (tile !== 0) {
+                            if (solidTiles[tile])
+                                solids.set(true, mapX, mapY);
                             const tilesetInfo = findTileset(tile);
                             if (!tilesetInfo)
                                 throw new Error(`couldn't find a tilesetInfo for tile ${tile} at (${mapX}, ${mapY}) in layer ${layer.name}`);
@@ -1995,6 +2295,7 @@ define("game/level", ["require", "exports", "game/components/index", "game/door"
                             teleport.group("teleports");
                         }
                         else {
+                            console.log("object layer entity.type = " + entity.type);
                             const newEntity = new Entity(entity.x, entity.y);
                             newEntity.depth = -2000;
                             let type;
@@ -2031,7 +2332,9 @@ define("game/level", ["require", "exports", "game/components/index", "game/door"
                                 type = entity.type;
                             }
                             if (type)
-                                prefabs_4.instantiatePrefab(type, newEntity);
+                                prefabs_6.instantiatePrefab(type, newEntity);
+                            else
+                                console.warn(`no type for entity tile at ${newEntity.x}, ${newEntity.y}`);
                             if (newEntity.components.count > 0)
                                 this.add(newEntity);
                             else
@@ -2040,8 +2343,6 @@ define("game/level", ["require", "exports", "game/components/index", "game/door"
                     }
                 }
                 else if (layer.name === "solids") {
-                    const solids = new Hitgrid(level.tilewidth, level.tileheight, [game_5.default.TAGS.SOLID]);
-                    terrain.add(solids);
                     let mapX = 0;
                     let mapY = 0;
                     for (const tile of layer.data) {
@@ -2079,7 +2380,7 @@ define("game/level", ["require", "exports", "game/components/index", "game/door"
                     }
                 }
                 else if (layer.name === "solids") {
-                    const solids = new Hitgrid(8, 8, [game_5.default.TAGS.SOLID]);
+                    const solids = new Hitgrid(8, 8, [game_8.default.TAGS.SOLID]);
                     terrain.add(solids);
                     const rows = layer.data.split("\n");
                     for (let y = 0; y < rows.length; y++)
@@ -2109,9 +2410,7 @@ define("game/level", ["require", "exports", "game/components/index", "game/door"
             this.loaded = false;
             const D = "fantasy/TMX/";
             new AssetLoader("assets")
-                .addJson(D + "tiny.json")
-                .addJson(D + "fantasy.json")
-                .addJson(D + "puzzle.json")
+                .addJson(D + this.scene + ".json")
                 .addXml(D + "oryx_creatures.tsx")
                 .addXml(D + "oryx_items.tsx")
                 .addXml(D + "oryx_world2.tsx")
@@ -2129,9 +2428,21 @@ define("game/level", ["require", "exports", "game/components/index", "game/door"
         afterLoad() {
             this.camera.origin.set(Engine.width / 2, Engine.height / 2);
             this.camera.position.set(Engine.width / 2, Engine.height / 2);
-            const terrain = this.add(new Entity());
+            const terrain = this.terrain = this.add(new Entity());
             terrain.depth = 1;
-            this.loadTiled("assets/fantasy/TMX/", "puzzle.json", terrain);
+            this.loadTiled("assets/fantasy/TMX/", this.scene + ".json", terrain);
+            const playerSpawn = this.findAllComponents(index_4.MapLocation).find(c => c.name === "player_spawn");
+            if (playerSpawn)
+                this.add(new player_1.default(), playerSpawn.getScenePosition(Vector.temp0));
+        }
+        reloadLevel() {
+            Engine.goto(new Level(this.scene, "start"), true);
+        }
+        nextLevel() {
+            const thisLevel = parseInt(this.scene.slice(5), 0);
+            const nextLevelName = "level" + (thisLevel + 1);
+            console.log("this level", thisLevel, "next level", nextLevelName);
+            this.doSlide(1, 0, () => { Engine.goto(new Level(nextLevelName, "start"), true); });
         }
         doSlide(from, to, onEnd) {
             this.slider = from;
@@ -2140,13 +2451,13 @@ define("game/level", ["require", "exports", "game/components/index", "game/door"
         }
         update() {
             super.update();
-            if (Keyboard.pressed(game_5.default.KEYS.SELECT))
+            if (Keyboard.pressed(game_8.default.KEYS.SELECT))
                 Engine.debugMode = !Engine.debugMode;
-            if (Keyboard.pressed(game_5.default.KEYS.PAUSE))
+            if (Keyboard.pressed(game_8.default.KEYS.PAUSE))
                 Engine.paused = !Engine.paused;
-            Engine.timeScale = Keyboard.check(game_5.default.KEYS.FAST_FORWARD) ? 7 : 1;
-            if (Keyboard.pressed(game_5.default.KEYS.RESTART)) {
-                Engine.goto(new Level("bottom", "start"), true);
+            Engine.timeScale = Keyboard.check(game_8.default.KEYS.FAST_FORWARD) ? 7 : 1;
+            if (Keyboard.pressed(game_8.default.KEYS.RESTART)) {
+                this.reloadLevel();
                 return;
             }
             if (this.slider !== this.sliderTo) {
@@ -2158,11 +2469,26 @@ define("game/level", ["require", "exports", "game/components/index", "game/door"
                 return;
             if (this.dust)
                 this.dust.burst(this.camera.position.x - Engine.width, this.camera.position.y - Engine.height + Math.random() * Engine.height * 2, 0);
+            const player = this.firstColliderInTag(game_8.default.TAGS.PLAYER).entity;
+            const extents = new Rectangle().copy(this.camera.extents);
+            const half = Vector.temp5.set(extents.width / 2, extents.height / 2);
+            const terrainTilemap = this.terrain.find(Tilemap);
+            const bounds = terrainTilemap.getSceneBounds(Rectangle.temp0);
+            const p = Vector.temp0.set(player.x, player.y)
+                .sub(half)
+                .max(Vector.temp2.set(bounds.x, bounds.y))
+                .min(Vector.temp2.set(bounds.right, bounds.bottom))
+                .add(half);
+            if (bounds.width < extents.width)
+                p.x = bounds.centerX + terrainTilemap.tileWidth / 2;
+            if (bounds.height < extents.height)
+                p.y = bounds.centerY + terrainTilemap.tileHeight / 2;
+            this.camera.position.copy(p);
         }
         render() {
             super.render();
             if (this.slider > -1 || this.slider < 1) {
-                const color = game_5.default.COLORS[0];
+                const color = game_8.default.COLORS[0];
                 const px = this.camera.position.x + Ease.cubeInOut(this.slider) * (Engine.width + 32);
                 const py = this.camera.position.y - Engine.height / 2;
                 const left = px - Engine.width / 2;
@@ -2188,56 +2514,7 @@ define("game/level", ["require", "exports", "game/components/index", "game/door"
     }
     exports.default = Level;
 });
-define("game/player", ["require", "exports", "game/components/index", "game/game", "game/prefabs"], function (require, exports, index_4, game_6, prefabs_5) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class Player extends Entity {
-        constructor() {
-            super();
-            this.add(this.physics = new Physics({ left: -4, top: -8, width: 8, height: 8, tags: [game_6.default.TAGS.PLAYER], solids: [game_6.default.TAGS.SOLID] }));
-            this.add(this.sprite = new Sprite({ animation: "guy" }));
-            this.add(new index_4.Health());
-            this.add(new index_4.KnockBack());
-            this.add(new index_4.GraphicHitEffect());
-            this.sprite.play("idle");
-            this.sprite.origin.set(12, 24);
-            this.physics.onCollideX = () => { this.physics.speed.x = 0; };
-            this.physics.onCollideY = () => { this.physics.speed.y = 0; };
-        }
-        update() {
-            super.update();
-            const friction = 200;
-            let speed = 220;
-            let maxSpeed = 48;
-            if (Keyboard.check(game_6.default.KEYS.A)) {
-                speed *= 2;
-                maxSpeed *= 2;
-            }
-            if (Keyboard.pressed(game_6.default.KEYS.B)) {
-                let e;
-                this.scene.add(e = new Entity(this.x, this.y));
-                prefabs_5.instantiatePrefab("lightning_bolt", e);
-            }
-            if (Keyboard.pressed(game_6.default.KEYS.TELEPORT))
-                this.position.copy(this.scene.firstInGroup("teleports").position);
-            const delta = speed * Engine.delta;
-            const addedSpeed = Vector.temp0.set((Keyboard.check(game_6.default.KEYS.LEFT) ? -delta : 0) +
-                (Keyboard.check(game_6.default.KEYS.RIGHT) ? delta : 0), (Keyboard.check(game_6.default.KEYS.UP) ? -delta : 0) +
-                (Keyboard.check(game_6.default.KEYS.DOWN) ? delta : 0));
-            this.physics.speed.add(addedSpeed);
-            this.physics.friction(addedSpeed.x === 0 ? friction : 0, addedSpeed.y === 0 ? friction : 0);
-            this.physics.circularMaxspeed(maxSpeed);
-            const camPos = Vector.temp0.set(this.x, this.y - 5).max(Vector.temp1.set(100, 100));
-            this.scene.camera.position.copy(camPos);
-            const xSign = Calc.sign(this.physics.speed.x);
-            if (xSign !== 0)
-                this.sprite.scale.x = xSign;
-            this.sprite.play(this.physics.speed.length > 0 ? "walk" : "idle");
-        }
-    }
-    exports.default = Player;
-});
-define("game/door", ["require", "exports", "game/game", "game/level", "game/player"], function (require, exports, game_7, level_2, player_1) {
+define("game/door", ["require", "exports", "game/game", "game/level", "game/player"], function (require, exports, game_9, level_2, player_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Door extends Entity {
@@ -2263,22 +2540,22 @@ define("game/door", ["require", "exports", "game/game", "game/level", "game/play
                 this.scene.camera.position.set(this.x, this.y - Ease.cubeIn(this.spawnPlayerTimer) * 64);
                 if (this.spawnPlayerTimer <= 0) {
                     let player;
-                    this.scene.add(player = new player_1.default(), new Vector(this.x, this.y));
-                    player.physics.speed.y = 120;
+                    this.scene.add(player = new player_2.default(), new Vector(this.x, this.y));
+                    player.find(Physics).speed.y = 120;
                     this.closedEase = 0;
                 }
             }
             else {
-                if (this.hitbbox.check(game_7.default.TAGS.PLAYER)) {
+                if (this.hitbbox.check(game_9.default.TAGS.PLAYER)) {
                     if (this.gotoScene.length > 0 && !this.playerOn) {
-                        this.scene.remove(this.scene.find(player_1.default));
+                        this.scene.remove(this.scene.find(player_2.default));
                         this.playerOn = true;
                         this.scene.doSlide(1, 0, () => { Engine.goto(new level_2.default(this.gotoScene, this.gotoDoor), false); });
                     }
                 }
                 else {
                     if (this.isOpen && this.gotoScene.length <= 0) {
-                        this.hitbbox.tag(game_7.default.TAGS.SOLID);
+                        this.hitbbox.tag(game_9.default.TAGS.SOLID);
                         this.isOpen = false;
                     }
                     this.playerOn = false;
@@ -2288,11 +2565,11 @@ define("game/door", ["require", "exports", "game/game", "game/level", "game/play
             }
         }
         render() {
-            Engine.graphics.rect(this.x + -6, this.y - 13, 12, 13, game_7.default.COLORS[3]);
-            Engine.graphics.rect(this.x + -5, this.y - 12, 10, 12, game_7.default.COLORS[2]);
-            Engine.graphics.rect(this.x + -4, this.y - 11, 8, 11, game_7.default.COLORS[3]);
+            Engine.graphics.rect(this.x + -6, this.y - 13, 12, 13, game_9.default.COLORS[3]);
+            Engine.graphics.rect(this.x + -5, this.y - 12, 10, 12, game_9.default.COLORS[2]);
+            Engine.graphics.rect(this.x + -4, this.y - 11, 8, 11, game_9.default.COLORS[3]);
             if (!this.isOpen)
-                Engine.graphics.rect(this.x + -3, this.y - 10, 6, 10 * this.closedEase, game_7.default.COLORS[2]);
+                Engine.graphics.rect(this.x + -3, this.y - 10, 6, 10 * this.closedEase, game_9.default.COLORS[2]);
         }
     }
     exports.default = Door;
@@ -3267,61 +3544,62 @@ class Atlas {
         return this.subtextures[name];
     }
     has(name) {
-        return this.subtextures[name] != undefined;
+        return this.subtextures[name] !== undefined;
     }
     list(prefix, names) {
-        let listed = [];
-        for (let i = 0; i < names.length; i++)
-            listed.push(this.get(prefix + names[i]));
+        const listed = [];
+        for (const name of names)
+            listed.push(this.get(prefix + name));
         return listed;
     }
     find(prefix) {
-        let found = [];
-        for (var key in this.subtextures) {
-            if (key.indexOf(prefix) == 0)
+        const found = [];
+        for (const key in this.subtextures) {
+            if (key.indexOf(prefix) === 0)
                 found.push({ name: key, tex: this.subtextures[key] });
         }
         found.sort((a, b) => {
             return (a.name < b.name ? -1 : (a.name > b.name ? 1 : 0));
         });
-        let listed = [];
-        for (let i = 0; i < found.length; i++)
-            listed.push(found[i].tex);
+        const listed = [];
+        for (const { tex } of found)
+            listed.push(tex);
         return listed;
     }
 }
 class AtlasReaders {
     static DoodleStudio(data, into) {
         const json = JSON.parse(data);
+        const loops = json["playbackMode"] !== "once";
         const frames = json["frames"];
         let i = 0;
         for (const frame of frames) {
             const bounds = frame.rect;
             const boundsRect = new Rectangle(bounds.x, bounds.y, bounds.width, bounds.height);
-            var tex = new Texture(into.texture.texture, boundsRect);
+            const tex = new Texture(into.texture.texture, boundsRect);
             tex.metadata["duration"] = frame.duration;
+            tex.metadata["loops"] = loops;
             into.subtextures["main " + i] = tex;
             ++i;
         }
     }
     static Aseprite(data, into) {
-        let json = JSON.parse(data);
-        let frames = json["frames"];
-        for (var path in frames) {
-            var name = path.replace(".ase", "").replace(".png", "");
-            var obj = frames[path];
-            var bounds = obj.frame;
-            var tex;
+        const json = JSON.parse(data);
+        const frames = json["frames"];
+        for (const [path, obj] of Object.entries(frames)) {
+            const name = path.replace(".ase", "").replace(".png", "");
+            const bounds = obj.frame;
+            let tex;
             if (obj.trimmed) {
-                var source = obj["spriteSourceSize"];
-                var size = obj["sourceSize"];
+                const source = obj["spriteSourceSize"];
+                const size = obj["sourceSize"];
                 tex = new Texture(into.texture.texture, new Rectangle(bounds.x, bounds.y, bounds.w, bounds.h), new Rectangle(-source.x, -source.y, size.w, size.h));
             }
             else {
                 tex = new Texture(into.texture.texture, new Rectangle(bounds.x, bounds.y, bounds.w, bounds.h));
             }
-            if (obj.duration != undefined)
-                tex.metadata["duration"] = parseInt(obj.duration);
+            if (obj.duration !== undefined)
+                tex.metadata["duration"] = parseInt(obj.duration, 10);
             into.subtextures[name] = tex;
         }
     }
@@ -3510,6 +3788,7 @@ class Alarm extends Component {
         this._percent = 0;
         this._duration = duration;
         this.callback = callback;
+        this.active = true;
         return this;
     }
     restart() {
@@ -3538,9 +3817,7 @@ class Alarm extends Component {
         }
     }
     static create(on) {
-        let alarm = new Alarm();
-        on.add(alarm);
-        return alarm;
+        return on.add(new Alarm());
     }
 }
 class Coroutine extends Component {
@@ -3602,13 +3879,14 @@ class Tween extends Component {
         this._percent = 0;
         this.from = 0;
         this.to = 0;
-        this.ease = (p) => { return p; };
+        this.ease = p => p;
         this.removeOnComplete = false;
         this.active = this.visible = false;
     }
     get percent() { return this._percent; }
     get duration() { return this._duration; }
     get value() { return this.from + (this.to - this.from) * this.ease(this.percent); }
+    setOnComplete(onComplete) { this.onComplete = onComplete; return this; }
     start(duration, from, to, ease, step, removeOnComplete) {
         this._percent = 0;
         this._duration = duration;
@@ -3640,6 +3918,8 @@ class Tween extends Component {
                 this._percent = 1;
                 this.step(this.to);
                 this.active = false;
+                if (this.onComplete)
+                    this.onComplete();
                 if (this.removeOnComplete)
                     this.entity.remove(this);
             }
@@ -3648,7 +3928,7 @@ class Tween extends Component {
         }
     }
     static create(on) {
-        let tween = new Tween();
+        const tween = new Tween();
         on.add(tween);
         return tween;
     }
@@ -3717,9 +3997,9 @@ class Vector {
     constructor(x, y) {
         this.x = 0;
         this.y = 0;
-        if (x != undefined)
+        if (x !== undefined)
             this.x = x;
-        if (y != undefined)
+        if (y !== undefined)
             this.y = y;
     }
     set(x, y) {
@@ -3749,7 +4029,7 @@ class Vector {
     }
     min(v) {
         this.x = Math.min(this.x, v.x);
-        this.y = Math.min(this.x, v.y);
+        this.y = Math.min(this.y, v.y);
         return this;
     }
     mult(s) {
@@ -3774,13 +4054,15 @@ class Vector {
         return this;
     }
     rotate(sin, cos) {
-        let ox = this.x, oy = this.y;
+        const ox = this.x;
+        const oy = this.y;
         this.x = ox * cos - oy * sin;
         this.y = ox * sin + oy * cos;
         return this;
     }
     transform(m) {
-        let ax = this.x, ay = this.y;
+        const ax = this.x;
+        const ay = this.y;
         this.x = m.mat[0] * ax + m.mat[3] * ay + m.mat[6];
         this.y = m.mat[1] * ax + m.mat[4] * ay + m.mat[7];
         return this;
@@ -3795,11 +4077,11 @@ class Vector {
         return Math.atan2(this.y, this.x);
     }
     get normal() {
-        let dist = this.length;
+        const dist = this.length;
         return new Vector(this.x / dist, this.y / dist);
     }
     normalize(length = 1) {
-        let dist = this.length;
+        const dist = this.length;
         this.x = (this.x / dist) * length;
         this.y = (this.y / dist) * length;
         return this;
@@ -3810,7 +4092,7 @@ Vector.directions = [
     new Vector(-1, 0),
     new Vector(0, -1),
     new Vector(1, 0),
-    new Vector(0, 1)
+    new Vector(0, 1),
 ];
 Vector.temp0 = new Vector();
 Vector.temp1 = new Vector();
@@ -4147,9 +4429,8 @@ class Sprite extends Graphic {
         Engine.assert(SpriteBank.has(animation), "Missing animation '" + animation + "'!");
         this._animation = SpriteBank.get(animation);
         this.texture = this._animation.first.frames[0];
-        if (origin === "center") {
-            this.origin.set(this.width * .5, this.height * .5);
-        }
+        if (origin === "center")
+            this.justify(.5, .5);
         if (play)
             this.play(play);
     }
@@ -4218,18 +4499,34 @@ class Tilemap extends Component {
         this.alpha = 1;
         this.map = {};
         this.crop = new Rectangle();
+        this._minTileX = 0;
+        this._minTileY = 0;
+        this._maxTileX = 0;
+        this._maxTileY = 0;
+        this._vec = new Vector();
         this.texture = texture;
         this.tileWidth = tileWidth;
         this.tileHeight = tileHeight;
         this.tileColumns = Math.floor(this.texture.width / this.tileWidth);
     }
+    get sceneLeft() { return this.getScenePosition(this._vec).x; }
+    get sceneTop() { return this.getScenePosition(this._vec).y; }
+    get width() { return (this._maxTileX - this._minTileX) * this.tileWidth; }
+    get height() { return (this._maxTileY - this._minTileY) * this.tileHeight; }
+    getSceneBounds(rect) {
+        return rect.set(this.sceneLeft, this.sceneTop, this.width, this.height);
+    }
     set(tileX, tileY, mapX, mapY, mapWidth, mapHeight) {
-        let tileIndex = tileX + tileY * this.tileColumns;
+        const tileIndex = tileX + tileY * this.tileColumns;
         return this.setIndex(tileIndex, mapX, mapY, mapWidth, mapHeight);
     }
     setIndex(tileIndex, mapX, mapY, mapWidth, mapHeight) {
+        if (mapX > this._maxTileX)
+            this._maxTileX = mapX;
+        if (mapY > this._maxTileY)
+            this._maxTileY = mapY;
         for (let x = mapX; x < mapX + (mapWidth || 1); x++) {
-            if (this.map[x] == undefined)
+            if (this.map[x] === undefined)
                 this.map[x] = {};
             for (let y = mapY; y < mapY + (mapHeight || 1); y++)
                 this.map[x][y] = tileIndex;
@@ -4238,18 +4535,18 @@ class Tilemap extends Component {
     }
     clear(mapX, mapY, mapWidth, mapHeight) {
         for (let x = mapX; x < mapX + (mapWidth || 1); x++)
-            if (this.map[x] != undefined)
+            if (this.map[x] !== undefined)
                 for (let y = mapY; y < mapY + (mapHeight || 1); y++)
-                    if (this.map[x][y] != undefined)
+                    if (this.map[x][y] !== undefined)
                         delete this.map[x][y];
         return this;
     }
     has(mapX, mapY) {
-        return (this.map[mapX] != undefined && this.map[mapX][mapY] != undefined);
+        return (this.map[mapX] !== undefined && this.map[mapX][mapY] !== undefined);
     }
     get(mapX, mapY) {
         if (this.has(mapX, mapY)) {
-            var index = this.map[mapX][mapY];
+            const index = this.map[mapX][mapY];
             return new Vector(index % this.tileColumns, Math.floor(index / this.tileColumns));
         }
         return null;
@@ -4263,24 +4560,24 @@ class Tilemap extends Component {
         return this.texture.getSubtexture(rect, sub);
     }
     render(camera) {
-        let bounds = camera.extents;
-        let pos = this.scenePosition;
-        let left = Math.floor((bounds.left - pos.x) / this.tileWidth) - 1;
-        let right = Math.ceil((bounds.right - pos.x) / this.tileWidth) + 1;
-        let top = Math.floor((bounds.top - pos.y) / this.tileHeight) - 1;
-        let bottom = Math.ceil((bounds.bottom - pos.y) / this.tileHeight) + 1;
+        const bounds = camera.extents;
+        const pos = this.scenePosition;
+        const left = Math.floor((bounds.left - pos.x) / this.tileWidth) - 1;
+        const right = Math.ceil((bounds.right - pos.x) / this.tileWidth) + 1;
+        const top = Math.floor((bounds.top - pos.y) / this.tileHeight) - 1;
+        const bottom = Math.ceil((bounds.bottom - pos.y) / this.tileHeight) + 1;
         this.crop.width = this.tileWidth;
         this.crop.height = this.tileHeight;
         for (let tx = left; tx < right; tx++) {
-            if (this.map[tx] == undefined)
+            if (this.map[tx] === undefined)
                 continue;
             for (let ty = top; ty < bottom; ty++) {
-                let index = this.map[tx][ty];
-                if (index != undefined) {
-                    this.crop.x = (index % this.tileColumns) * this.tileWidth;
-                    this.crop.y = Math.floor(index / this.tileColumns) * this.tileHeight;
-                    Engine.graphics.texture(this.texture, pos.x + tx * this.tileWidth, pos.y + ty * this.tileHeight, this.crop, Color.temp.copy(this.color).mult(this.alpha));
-                }
+                const index = this.map[tx][ty];
+                if (index === undefined)
+                    continue;
+                this.crop.x = (index % this.tileColumns) * this.tileWidth;
+                this.crop.y = Math.floor(index / this.tileColumns) * this.tileHeight;
+                Engine.graphics.texture(this.texture, pos.x + tx * this.tileWidth, pos.y + ty * this.tileHeight, this.crop, Color.temp.copy(this.color).mult(this.alpha));
             }
         }
     }
@@ -4666,7 +4963,7 @@ class Camera {
         return this._worldMouse.copy(Mouse.position).add(Vector.temp0.set(ex.x, ex.y));
     }
     getExtents() {
-        let inverse = this.internal.invert();
+        const inverse = this.internal.invert();
         this.extentsA.set(0, 0).transform(inverse);
         this.extentsB.set(Engine.width, 0).transform(inverse);
         this.extentsC.set(0, Engine.height).transform(inverse);
@@ -4674,7 +4971,7 @@ class Camera {
     }
     get extents() {
         this.getExtents();
-        let r = this.extentsRect;
+        const r = this.extentsRect;
         r.x = Math.min(this.extentsA.x, this.extentsB.x, this.extentsC.x, this.extentsD.x);
         r.y = Math.min(this.extentsA.y, this.extentsB.y, this.extentsC.y, this.extentsD.y);
         r.width = Math.max(this.extentsA.x, this.extentsB.x, this.extentsC.x, this.extentsD.x) - r.x;
@@ -5031,16 +5328,18 @@ class ObjectList {
     }
 }
 class Rectangle {
-    get left() { return this.x; }
-    get right() { return this.x + this.width; }
-    get top() { return this.y; }
-    get bottom() { return this.y + this.height; }
     constructor(x, y, w, h) {
         this.x = x || 0;
         this.y = y || 0;
         this.width = w || 1;
         this.height = h || 1;
     }
+    get left() { return this.x; }
+    get right() { return this.x + this.width; }
+    get top() { return this.y; }
+    get bottom() { return this.y + this.height; }
+    get centerX() { return this.x + this.width / 2; }
+    get centerY() { return this.y + this.height / 2; }
     set(x, y, w, h) {
         this.x = x;
         this.y = y;
@@ -5058,6 +5357,12 @@ class Rectangle {
     overlapsHorizontally(rect) {
         return (rect.left > this.left && rect.left < this.right) ||
             (rect.right > this.left && rect.right < this.right);
+    }
+    expand(width, height) {
+        this.x -= width / 2;
+        this.width += width * 2;
+        this.y -= height / 2;
+        this.height += height * 2;
     }
     cropRect(r) {
         if (r.x < this.x) {
@@ -5083,7 +5388,7 @@ class Rectangle {
         return r;
     }
     crop(x, y, w, h, ref) {
-        if (ref == undefined)
+        if (ref === undefined)
             ref = new Rectangle();
         ref.set(x, y, w, h);
         this.cropRect(ref);
@@ -5100,6 +5405,9 @@ class Rectangle {
         return this;
     }
 }
+Rectangle.temp0 = new Rectangle();
+Rectangle.temp1 = new Rectangle();
+Rectangle.temp2 = new Rectangle();
 class Shader {
     constructor(vertex, fragment, uniforms, attributes) {
         this.dirty = true;

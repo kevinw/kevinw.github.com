@@ -1,6 +1,11 @@
 {
   "atlases": [
     {
+      "name": "guy_die",
+      "image": "sprites\\guy_die.png",
+      "data": "sprites\\guy_die.json"
+    },
+    {
       "name": "guy_idle",
       "image": "sprites\\guy_idle.png",
       "data": "sprites\\guy_idle.json"
