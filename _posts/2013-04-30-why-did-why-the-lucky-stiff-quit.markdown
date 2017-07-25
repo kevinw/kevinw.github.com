@@ -12,7 +12,7 @@ cover_url: /img/why/backwards.jpg
 
 Have you read [\_why](http://en.wikipedia.org/wiki/Why_the_lucky_stiff)'s weird new print spool novella?
 
-Here you go: [CLOSURE](https://dl.dropboxusercontent.com/u/5764687/CLOSURE.pdf) (a 58mb pdf, but oh so worth it)
+Here you go: [CLOSURE](/blog_content/CLOSURE.pdf) (a 58mb pdf, but oh so worth it)
 
 After [famously committing infosuicide in 2009](http://www.slate.com/articles/technology/technology/2012/03/ruby_ruby_on_rails_and__why_the_disappearance_of_one_of_the_world_s_most_beloved_computer_programmers_.html), he was silent for a few years. Then early in April 2013, his website was updated with a series of pages. Assembled, they make up a new mini-book by the quirky Rubyist and self-proclaimed "freelance professor."
 
