@@ -1,0 +1,17 @@
+{
+	"levels": [
+		"level0",
+		"block_intro",
+		"shot_intro",
+		"shatter_intro",
+		"dragon_intro",
+		"tutorial_block",
+		"level2",
+		"spikes_intro",
+		"spike_circle",
+		"water_intro",
+		"medusa_intro",
+		"mimic_intro",
+		"mimic_cross"
+	]
+}

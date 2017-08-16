@@ -1,0 +1,35 @@
+{
+    "frames": [
+        {
+            "rect": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 400.0,
+                "height": 200.0
+            },
+            "duration": 100.0
+        },
+        {
+            "rect": {
+                "serializedVersion": "2",
+                "x": 400.0,
+                "y": 0.0,
+                "width": 400.0,
+                "height": 200.0
+            },
+            "duration": 100.0
+        },
+        {
+            "rect": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 200.0,
+                "width": 400.0,
+                "height": 200.0
+            },
+            "duration": 100.0
+        }
+    ],
+    "playbackMode": "loop"
+}

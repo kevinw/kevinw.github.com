@@ -1,0 +1,43 @@
+<html>
+    <head>
+        <style>
+            html, body, canvas, .container { width: 100%; height: 100%; padding: 0; margin: 0; }
+            .container { position: relative; }
+            body { background-color: black; }
+            canvas { user-select: none; position: absolute; }
+            #debug_console {
+                position: fixed;
+                bottom: 0;
+                margin: 0;
+                padding: 8px;
+                left: 0;
+                width: 30%;
+                background: rgba(0, 0, 0, .7);
+                z-index: 1000;
+                color: white;
+            }
+            .progress { width: 100%; height: 50px; }
+            .progress-wrap { background: #f80; margin: 20px 0; overflow: hidden; position: relative; }
+            .progress-bar { background: #666666; left: 0; position: absolute; top: 0; }
+        </style>
+        <!--<script src="./jsoneditor.js"></script>-->
+    <body>
+            <div class="progress-wrap progress" id="loading_bar_wrap">
+                <div class="progress-bar progress" id="loading_bar"></div>
+            </div>
+            <div class="container">
+            </div>
+
+            <script>
+            (function() {
+                var loadingBar = document.getElementById("loading_bar");
+                var wrapper = document.getElementById("loading_bar_wrap");
+                window.UpdateLoadingBarProgress = function(n) { loadingBar.style.left = n * wrapper.clientWidth; }
+                window.RemoveLoadingBar = function() { wrapper.parentNode.removeChild(wrapper); }
+                UpdateLoadingBarProgress(.1);
+            })();
+        </script>
+        <script src="./main.js"></script>
+    </body>
+    </head>
+</html>

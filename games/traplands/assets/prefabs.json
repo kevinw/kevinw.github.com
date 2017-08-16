@@ -1,0 +1,565 @@
+{
+    "blue_orb": {
+        "Sprite": {
+            "animation": "blue_orb",
+            "play": "main",
+            "origin": "center"
+        },
+        "Physics": {
+            "left": -4,
+            "top": -4,
+            "width": 4,
+            "height": 4,
+            "solids": [
+                "solid",
+                "enemy_solid"
+            ]
+        },
+        "DiesOnCollision": {
+            "particlesPrefab": "freezing_shot_burst"
+        },
+        "Mover": {
+            "x": 0,
+            "y": 0
+        },
+        "AutoTween": {
+            "mode": "scale",
+            "from": 0.001,
+            "to": 1,
+            "duration": 0.25
+        }
+    },
+    "dragon": {
+        "Freezable": {
+            "onFreeze": [
+                [
+                    "bubble.setActive",
+                    false
+                ]
+            ],
+            "onThaw": [
+                [
+                    "bubble.setActive",
+                    true
+                ]
+            ]
+        },
+        "ChildEntity_bubble": {
+            "prefabName": "dragon_bubble"
+        },
+        "Hitbox_sight": {
+            "left": -296.008244374385,
+            "top": 6.343358505793475,
+            "width": 301.042609297481,
+            "height": 17.586602341365676
+        },
+        "Physics_body": {
+            "left": 1.8572286796395616,
+            "top": -1.083244090374862,
+            "width": 20.490139741413074,
+            "height": 19.50656915240951,
+            "tags": [
+                "enemy_solid"
+            ]
+        },
+        "Trigger": {
+            "active": false,
+            "hitboxName": "sight",
+            "onTrigger": [
+                [
+                    "Emitter.emit"
+                ],
+                [
+                    "dragon.play",
+                    "blow_flame"
+                ]
+            ]
+        },
+        "Emitter": {
+            "prefab": "fireball"
+        },
+        "Sprite_dragon": {
+            "animation": "red_dragon",
+            "play": "asleep",
+            "y": -2
+        },
+        "GameEvents": {
+            "onHeartsCollected": [
+                [
+                    "Sprite.play",
+                    "awake"
+                ],
+                [
+                    "Trigger.setActive",
+                    true
+                ],
+                [
+                    "bubble.removeSelf"
+                ]
+            ]
+        }
+    },
+    "dragon_bubble": {
+        "Sprite": {
+            "x": -26,
+            "y": -16,
+            "rate": 0.2,
+            "animation": "sleepbubble",
+            "play": "snoring",
+            "randomStartFrame": true,
+            "flipX": true,
+            "scale": {
+                "x": 0.15,
+                "y": 0.15
+            }
+        }
+    },
+    "empty_breath": {
+        "Sprite_breath": {
+            "animation": "breath",
+            "rate": 3.5,
+            "play": "puff",
+            "alpha": 0.85
+        },
+        "SpriteEvents": {
+            "onFinish": "SpriteEvents.destroyParentEntity"
+        }
+    },
+    "exit": {
+        "Trigger": {
+            "onTrigger": "Trigger.completeLevel"
+        },
+        "GameEvents": {
+            "onTreasureCollected": [
+                [
+                    "Sprite.play",
+                    "open"
+                ],
+                [
+                    "Hitbox.untag",
+                    "solid"
+                ]
+            ]
+        },
+        "Hitbox": {
+            "left": 0,
+            "top": 0,
+            "width": 24,
+            "height": 24,
+            "tags": [
+                "solid",
+                "door"
+            ]
+        }
+    },
+    "eyeballs": {
+        "Hitbox": {
+            "left": 2,
+            "top": 3.61684210526316,
+            "width": 20,
+            "height": 20
+        },
+        "CausesDamage": {}
+    },
+    "fireball": {
+        "Sprite": {
+            "animation": "fireball_red"
+        },
+        "SpriteAutoPlay": {
+            "animationName": "main"
+        },
+        "CausesDamage": {
+            "diesOnCollision": true,
+            "damageParticles": "fireball_burst"
+        },
+        "DiesOnCollision": {
+            "particlesPrefab": "fireball_burst"
+        },
+        "Physics": {
+            "left": 6,
+            "top": 5.102957283680169,
+            "width": 12,
+            "height": 14.952510397729966,
+            "solids": [
+                "solid"
+            ]
+        },
+        "Mover": {
+            "x": -150,
+            "y": 0
+        },
+        "AutoTween": {
+            "mode": "scale",
+            "ease": "quadIn",
+            "from": 0.1,
+            "to": 1,
+            "duration": 0.16
+        }
+    },
+    "fireball_burst": {
+        "ParticleSystem": {
+            "template": "dragon_fire_burst"
+        },
+        "Burst": {
+            "rangeX": 3,
+            "rangeY": 8,
+            "count": 50
+        },
+        "RenderDepth": {
+            "depth": -50
+        }
+    },
+    "freezing_shot_burst": {
+        "ParticleSystem": {
+            "template": "freezing_shot_shatter"
+        },
+        "Burst": {
+            "rangeX": 3,
+            "rangeY": 3,
+            "count": 30
+        },
+        "RenderDepth": {
+            "depth": -50
+        }
+    },
+    "grey_orb": {
+        "Sprite": {
+            "animation": "grey_orb",
+            "play": "main",
+            "origin": "center"
+        },
+        "Physics": {
+            "left": -4,
+            "top": -4,
+            "width": 4,
+            "height": 4,
+            "solids": [
+                "solid",
+                "enemy_solid"
+            ],
+            "tags": [
+                "player"
+            ]
+        },
+        "DiesOnCollision": {
+            "particlesPrefab": "freezing_shot_burst"
+        },
+        "Mover": {
+            "x": 0,
+            "y": 0
+        },
+        "AutoTween": {
+            "mode": "scale",
+            "from": 0.001,
+            "to": 1,
+            "duration": 0.25
+        }
+    },
+    "icecube": {
+        "Sprite": {
+            "animation": "icecube",
+            "x": -2,
+            "y": -4,
+            "scale": {
+                "x": 0.14,
+                "y": 0.14
+            },
+            "alpha": 0.5
+        }
+    },
+    "ice_burst": {
+        "ParticleSystem": {
+            "template": "ice_shatter"
+        },
+        "Burst": {
+            "count": 90,
+            "rangeX": 4,
+            "rangeY": 10
+        },
+        "RenderDepth": -50
+    },
+    "ice_heart": {
+        "HeartPickup": {
+            "type": "ice"
+        },
+        "Wobble": {},
+        "Burst": {
+            "template": "ice_heart_ambient",
+            "rate": 0.0001,
+            "rangeX": 5,
+            "rangeY": 5,
+            "x": 9,
+            "maxParticles": 20
+        },
+        "Hitbox": {
+            "left": 2.2606790799561907,
+            "top": 2.2606790799561907,
+            "width": 13.027382256297926,
+            "height": 11.273819511221348,
+            "tags": [
+                "heart"
+            ]
+        }
+    },
+    "medusa": {
+        "Sprite": {
+            "animation": "medusa",
+            "play": "asleep",
+            "y": -4
+        },
+        "Hitbox": {
+            "left": 2.0210526315789537,
+            "top": 2.6947368421052715,
+            "width": 18.557894736842087,
+            "height": 17.336842105263145,
+            "tags": [
+                "enemy_solid"
+            ]
+        },
+        "Awareness": {},
+        "Medusa": {}
+    },
+    "mimic_heart": {
+        "HeartPickup": {
+            "type": "mimic"
+        },
+        "Wobble": {},
+        "Burst": {
+            "template": "mimic_heart_ambient",
+            "rate": 0.0001,
+            "rangeX": 5,
+            "rangeY": 5,
+            "x": 9,
+            "maxParticles": 20
+        },
+        "Hitbox": {
+            "left": 2.2606790799561907,
+            "top": 2.2606790799561907,
+            "width": 13.027382256297926,
+            "height": 11.273819511221348,
+            "tags": [
+                "heart"
+            ]
+        }
+    },
+    "onion": {
+        "Freezable": {},
+        "Facing": {},
+        "Sprite": {
+            "animation": "onion",
+            "y": -4,
+            "play": "face_out"
+        },
+        "Physics": {
+            "top": 3.3684210526315894,
+            "left": 2.6947368421052715,
+            "width": 18.557894736842087,
+            "height": 17.88421052631577,
+            "tags": [
+                "enemy_solid"
+            ]
+        }
+    },
+    "pickup_burst": {
+        "ParticleSystem": {
+            "template": "pickup"
+        },
+        "Burst": {
+            "rangeX": 3,
+            "rangeY": 8,
+            "count": 50
+        },
+        "RenderDepth": {
+            "depth": -50
+        }
+    },
+    "player": {
+        "TopDownDirection": {},
+        "TopDownControls": {
+            "maxSpeed": 60
+        },
+        "Sprite_body": {
+            "animation": "guy",
+            "play": "idle"
+        },
+        "Sprite_mouth": {
+            "animation": "mouth",
+            "x": 6,
+            "y": 11,
+            "rate": 4.2,
+            "scale": {
+                "x": 0.65,
+                "y": 0.65
+            }
+        },
+        "FreezingShot": {},
+        "Health": {},
+        "KnockBack": {},
+        "GraphicHitEffect": {
+            "deathAnim": "die"
+        },
+        "Physics": {
+            "left": 7.183364874002024,
+            "top": 11.291445943378307,
+            "width": 10.855335487008801,
+            "height": 10.95065931977959,
+            "tags": [
+                "player"
+            ],
+            "solids": [
+                "solid",
+                "enemy_solid",
+                "water_solid"
+            ]
+        }
+    },
+    "player_spawn": {
+        "MapLocation": {
+            "name": "player_spawn"
+        }
+    },
+    "pushableBlock": {
+        "Physics": {
+            "left": 0,
+            "top": 0,
+            "width": 24,
+            "height": 24,
+            "tags": [
+                "solid"
+            ],
+            "solids": [
+                "player"
+            ]
+        },
+        "Pushable": {}
+    },
+    "skull": {
+        "Sprite": {
+            "animation": "skull"
+        },
+        "SpriteAutoPlay": {
+            "animationName": "idle"
+        },
+        "Physics": {
+            "left": 0.628523655709671,
+            "top": 1.2095078852365901,
+            "width": 22.71082652479575,
+            "height": 21.025149154474605,
+            "tags": [
+                "solid",
+                "enemy"
+            ],
+            "solids": [
+                "solid",
+                "player",
+                "door"
+            ]
+        },
+        "Blockize": {},
+        "Wonder": {
+            "speed": 30
+        },
+        "Freezable": {}
+    },
+    "slider": {
+        "Pushable": {
+            "threshold": 0
+        }
+    },
+    "spikes": {
+        "Sprite": {
+            "animation": "spikeholes",
+            "play": "dormant"
+        },
+        "Sprite_spines": {
+            "animation": "spikes",
+            "y": -24
+        },
+        "Hitbox": {
+            "left": 2.0210526315789252,
+            "top": 2.0210526315789537,
+            "width": 19.90526315789475,
+            "height": 17.63157894736841
+        },
+        "CausesDamage": {
+            "active": false
+        },
+        "Spikes": {}
+    },
+    "test_sprite": {
+        "Sprite": {
+            "animation": "mouth",
+            "play": "close"
+        }
+    },
+    "title": {
+        "Sprite": {
+            "animation": "traplands",
+            "play": "logo",
+            "rate": 0.8,
+            "x": 15,
+            "y": 40,
+            "scale": {
+                "x": 0.7,
+                "y": 0.7
+            }
+        }
+    },
+    "treasure": {
+        "Pickup": {
+            "type": "treasure",
+            "burstName": "treasure_burst"
+        },
+        "Sprite": {
+            "animation": "treasure",
+            "play": "closed"
+        },
+        "Shake": {
+            "time": 0.25,
+            "amount": 1
+        },
+        "GameEvents": {
+            "onSingleHeartCollected": [
+                [
+                    "Shake.play"
+                ]
+            ],
+            "onHeartsCollected": [
+                [
+                    "Sprite.play",
+                    "open"
+                ],
+                [
+                    "Hitbox.untag",
+                    "solid"
+                ]
+            ]
+        },
+        "Hitbox": {
+            "left": 0,
+            "top": 2.0645161290322562,
+            "width": 24,
+            "height": 21.333333333333343,
+            "tags": [
+                "solid",
+                "treasure"
+            ]
+        }
+    },
+    "treasure_burst": {
+        "ParticleSystem": {
+            "template": "treasure_pickup"
+        },
+        "Burst": {
+            "count": 100
+        },
+        "RenderDepth": {
+            "depth": -50
+        }
+    },
+    "water_source": {
+        "MapLocation": {
+            "name": "water_source"
+        }
+    }
+}
