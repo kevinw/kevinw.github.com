@@ -106,8 +106,8 @@
     },
     "dragon_bubble": {
         "Sprite": {
-            "x": -26,
-            "y": -16,
+            "x": -23,
+            "y": -1,
             "rate": 0.2,
             "animation": "sleepbubble",
             "play": "snoring",
@@ -133,7 +133,14 @@
     "endscreen": {
         "Sprite": {
             "animation": "question",
-            "play": "mark"
+            "play": "mark",
+            "x": 219,
+            "y": 135
+        },
+        "StaticGraphic": {
+            "texture": "lookingformore",
+            "x": 45,
+            "y": 70
         }
     },
     "exit": {
@@ -519,13 +526,23 @@
         "Sprite": {
             "animation": "traplands",
             "play": "logo",
-            "rate": 0.8,
+            "rate": 0.7,
             "x": 15,
-            "y": 40,
+            "y": 60,
             "scale": {
                 "x": 0.7,
                 "y": 0.7
             }
+        },
+        "StaticGraphic_demo": {
+            "texture": "demo",
+            "x": 199,
+            "y": 120
+        },
+        "StaticGraphic_instructions": {
+            "texture": "instructions",
+            "x": 45,
+            "y": 130
         }
     },
     "treasure": {
