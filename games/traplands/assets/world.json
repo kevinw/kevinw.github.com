@@ -7,11 +7,13 @@
 		"dragon_intro",
 		"tutorial_block",
 		"level2",
-		"spikes_intro",
-		"spike_circle",
-		"water_intro",
-		"medusa_intro",
+		"water_teach",
+		"medusa_teach",
+		"medusa_simple",
+		"mimic_teach",
+		"mimic_cross",
 		"mimic_intro",
-		"mimic_cross"
+		"spikes_intro",
+		"spike_circle"
 	]
 }

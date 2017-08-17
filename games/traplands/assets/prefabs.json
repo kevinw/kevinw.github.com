@@ -48,14 +48,14 @@
             "prefabName": "dragon_bubble"
         },
         "Hitbox_sight": {
-            "left": -296.008244374385,
-            "top": 6.343358505793475,
+            "left": -295.73883371021293,
+            "top": 3.3798411999001132,
             "width": 301.042609297481,
             "height": 17.586602341365676
         },
         "Physics_body": {
-            "left": 1.8572286796395616,
-            "top": -1.083244090374862,
+            "left": 1.8572286796395758,
+            "top": 1.8802732155184998,
             "width": 20.490139741413074,
             "height": 19.50656915240951,
             "tags": [
@@ -76,7 +76,8 @@
             ]
         },
         "Emitter": {
-            "prefab": "fireball"
+            "prefab": "fireball",
+            "flipFromBody": "dragon"
         },
         "Sprite_dragon": {
             "animation": "red_dragon",
@@ -97,6 +98,10 @@
                     "bubble.removeSelf"
                 ]
             ]
+        },
+        "Flip": {
+            "x": true,
+            "bodyName": "body"
         }
     },
     "dragon_bubble": {
@@ -123,6 +128,12 @@
         },
         "SpriteEvents": {
             "onFinish": "SpriteEvents.destroyParentEntity"
+        }
+    },
+    "endscreen": {
+        "Sprite": {
+            "animation": "question",
+            "play": "mark"
         }
     },
     "exit": {
@@ -307,6 +318,7 @@
             "play": "asleep",
             "y": -4
         },
+        "Shadow": {},
         "Hitbox": {
             "left": 2.0210526315789537,
             "top": 2.6947368421052715,
@@ -350,6 +362,9 @@
             "y": -4,
             "play": "face_out"
         },
+        "Shadow": {
+            "alpha": 0.35
+        },
         "Physics": {
             "top": 3.3684210526315894,
             "left": 2.6947368421052715,
@@ -390,6 +405,14 @@
             "scale": {
                 "x": 0.65,
                 "y": 0.65
+            }
+        },
+        "Shadow": {
+            "graphicName": "body",
+            "alpha": 0.5,
+            "offset": {
+                "x": 0,
+                "y": 1
             }
         },
         "FreezingShot": {},

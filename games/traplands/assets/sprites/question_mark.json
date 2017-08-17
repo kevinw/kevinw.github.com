@@ -1,0 +1,58 @@
+{ "frames": {
+   "question_mark 0.ase": {
+    "frame": { "x": 0, "y": 0, "w": 40, "h": 60 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 40, "h": 60 },
+    "sourceSize": { "w": 40, "h": 60 },
+    "duration": 100
+   },
+   "question_mark 1.ase": {
+    "frame": { "x": 40, "y": 0, "w": 40, "h": 60 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 40, "h": 60 },
+    "sourceSize": { "w": 40, "h": 60 },
+    "duration": 100
+   },
+   "question_mark 2.ase": {
+    "frame": { "x": 80, "y": 0, "w": 40, "h": 60 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 40, "h": 60 },
+    "sourceSize": { "w": 40, "h": 60 },
+    "duration": 100
+   },
+   "question_mark 3.ase": {
+    "frame": { "x": 120, "y": 0, "w": 40, "h": 60 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 40, "h": 60 },
+    "sourceSize": { "w": 40, "h": 60 },
+    "duration": 100
+   },
+   "question_mark 4.ase": {
+    "frame": { "x": 160, "y": 0, "w": 40, "h": 60 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 40, "h": 60 },
+    "sourceSize": { "w": 40, "h": 60 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "http://www.aseprite.org/",
+  "version": "1.2-beta12",
+  "image": "C:\\Users\\kevin\\src\\topdown\\public\\assets\\sprites\\ase\\question_mark.png",
+  "format": "RGBA8888",
+  "size": { "w": 200, "h": 60 },
+  "scale": "1",
+  "frameTags": [
+  ],
+  "layers": [
+   { "name": "Layer 1", "opacity": 255, "blendMode": "normal" }
+  ],
+  "slices": [
+  ]
+ }
+}

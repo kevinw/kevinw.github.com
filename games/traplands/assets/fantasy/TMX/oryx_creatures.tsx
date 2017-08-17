@@ -52,7 +52,7 @@
    <property name="anim_speed" type="float" value="4.5"/>
   </properties>
  </tile>
- <tile id="380">
+ <tile id="380" type="onion">
   <properties>
    <property name="anim_frame" type="int" value="1"/>
    <property name="anim_name" value="onion"/>
@@ -86,14 +86,14 @@
    <property name="anim_track" value="asleep"/>
   </properties>
  </tile>
- <tile id="398">
+ <tile id="398" type="onion">
   <properties>
    <property name="anim_frame" type="int" value="0"/>
    <property name="anim_name" value="onion"/>
    <property name="anim_track" value="face_in"/>
   </properties>
  </tile>
- <tile id="399">
+ <tile id="399" type="onion">
   <properties>
    <property name="anim_frame" type="int" value="1"/>
    <property name="anim_name" value="onion"/>

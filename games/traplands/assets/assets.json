@@ -37,6 +37,12 @@
             "loaderType": "Asesprite"
         },
         {
+            "name": "question_mark",
+            "image": "sprites\\question_mark.png",
+            "data": "sprites\\question_mark.json",
+            "loaderType": "Asesprite"
+        },
+        {
             "name": "sleepbubble",
             "image": "sprites\\sleepbubble.png",
             "data": "sprites\\sleepbubble.json",
