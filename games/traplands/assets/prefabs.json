@@ -398,7 +398,9 @@
     "player": {
         "TopDownDirection": {},
         "TopDownControls": {
-            "maxSpeed": 60
+            "maxSpeed": 61,
+            "speed": 380,
+            "friction": 245
         },
         "Sprite_body": {
             "animation": "guy",
@@ -461,7 +463,9 @@
                 "player"
             ]
         },
-        "Pushable": {}
+        "Pushable": {
+            "threshold": 0.3
+        }
     },
     "skull": {
         "Sprite": {

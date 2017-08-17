@@ -29,6 +29,19 @@
 0,0,0,0,0,0,0
 </data>
  </layer>
+ <layer name="corners" width="7" height="9">
+  <data encoding="csv">
+0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,
+0,0,0,0,632,0,0,
+0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,
+0,2386,0,0,0,0,0,
+0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,
+0,0,0,0,0,0,0
+</data>
+ </layer>
  <layer name="objects" width="7" height="9">
   <data encoding="csv">
 0,0,0,709,0,0,0,
