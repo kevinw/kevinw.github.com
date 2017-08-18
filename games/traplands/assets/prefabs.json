@@ -199,7 +199,8 @@
             "width": 12,
             "height": 14.952510397729966,
             "solids": [
-                "solid"
+                "solid",
+                "enemy_solid"
             ]
         },
         "Mover": {
@@ -363,11 +364,15 @@
     },
     "onion": {
         "Freezable": {},
+        "Health": {
+            "removeFromScene": true
+        },
         "Facing": {},
         "Sprite": {
             "animation": "onion",
             "y": -4,
-            "play": "face_out"
+            "play": "face_out",
+            "randomStartFrame": true
         },
         "Shadow": {
             "alpha": 0.35
