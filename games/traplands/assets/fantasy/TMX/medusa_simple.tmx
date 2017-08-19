@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="2017.07.11" orientation="orthogonal" renderorder="right-down" width="7" height="7" tilewidth="24" tileheight="24" nextobjectid="1">
+<map version="1.0" tiledversion="2017.07.11" orientation="orthogonal" renderorder="right-down" width="7" height="8" tilewidth="24" tileheight="24" nextobjectid="1">
  <tileset firstgid="1" source="oryx_creatures.tsx"/>
  <tileset firstgid="487" source="oryx_world2.tsx"/>
  <tileset firstgid="4057" source="oryx_items.tsx"/>
- <layer name="terrain" width="7" height="7">
+ <layer name="terrain" width="7" height="8">
   <data encoding="csv">
 926,921,922,917,920,921,927,
 924,917,917,917,917,917,924,
@@ -11,10 +11,11 @@
 924,917,917,917,917,917,924,
 928,927,917,917,918,926,929,
 0,928,927,917,926,929,0,
-0,0,928,921,929,0,0
+0,0,928,921,929,0,0,
+0,0,0,0,0,0,0
 </data>
  </layer>
- <layer name="corners" width="7" height="7">
+ <layer name="corners" width="7" height="8">
   <data encoding="csv">
 0,0,0,0,0,0,0,
 0,2700,0,0,0,2701,0,
@@ -22,21 +23,23 @@
 0,0,0,0,0,2703,0,
 0,0,2872,0,0,0,0,
 0,0,0,2871,0,0,0,
+0,0,0,0,0,0,0,
 0,0,0,0,0,0,0
 </data>
  </layer>
- <layer name="shadows" width="7" height="7">
+ <layer name="shadows" width="7" height="8">
   <data encoding="csv">
 0,0,0,0,0,0,0,
 0,860,944,0,945,860,0,
 0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,
-0,0,0,0,0,0,0
+945,0,0,0,0,0,944,
+0,945,0,0,0,944,0,
+0,0,945,860,944,0,0
 </data>
  </layer>
- <layer name="objects" width="7" height="7">
+ <layer name="objects" width="7" height="8">
   <data encoding="csv">
 0,0,0,1195,0,0,0,
 0,1375,0,0,0,0,0,
@@ -44,6 +47,7 @@
 0,0,0,363,0,0,0,
 0,0,0,4206,0,0,0,
 0,0,0,1,0,0,0,
+0,0,0,0,0,0,0,
 0,0,0,0,0,0,0
 </data>
  </layer>

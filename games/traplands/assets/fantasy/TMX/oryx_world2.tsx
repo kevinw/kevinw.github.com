@@ -830,7 +830,15 @@
  </tile>
  <tile id="709">
   <properties>
+   <property name="anim_frame" type="int" value="1"/>
+   <property name="anim_name" value="wooden_door"/>
+   <property name="anim_track" value="open"/>
+  </properties>
+ </tile>
+ <tile id="714">
+  <properties>
    <property name="anim_frame" type="int" value="0"/>
+   <property name="anim_loops" type="bool" value="false"/>
    <property name="anim_name" value="wooden_door"/>
    <property name="anim_track" value="open"/>
   </properties>

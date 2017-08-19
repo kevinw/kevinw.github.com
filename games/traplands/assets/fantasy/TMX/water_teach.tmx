@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="2017.07.11" orientation="orthogonal" renderorder="right-down" width="9" height="7" tilewidth="24" tileheight="24" nextobjectid="1">
+<map version="1.0" tiledversion="2017.07.11" orientation="orthogonal" renderorder="right-down" width="9" height="8" tilewidth="24" tileheight="24" nextobjectid="1">
  <tileset firstgid="1" source="oryx_world2.tsx"/>
  <tileset firstgid="3571" source="oryx_creatures.tsx"/>
- <layer name="terrain" width="9" height="7">
+ <layer name="terrain" width="9" height="8">
   <data encoding="csv">
 0,355,350,351,344,349,350,356,0,
 0,353,344,344,344,344,344,353,0,
@@ -10,10 +10,23 @@
 353,344,344,344,344,344,344,344,353,
 357,356,344,345,345,345,344,355,358,
 0,353,344,344,344,344,344,353,0,
-0,357,350,350,350,350,350,358,0
+0,357,350,350,350,350,350,358,0,
+0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer name="water" width="9" height="7">
+ <layer name="corners" width="9" height="8">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,
+0,0,2079,0,0,0,2080,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,2082,0,0,0,2081,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer name="water" width="9" height="8">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,
@@ -21,10 +34,11 @@
 0,2303,2303,2303,2303,2303,2303,2303,0,
 0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer name="water_corners" width="9" height="7">
+ <layer name="water_corners" width="9" height="8">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,
@@ -32,21 +46,23 @@
 0,2390,2645,2645,2645,2645,2645,2305,0,
 0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer name="shadows" width="9" height="7">
+ <layer name="shadows" width="9" height="8">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,
 0,0,374,374,0,374,374,0,0,
 0,0,0,0,0,0,0,0,0,
 0,458,0,0,0,0,0,459,0,
 0,0,0,0,0,0,0,0,0,
+459,0,0,0,0,0,0,0,458,
 0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0
+0,459,374,374,374,374,374,458,0
 </data>
  </layer>
- <layer name="objects" width="9" height="7">
+ <layer name="objects" width="9" height="8">
   <data encoding="csv">
 0,0,0,0,709,0,0,0,0,
 0,0,0,0,0,0,0,0,0,
@@ -54,6 +70,7 @@
 0,0,0,0,0,0,0,0,0,
 0,0,891,0,0,0,0,0,0,
 0,0,0,0,3571,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0
 </data>
  </layer>

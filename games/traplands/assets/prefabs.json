@@ -130,6 +130,19 @@
             "onFinish": "SpriteEvents.destroyParentEntity"
         }
     },
+    "empty_breathup": {
+        "Sprite_breath": {
+            "animation": "breath",
+            "rate": 3.5,
+            "play": "puffup",
+            "alpha": 0.85,
+            "x": -16,
+            "y": -14
+        },
+        "SpriteEvents": {
+            "onFinish": "SpriteEvents.destroyParentEntity"
+        }
+    },
     "endscreen": {
         "Sprite": {
             "animation": "question",
