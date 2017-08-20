@@ -29,6 +29,13 @@
             "duration": 0.25
         }
     },
+    "desktop_instructions": {
+        "StaticGraphic_instructions": {
+            "texture": "instructions",
+            "x": 45,
+            "y": 130
+        }
+    },
     "dragon": {
         "Freezable": {
             "onFreeze": [
@@ -581,7 +588,7 @@
             "animation": "traplands",
             "play": "logo",
             "rate": 0.7,
-            "x": 15,
+            "x": 21,
             "y": 60,
             "scale": {
                 "x": 0.7,
@@ -590,13 +597,8 @@
         },
         "StaticGraphic_demo": {
             "texture": "demo",
-            "x": 199,
+            "x": 224,
             "y": 120
-        },
-        "StaticGraphic_instructions": {
-            "texture": "instructions",
-            "x": 45,
-            "y": 130
         }
     },
     "treasure": {
