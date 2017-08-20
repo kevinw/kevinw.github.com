@@ -5,6 +5,7 @@
  <tile id="7">
   <properties>
    <property name="solid" type="bool" value="true"/>
+   <property name="wall_block" value="grey"/>
   </properties>
  </tile>
  <tile id="8">
@@ -96,6 +97,7 @@
  <tile id="92">
   <properties>
    <property name="solid" type="bool" value="true"/>
+   <property name="wall_block" value="grey_crumbled"/>
   </properties>
  </tile>
  <tile id="93">
@@ -187,6 +189,7 @@
  <tile id="177">
   <properties>
    <property name="solid" type="bool" value="true"/>
+   <property name="wall_block" value="brown_crumbled"/>
   </properties>
  </tile>
  <tile id="178">
@@ -278,6 +281,7 @@
  <tile id="262">
   <properties>
    <property name="solid" type="bool" value="true"/>
+   <property name="wall_block" value="red_pyramids"/>
   </properties>
  </tile>
  <tile id="263">
@@ -369,6 +373,7 @@
  <tile id="347">
   <properties>
    <property name="solid" type="bool" value="true"/>
+   <property name="wall_block" value="brown_simple"/>
   </properties>
  </tile>
  <tile id="348">
@@ -461,6 +466,7 @@
  <tile id="432">
   <properties>
    <property name="solid" type="bool" value="true"/>
+   <property name="wall_block" value="grass_dungeon"/>
   </properties>
  </tile>
  <tile id="433">
@@ -552,6 +558,7 @@
  <tile id="517">
   <properties>
    <property name="solid" type="bool" value="true"/>
+   <property name="wall_block" value="grey_crypt"/>
   </properties>
  </tile>
  <tile id="518">
@@ -643,6 +650,7 @@
  <tile id="602">
   <properties>
    <property name="solid" type="bool" value="true"/>
+   <property name="wall_block" value="blue_crypt"/>
   </properties>
  </tile>
  <tile id="603">
@@ -734,6 +742,7 @@
  <tile id="687">
   <properties>
    <property name="solid" type="bool" value="true"/>
+   <property name="wall_block" value="gold"/>
   </properties>
  </tile>
  <tile id="688">
@@ -847,6 +856,7 @@
  <tile id="772">
   <properties>
    <property name="solid" type="bool" value="true"/>
+   <property name="wall_block" value="grey_vents"/>
   </properties>
  </tile>
  <tile id="773">
@@ -938,6 +948,7 @@
  <tile id="857">
   <properties>
    <property name="solid" type="bool" value="true"/>
+   <property name="wall_block" value="green_bland"/>
   </properties>
  </tile>
  <tile id="858">
@@ -1043,6 +1054,7 @@
  <tile id="942">
   <properties>
    <property name="solid" type="bool" value="true"/>
+   <property name="wall_block" value="boring"/>
   </properties>
  </tile>
  <tile id="943">
@@ -1133,6 +1145,7 @@
  <tile id="1027">
   <properties>
    <property name="solid" type="bool" value="true"/>
+   <property name="wall_block" value="vines"/>
   </properties>
  </tile>
  <tile id="1028">

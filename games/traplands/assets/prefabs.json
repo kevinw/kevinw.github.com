@@ -37,12 +37,7 @@
                     false
                 ]
             ],
-            "onThaw": [
-                [
-                    "bubble.setActive",
-                    true
-                ]
-            ]
+            "onThaw": "bubble.setActive"
         },
         "ChildEntity_bubble": {
             "prefabName": "dragon_bubble"
@@ -66,16 +61,17 @@
             "active": false,
             "hitboxName": "sight",
             "onTrigger": [
-                [
-                    "Emitter.emit"
-                ],
+                "fireEmitter.emit",
                 [
                     "dragon.play",
                     "blow_flame"
                 ]
             ]
         },
-        "Emitter": {
+        "Emitter_exclaim": {
+            "prefab": "exclaim"
+        },
+        "Emitter_fireEmitter": {
             "prefab": "fireball",
             "flipFromBody": "dragon"
         },
@@ -90,13 +86,9 @@
                     "Sprite.play",
                     "awake"
                 ],
-                [
-                    "Trigger.setActive",
-                    true
-                ],
-                [
-                    "bubble.removeSelf"
-                ]
+                "Trigger.setActive",
+                "bubble.removeSelf",
+                "exclaim.emit"
             ]
         },
         "Flip": {
@@ -122,25 +114,25 @@
     "empty_breath": {
         "Sprite_breath": {
             "animation": "breath",
-            "rate": 3.5,
+            "rate": 3.8,
             "play": "puff",
-            "alpha": 0.85
+            "alpha": 0.7
         },
         "SpriteEvents": {
-            "onFinish": "SpriteEvents.destroyParentEntity"
+            "onFinish": "SpriteEvents.destroyEntity"
         }
     },
     "empty_breathup": {
         "Sprite_breath": {
             "animation": "breath",
-            "rate": 3.5,
+            "rate": 3.8,
             "play": "puffup",
-            "alpha": 0.85,
+            "alpha": 0.7,
             "x": -16,
             "y": -14
         },
         "SpriteEvents": {
-            "onFinish": "SpriteEvents.destroyParentEntity"
+            "onFinish": "SpriteEvents.destroyEntity"
         }
     },
     "endscreen": {
@@ -154,6 +146,34 @@
             "texture": "lookingformore",
             "x": 45,
             "y": 70
+        }
+    },
+    "exclaim": {
+        "Sprite_exclaim": {
+            "animation": "exclamation",
+            "play": "mark",
+            "y": -10,
+            "rate": 0.7
+        },
+        "AutoTween_alpha": {
+            "mode": "alpha",
+            "duration": 0.2,
+            "from": 0,
+            "to": 1
+        },
+        "AutoTween_move": {
+            "mode": "moveY",
+            "duration": 0.7,
+            "from": 0,
+            "to": -10
+        },
+        "AutoTween_kill": {
+            "mode": "alpha",
+            "duration": 0.5,
+            "from": 1,
+            "to": 0,
+            "delay": 0.5,
+            "onComplete": "AutoTween.destroyEntity"
         }
     },
     "exit": {
@@ -378,7 +398,19 @@
     "onion": {
         "Freezable": {},
         "Health": {
-            "removeFromScene": true
+            "onDie": [
+                [
+                    "Sprite.play",
+                    "burn"
+                ],
+                [
+                    "Facing.setActive",
+                    false
+                ],
+                [
+                    "Physics.untagAll"
+                ]
+            ]
         },
         "Facing": {},
         "Sprite": {
@@ -416,9 +448,9 @@
     "player": {
         "TopDownDirection": {},
         "TopDownControls": {
-            "maxSpeed": 61,
-            "speed": 380,
-            "friction": 245
+            "maxSpeed": 63,
+            "speed": 3500,
+            "friction": 325
         },
         "Sprite_body": {
             "animation": "guy",

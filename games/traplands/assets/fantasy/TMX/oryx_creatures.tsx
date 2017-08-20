@@ -108,6 +108,56 @@
    <property name="anim_track" value="blow_flame"/>
   </properties>
  </tile>
+ <tile id="416">
+  <properties>
+   <property name="anim_loops" type="bool" value="false"/>
+   <property name="anim_name" value="onion"/>
+   <property name="anim_speed" type="float" value="15"/>
+   <property name="anim_track" value="burn"/>
+  </properties>
+ </tile>
+ <tile id="417">
+  <properties>
+   <property name="anim_name" value="onion"/>
+   <property name="anim_track" value="burn"/>
+  </properties>
+ </tile>
+ <tile id="418">
+  <properties>
+   <property name="anim_name" value="onion"/>
+   <property name="anim_track" value="burn"/>
+  </properties>
+ </tile>
+ <tile id="419">
+  <properties>
+   <property name="anim_name" value="onion"/>
+   <property name="anim_track" value="burn"/>
+  </properties>
+ </tile>
+ <tile id="420">
+  <properties>
+   <property name="anim_name" value="onion"/>
+   <property name="anim_track" value="burn"/>
+  </properties>
+ </tile>
+ <tile id="421">
+  <properties>
+   <property name="anim_name" value="onion"/>
+   <property name="anim_track" value="burn"/>
+  </properties>
+ </tile>
+ <tile id="422">
+  <properties>
+   <property name="anim_name" value="onion"/>
+   <property name="anim_track" value="burn"/>
+  </properties>
+ </tile>
+ <tile id="423">
+  <properties>
+   <property name="anim_name" value="onion"/>
+   <property name="anim_track" value="burn"/>
+  </properties>
+ </tile>
  <tile id="468">
   <properties>
    <property name="shadow" type="int" value="0"/>

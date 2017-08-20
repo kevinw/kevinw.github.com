@@ -1,0 +1,3 @@
+./rules/grass_dungeon_rules.tmx
+./rules/shadow_rules.tmx
+./rules/water_rules.tmx
