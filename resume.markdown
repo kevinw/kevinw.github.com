@@ -5,13 +5,19 @@ title: Kevin Watters - Resume
 
 # Kevin Watters
 
-## game designer / senior software engineer
+## game designer / senior software engineer / technical artist / creative coder
 
-#### full-stack polyglot startup veteran
+#### polyglot startup veteran turned gamedev and creative coder
 
 [kevinwatters@gmail.com](mailto:kevinwatters@gmail.com) - [github.com/kevinw](http://github.com/kevinw)
 
 ## Experience
+
+### [Blackout](http://blackoutvr.com/) (http://blackoutvr.com/) (2017)
+
+__Technical Artist and Engineer__
+
+Developed production tools used by the creative team to adjust dynamic lighting, soundscapes, and post-processing effects and shape the mood of the experience dynamically as its procedural systems evolve and change.
 
 ### [Zero Days VR](https://www.sundance.org/projects/zero-days-vr) (https://www.sundance.org/projects/zero-days-vr) (2017)
 
