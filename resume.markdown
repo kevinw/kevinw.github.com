@@ -5,9 +5,7 @@ title: Kevin Watters - Resume
 
 # Kevin Watters
 
-## game designer / senior software engineer / technical artist / creative coder
-
-#### polyglot startup veteran turned gamedev and creative coder
+#### polyglot startup veteran turned gamedev, graphics programmer, and creative coder
 
 [kevinwatters@gmail.com](mailto:kevinwatters@gmail.com) - [github.com/kevinw](http://github.com/kevinw)
 
