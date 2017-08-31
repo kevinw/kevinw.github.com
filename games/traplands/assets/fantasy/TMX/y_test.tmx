@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" tiledversion="2017.07.11" orientation="orthogonal" renderorder="right-down" width="3" height="3" tilewidth="24" tileheight="24" nextobjectid="1">
+ <tileset firstgid="1" source="oryx_world2.tsx"/>
+ <tileset firstgid="3571" source="oryx_creatures.tsx"/>
+ <layer name="terrain" width="3" height="3">
+  <data encoding="csv">
+431,431,431,
+431,431,431,
+431,431,431
+</data>
+ </layer>
+ <layer name="objects" width="3" height="3">
+  <data encoding="csv">
+0,3571,0,
+0,3933,0,
+0,0,0
+</data>
+ </layer>
+</map>

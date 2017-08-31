@@ -1045,12 +1045,28 @@
  </tile>
  <tile id="889">
   <properties>
-   <property name="anim_frame" type="int" value="0"/>
+   <property name="anim_frame" type="int" value="2"/>
    <property name="anim_name" value="treasure"/>
    <property name="anim_track" value="open"/>
   </properties>
  </tile>
  <tile id="890" type="pushableBlock"/>
+ <tile id="892">
+  <properties>
+   <property name="anim_frame" type="int" value="0"/>
+   <property name="anim_loops" type="bool" value="false"/>
+   <property name="anim_name" value="treasure"/>
+   <property name="anim_speed" type="float" value="8"/>
+   <property name="anim_track" value="open"/>
+  </properties>
+ </tile>
+ <tile id="893">
+  <properties>
+   <property name="anim_frame" type="int" value="1"/>
+   <property name="anim_name" value="treasure"/>
+   <property name="anim_track" value="open"/>
+  </properties>
+ </tile>
  <tile id="942">
   <properties>
    <property name="solid" type="bool" value="true"/>

@@ -24,7 +24,7 @@
    <property name="anim_track" value="awake"/>
   </properties>
  </tile>
- <tile id="342">
+ <tile id="342" type="dragon">
   <properties>
    <property name="anim_frame" type="int" value="1"/>
    <property name="anim_name" value="red_dragon"/>
@@ -72,7 +72,7 @@
    <property name="anim_name" value="fireball_red"/>
   </properties>
  </tile>
- <tile id="396">
+ <tile id="396" type="dragon">
   <properties>
    <property name="anim_frame" type="int" value="0"/>
    <property name="anim_name" value="red_dragon"/>

@@ -44,7 +44,13 @@
                     false
                 ]
             ],
-            "onThaw": "bubble.setActive"
+            "onThaw": "bubble.setActive",
+            "onCancelFreeze": [
+                [
+                    "dragon.play",
+                    "blow_flame"
+                ]
+            ]
         },
         "ChildEntity_bubble": {
             "prefabName": "dragon_bubble"
@@ -67,6 +73,7 @@
         "Trigger": {
             "active": false,
             "hitboxName": "sight",
+            "triggerEvery": 0.65,
             "onTrigger": [
                 "fireEmitter.emit",
                 [
@@ -87,20 +94,17 @@
             "play": "asleep",
             "y": -2
         },
-        "GameEvents": {
-            "onHeartsCollected": [
-                [
-                    "Sprite.play",
-                    "awake"
-                ],
-                "Trigger.setActive",
-                "bubble.removeSelf",
-                "exclaim.emit"
-            ]
-        },
+        "Dragon": {},
         "Flip": {
             "x": true,
             "bodyName": "body"
+        },
+        "GameEvents": {
+            "onHeartsCollected": [
+                [
+                    "Dragon.wakeUp"
+                ]
+            ]
         }
     },
     "dragon_bubble": {
@@ -221,30 +225,33 @@
     },
     "fireball": {
         "Sprite": {
-            "animation": "fireball_red"
-        },
-        "SpriteAutoPlay": {
-            "animationName": "main"
+            "animation": "fireball_red",
+            "play": "main"
         },
         "CausesDamage": {
+            "unfreezes": true,
             "diesOnCollision": true,
             "damageParticles": "fireball_burst"
         },
         "DiesOnCollision": {
             "particlesPrefab": "fireball_burst"
         },
+        "Trail": {
+            "prefabName": "fireball_trail",
+            "distance": 10
+        },
         "Physics": {
-            "left": 6,
-            "top": 5.102957283680169,
-            "width": 12,
-            "height": 14.952510397729966,
+            "left": 4,
+            "top": 4.102957283680169,
+            "width": 14,
+            "height": 16.952510397729966,
             "solids": [
                 "solid",
                 "enemy_solid"
             ]
         },
         "Mover": {
-            "x": -150,
+            "x": -240,
             "y": 0
         },
         "AutoTween": {
@@ -266,6 +273,43 @@
         },
         "RenderDepth": {
             "depth": -50
+        }
+    },
+    "fireball_trail": {
+        "Sprite": {
+            "animation": "fireball_red",
+            "play": "main",
+            "origin": "centerBottom"
+        },
+        "AutoRandom": {
+            "colorIntensity": 0.2
+        },
+        "AutoTween": {
+            "duration": 0.5,
+            "mode": "scale",
+            "from": 0.8,
+            "to": 0.2
+        },
+        "AutoTween_alpha": {
+            "duration": 0.5,
+            "mode": "alpha",
+            "from": 0.8,
+            "to": 0
+        },
+        "Hitbox": {
+            "left": 0,
+            "top": 0,
+            "width": 5,
+            "height": 5
+        },
+        "CausesDamage": {
+            "unfreezes": false,
+            "diesOnCollision": false,
+            "damageParticles": "fireball_burst"
+        },
+        "AutoTimer": {
+            "duration": 0.4,
+            "onComplete": "AutoTimer.destroyEntity"
         }
     },
     "freezing_shot_burst": {
@@ -300,6 +344,7 @@
                 "player"
             ]
         },
+        "PlayerEffects": {},
         "DiesOnCollision": {
             "particlesPrefab": "freezing_shot_burst"
         },
@@ -360,6 +405,13 @@
             ]
         }
     },
+    "laser_down": {
+        "Laser": {
+            "dir": "down",
+            "length": 155,
+            "impactPrefab": "red_laser_impact"
+        }
+    },
     "medusa": {
         "Sprite": {
             "animation": "medusa",
@@ -416,6 +468,9 @@
                 ],
                 [
                     "Physics.untagAll"
+                ],
+                [
+                    "Shadow.removeSelf"
                 ]
             ]
         },
@@ -457,7 +512,7 @@
         "TopDownControls": {
             "maxSpeed": 63,
             "speed": 3500,
-            "friction": 325
+            "friction": 625
         },
         "Sprite_body": {
             "animation": "guy",
@@ -484,14 +539,18 @@
         "FreezingShot": {},
         "Health": {},
         "KnockBack": {},
+        "PlayerEffects": {
+            "effects": []
+        },
+        "PlayerEffectsGraphic": {},
         "GraphicHitEffect": {
             "deathAnim": "die"
         },
         "Physics": {
-            "left": 7.183364874002024,
-            "top": 11.291445943378307,
-            "width": 10.855335487008801,
-            "height": 10.95065931977959,
+            "left": 5.797083285554372,
+            "top": 9.212023560706825,
+            "width": 12.783393501805058,
+            "height": 13.03707391221738,
             "tags": [
                 "player"
             ],
@@ -523,6 +582,28 @@
         "Pushable": {
             "threshold": 0.3
         }
+    },
+    "red_laser_absorb": {
+        "ParticleSystem": {
+            "template": "red_laser_absorb"
+        },
+        "Burst": {
+            "count": 50,
+            "rangeY": 15,
+            "rangeX": 3
+        },
+        "ParticleAttractor": {},
+        "RenderDepth": -50
+    },
+    "red_laser_impact": {
+        "ParticleSystem": {
+            "template": "red_laser_impact"
+        },
+        "Burst": {
+            "loop": true,
+            "rate": 5
+        },
+        "RenderDepth": -50
     },
     "skull": {
         "Sprite": {
