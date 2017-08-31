@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" tiledversion="2017.07.11" orientation="orthogonal" renderorder="right-down" width="4" height="10" tilewidth="24" tileheight="24" nextobjectid="1">
+ <tileset firstgid="1" source="oryx_world2.tsx"/>
+ <tileset firstgid="3571" source="oryx_creatures.tsx"/>
+ <tileset firstgid="4057" source="oryx_items.tsx"/>
+ <layer name="terrain" width="4" height="10">
+  <data encoding="csv">
+352,345,352,0,
+353,5,357,356,
+353,345,345,353,
+353,345,345,353,
+357,356,345,353,
+0,353,345,353,
+0,353,345,353,
+0,353,5,353,
+0,357,350,358,
+0,0,0,0
+</data>
+ </layer>
+ <layer name="shadows" width="4" height="10">
+  <data encoding="csv">
+0,0,0,0,
+0,0,0,0,
+0,0,0,0,
+0,0,0,0,
+0,0,0,0,
+459,0,0,0,
+0,0,0,0,
+0,0,0,0,
+0,0,0,0,
+0,459,374,458
+</data>
+ </layer>
+ <layer name="objects" width="4" height="10">
+  <data encoding="csv">
+0,709,0,0,
+0,889,0,0,
+0,0,3895,0,
+0,0,0,0,
+0,0,0,0,
+0,0,4206,0,
+0,0,0,0,
+0,0,3571,0,
+0,0,0,0,
+0,0,0,0
+</data>
+ </layer>
+</map>
