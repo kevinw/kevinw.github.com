@@ -15,3 +15,5 @@ body { margin-top: 20px; }
 .blog img { max-width: 100%; max-height: auto; }
 
 p { margin-bottom: 1.8rem; }
+
+h6 { margin-bottom: .5em; }

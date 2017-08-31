@@ -1,7 +1,12 @@
-- title: Zero Days VR
+- title: Blackout by Simile
+  url: http://blackoutvr.com
+  cover_url: /img/blackoutvr.jpg
+  short_text: A VR documentary about the lives of everyday New Yorkers.
+
+- title: Zero Days VR by Simile
   url: https://www.sundance.org/projects/zero-days-vr
   cover_url: /img/zdvr_stuxnet.jpg
-  short_text: A VR experience inspired by Alex Gibney's documentary about the cyber weapon Stuxnet.
+  short_text: Worked in a team at <a href="http://simile.systems">Simile</a> to ship a VR experience inspired by Alex Gibney's documentary about the cyber weapon Stuxnet.
 
 - title: fake artist
   url: https://github.com/kevinw/fakeartist
