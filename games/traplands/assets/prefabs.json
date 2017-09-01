@@ -50,6 +50,25 @@
                     "dragon.play",
                     "blow_flame"
                 ]
+            ],
+            "except": {
+                "x": -1,
+                "y": 0
+            }
+        },
+        "Health": {
+            "onDie": [
+                [
+                    "Sprite.play",
+                    "burn"
+                ],
+                [
+                    "Physics.untagAll"
+                ],
+                [
+                    "Trigger.setActive",
+                    false
+                ]
             ]
         },
         "ChildEntity_bubble": {
@@ -57,9 +76,9 @@
         },
         "Hitbox_sight": {
             "left": -295.73883371021293,
-            "top": 3.3798411999001132,
+            "top": -0.7790035654428493,
             "width": 301.042609297481,
-            "height": 17.586602341365676
+            "height": 24.522685875912174
         },
         "Physics_body": {
             "left": 1.8572286796395758,
@@ -151,12 +170,12 @@
             "animation": "question",
             "play": "mark",
             "x": 219,
-            "y": 135
+            "y": 115
         },
         "StaticGraphic": {
             "texture": "lookingformore",
             "x": 45,
-            "y": 70
+            "y": 50
         }
     },
     "exclaim": {
@@ -665,11 +684,19 @@
         }
     },
     "title": {
+        "Sprite_deadheart": {
+            "animation": "deadheart",
+            "play": "smirk",
+            "rate": 0.3,
+            "x": 1,
+            "y": 77,
+            "alpha": 0.7
+        },
         "Sprite": {
             "animation": "traplands",
             "play": "logo",
             "rate": 0.7,
-            "x": 21,
+            "x": 29,
             "y": 60,
             "scale": {
                 "x": 0.7,

@@ -158,6 +158,56 @@
    <property name="anim_track" value="burn"/>
   </properties>
  </tile>
+ <tile id="434">
+  <properties>
+   <property name="anim_loops" type="bool" value="false"/>
+   <property name="anim_name" value="red_dragon"/>
+   <property name="anim_speed" type="float" value="15"/>
+   <property name="anim_track" value="burn"/>
+  </properties>
+ </tile>
+ <tile id="435">
+  <properties>
+   <property name="anim_name" value="red_dragon"/>
+   <property name="anim_track" value="burn"/>
+  </properties>
+ </tile>
+ <tile id="436">
+  <properties>
+   <property name="anim_name" value="red_dragon"/>
+   <property name="anim_track" value="burn"/>
+  </properties>
+ </tile>
+ <tile id="437">
+  <properties>
+   <property name="anim_name" value="red_dragon"/>
+   <property name="anim_track" value="burn"/>
+  </properties>
+ </tile>
+ <tile id="438">
+  <properties>
+   <property name="anim_name" value="red_dragon"/>
+   <property name="anim_track" value="burn"/>
+  </properties>
+ </tile>
+ <tile id="439">
+  <properties>
+   <property name="anim_name" value="red_dragon"/>
+   <property name="anim_track" value="burn"/>
+  </properties>
+ </tile>
+ <tile id="440">
+  <properties>
+   <property name="anim_name" value="red_dragon"/>
+   <property name="anim_track" value="burn"/>
+  </properties>
+ </tile>
+ <tile id="441">
+  <properties>
+   <property name="anim_name" value="red_dragon"/>
+   <property name="anim_track" value="burn"/>
+  </properties>
+ </tile>
  <tile id="468">
   <properties>
    <property name="shadow" type="int" value="0"/>
