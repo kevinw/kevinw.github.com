@@ -1,6 +1,12 @@
 {
     "games": [
         {
+            "cover_url": "https://img.itch.zone/aW1hZ2UvMTcyNTQxLzgwMzg3OC5wbmc=/315x250%23c/9ZQFu4.png",
+            "created_at": "2017-09-01 03:24:47",
+            "title": "Traplands",
+            "url": "https://keelo.itch.io/traplands"
+        },
+        {
             "cover_url": "https://img.itch.zone/aW1hZ2UvOTEwNzAvNDI3OTA5LnBuZw==/315x250%23c/6qWc%2BF.png",
             "created_at": "2016-10-12 21:45:32",
             "title": "Impossible Sculptor",
