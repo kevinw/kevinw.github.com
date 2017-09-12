@@ -242,6 +242,31 @@
         },
         "CausesDamage": {}
     },
+    "eye_guy": {
+        "Sprite": {
+            "animation": "eye_guy",
+            "play": "main",
+            "randomStartFrame": true
+        },
+        "Shadow": {
+            "alpha": 0.5
+        },
+        "Physics": {
+            "left": 3.465703971119126,
+            "top": 3.46570397111914,
+            "width": 16.249097472924177,
+            "height": 15.23465703971118,
+            "tags": [
+                "enemy_solid"
+            ],
+            "solids": [
+                "solid",
+                "enemy_solid"
+            ]
+        },
+        "CausesDamage": {},
+        "Pathfinder": {}
+    },
     "fireball": {
         "Sprite": {
             "animation": "fireball_red",

@@ -17,6 +17,16 @@
    <property name="anim_track" value="fire"/>
   </properties>
  </tile>
+ <tile id="220" type="eye_guy">
+  <properties>
+   <property name="anim_name" value="eye_guy"/>
+  </properties>
+ </tile>
+ <tile id="238" type="eye_guy">
+  <properties>
+   <property name="anim_name" value="eye_guy"/>
+  </properties>
+ </tile>
  <tile id="324" type="dragon">
   <properties>
    <property name="anim_frame" type="int" value="0"/>

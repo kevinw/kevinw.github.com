@@ -1067,6 +1067,12 @@
    <property name="anim_track" value="open"/>
   </properties>
  </tile>
+ <tile id="894">
+  <properties>
+   <property name="anim_name" value="treasure"/>
+   <property name="anim_track" value="gone"/>
+  </properties>
+ </tile>
  <tile id="942">
   <properties>
    <property name="solid" type="bool" value="true"/>
