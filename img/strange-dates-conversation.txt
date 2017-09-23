@@ -1,0 +1,18 @@
+them: hey, do you know me?
+  xmouth: lol, sorry, i really don't. who are you?
+  idunno: no clue. who are you?
+  smile: yeah of course I do!
+  nervous: uh...should I know? I'm sorry! who are you?
+    them: I'm...the author. are you enjoying yourself?
+      eagergrin: yeah, this fun!
+        them: oh man, that's amazing to hear!
+      nervous: uh, err, i dunno.
+        them: aw, that's okay. you can tell me what you really think ;)
+          smile: i guess it's...pretty cool!
+            them: awesome to hear, thanks!
+          dejected: ok. i'm really not into it.
+            them: hey, no worries!
+      dejected: not really. this is pretty dumb.
+        them: ...
+
+them: so what are you up to tonight?
