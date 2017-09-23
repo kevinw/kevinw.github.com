@@ -20,9 +20,9 @@ First I wanted to learn Unity, so I started making a [surreal dating simulator](
 
 <img src="/img/StrangeDatesTitle.jpg">
 
-I thought cloning something would be instructive; that maybe it would be easy and fun to start by emulating a dating app for phones, get a feel for Unity's 2D frameworks, and then see if I could build a game around what came out of that.
+I thought cloning something would be instructive; that maybe it would be easyfun to start by emulating a dating app for phones--get a feel for Unity's 2D frameworks, and then see if I could build a game around what came out of that.
 
-So I had made this whole dating app interface with Unity's UI tools.
+So after a bit I had made this whole dating app interface with Unity's UI tools.
 
 <img src="/img/gamefailures/strange_dates.jpg">
 
@@ -34,7 +34,7 @@ And have random "dates" with them.
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/mWKdsbO-F9A" frameborder="0" allowfullscreen></iframe>
 
-In the process, I realized a few things. One, that good interactive writing isn't easy--I felt pressure that if my game had all these multiple paths, I had better make all of them really good--and that's a ton of work. I was also realizing that the engineering part of my brain really loves solving technical challenges. *And* that I enjoyed procrastinating from writing, specifically by engineering more *stuff*.
+In the process, I realized a few things. One, that good interactive writing isn't easy--I felt pressure that if my game had all these multiple paths, I had better make all of them really good. I was also realizing that the engineering part of my brain really loves solving technical challenges, and that I enjoyed procrastinating from writing by engineering more *stuff*.
 
 As examples of some of things I remember doing instead of writing gameplay content:
 
@@ -67,7 +67,7 @@ I also was mostly too shy to show it to friends; a big mistake. Something I lear
 
 At some point I got distracted and started working on something called [Laser Wart Removal](https://keelo.itch.io/laserwartremoval).
 
-I wanted to make something in 3D, but still on a 2D plane, to uh, take a next step in my Unity journey. I started playing around with a laser I made by raycasting a LineRenderer around. I started drawing puzzles. I remember enjoying The Talos Principle but getting a bit bored with how most of the puzzles boiled down to "figure out how to get a line of sight to the next thing." In a 3D FPS that can be pleasurable in itself--but I was wondering about more complicated stuff, like: what if you had to construct polygons of certain numbers of sides by reflecting lasers around and creating a perimeter?
+I wanted to make something in 3D, but still on a 2D plane, to uh, keep things easy. I started playing around with a laser I made by raycasting a LineRenderer around. I started drawing puzzles. I remember enjoying The Talos Principle but getting a bit bored with how most of the puzzles boiled down to "figure out how to get a line of sight to the next thing." In a 3D FPS that can be pleasurable in itself--but I was wondering about more complicated stuff, like: what if you had to construct polygons of certain numbers of sides by reflecting lasers around and creating a perimeter?
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/PmjzUGcJGRs" frameborder="0" allowfullscreen></iframe>
 
@@ -84,15 +84,15 @@ It got out of control from there and I ended up engineering a bunch of stuff wit
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/xHiIlt9ReuY" frameborder="0" allowfullscreen></iframe>
 
-I would say for this game that the secret time sink--the mammoth iceberg of work lurking beneath the surface--was the combination of getting the controls right, and of establishing a visual language for which things on screen can manipulated. I wanted it to work on iPads, and I struggled awhile with how to let people rotate things around in an intuitive way. After a long time I eventually settled on a solution where you can touch and drag *any* laser and move it, even if it's been reflected in mirrors 30 times before--the game will try to rotate it's originating laser gun so that it points to where your finger ended up. It feels nice! But it wasn't easy to get right. These are the kinds of polishing-things-till-they-feel-ok-hills I died on.
+I would say for this game that the secret time sink was the combination of getting the controls right, and of establishing a visual language for which things on screen can manipulated. I wanted it to work on iPads, and I struggled awhile with how to let people rotate things around in an intuitive way. After a long time I eventually settled on a solution where you can touch and drag *any* laser and move it, even if it's been reflected in mirrors 30 times before--the game will try to rotate it's originating laser gun so that it points to where your finger ended up. It feels nice! But it wasn't easy to get right. These are the kinds of polishing-things-till-they-feel-ok-hills I died on.
 
-There was one major thing I did better this time around--I did do a lot more playtesting with this game. I took it to local games events in on an iPad and showed it to people, and to their friends who don't even play games. I got good feedback about where people got stuck, and what people found cool. I got people ages from 8-60 excited about it. That was always very motivating!
+There was one major thing I did better this time around--I did do a lot more playtesting with this game. I took it to local games events in on an iPad and showed it to people, and to friends who don't play games. I got good feedback about where people got stuck or what they found cool. I got people ages from 8-60 excited about it and it felt good.
 
-I learned a bit of Blender to be able to make abstract geometrical shapes and walls and gears. I struggled with making things look "good enough." I experimented with color palettes. I ended up adding a kaleidoscopic feedback loop thing in the background that gave the game more of a distinct look:
+I learned a bit of Blender to be able to make abstract geometrical shapes and walls and gears and more stuff. I struggled with making things look "good enough." I experimented with color palettes. I did end up adding a kaleidoscopic feedback loop thing in the background that gave the game more of a distinct look:
 
 <img src="/img/gamefailures/lwr_2.jpg">
 
-In the end though, the game still only has 16 levels, and I got tired of working on it.
+In the end though, I felt myself running out of steam. At current count, the game still only has 16 levels I place in the "finished" category. There's another 40 that need work, or express redundant concepts, or for whatever reason don't fit into a larger whole.
 
 <img src="/img/gamefailures/lwr_3.jpg">
 
@@ -105,8 +105,9 @@ In the end though, the game still only has 16 levels, and I got tired of working
 I was frustrated with the feedback loop involved in compiling Unity to iOS.
 
 I found a WebGL framework named [Foster](https://github.com/NoelFB/foster) which was a tiny game engine with 2D graphics, sound, and input, and not much else. I can't stress enough.
+Things it didn't have that I built--an webpack configuration, pathfinding algorithms, a Tiled level loader, depth sorting, a data driven entity-component-system...Also I learned typescript. 
 
-Depth sorting, an entity-component-system...
+Seeing the pattern here?
 
 ## Learnings
 
@@ -114,12 +115,12 @@ Depth sorting, an entity-component-system...
 
 ## What I'm going to do about it
 
-What if I something forcing me to finish? To keep the scope of my game managable? To ship? This something exists! It's called a game jam. I need to do more game jams before
+What if I something forcing me to finish? To keep the scope of my game managable? To ship? This something exists! It's called a game jam. My goal is do some jams I guess?
 
 # todo
 
 I did lots of freelance work and travelled the world and came out of my shell.
 
-Maybe the most successful game I made since starting was with a friend and a deck of cards on the floor.
+Since embarking on this weird game making journey, maybe the most successful game I made since starting was with a friend and a deck of cards just playing around on the floor. Which leads to another lesson--this stuff is easy with collaborators.
 
 <img src="/img/high-five-cards.jpg">
