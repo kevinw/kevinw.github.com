@@ -45,7 +45,7 @@ In the process, I realized a few things. One, that good interactive writing isn'
 Some things I remember doing instead of writing the actual game's content:
 
 - making the UI "responsive" so it would work on different desktop ratios and on differently sized mobile screens
-- creating from scratch an entire [script language format](/img/gamefailures/convo_format.png) for interactive fiction
+- creating from scratch an entire [script language format](/img/gamefailures/convo.png) for interactive fiction
 - creating a parser for said totally over-engineered format
 - keyboard accessibility for tablets, keyboards, gamepads, mice
 - emojii support?!
