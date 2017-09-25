@@ -74,7 +74,7 @@ But in the meantime, I found another way to procrastinate on it--by starting a n
 
 ## how I learned puzzle games are hard to make
 
-To cure my ills I distracted myself by starting on a new game with laser puzzles.
+To cure my ills I distracted myself by starting on a new game with laser puzzles eventually called [Laser Wart Removal](https://keelo.itch.io/laserwartremoval).
 
 <img src="/img/gamefailures/lwr_proto.gif">
 
