@@ -76,7 +76,7 @@ But in the meantime, I found another way to procrastinate on it--by starting a n
 
 To cure my ills I distracted myself by starting on a new game with laser puzzles eventually called [Laser Wart Removal](https://keelo.itch.io/laserwartremoval).
 
-<img src="/img/gamefailures/lwr_proto.gif">
+{% include image.html url="/img/gamefailures/lwr_proto.gif" description="ah, really cartoony yet nonetheless hypnotic light transport simulations" %}
 
 I wanted to make something with more 3D assets this time, but still on a 2D plane, to uh, keep things easy. I started playing around with a laser I made by raycasting a LineRenderer around. I started drawing puzzles where you had to get the lasers to bounce around and do things in a small constrained space. I remember enjoying The Talos Principle but getting a bit bored with how most of the puzzles boiled down to "figure out how to get a line of sight to the next thing." In a 3D FPS that can be pleasurable in itself--but I was wondering about more complicated stuff, like: what if you had to construct polygons of certain numbers of sides by reflecting lasers around and creating a perimeter?
 
@@ -101,30 +101,30 @@ Soon I had an enormous pile of features and half-finished level prototypes.
 
 I learned just enough Blender to make a whole slew of weird angular shapes with the same weird aesthetic. I struggled with making things look "good enough." I experimented with color palettes. I ended up adding a kaleidoscopic feedback loop in the background that gave the game more of a distinct look.
 
-<img src="/img/gamefailures/lwr_1.jpg">
+{% include image.html url="/img/gamefailures/lwr_1.jpg" description="// TODO: check with ppl if counting how many times lasers intersect is actually fun?" %}
 
 I started assembling the levels I liked together into some kind of sequence and showing it to people--this time I did do a better job playtesting. I took it to local games events on an iPad and received feedback on where people got stuck or what they liked. I got people ages from 8-60 excited about it and it felt good.
 
 Often the first and loudest feedback was that the controls were too finicky--and in this game controls were the biggest secret time sink. I wanted it to work intuitively on iPads, and I struggled awhile with how to let people rotate things around in an way that was obvious and felt good. After a long time I eventually settled on a solution where you can touch and drag *any* laser and move it, even if it's been reflected in mirrors 30 times before--the game will try to rotate it's originating laser gun so that it eventually points to where your finger ended up. It feels alright! But it wasn't easy to get right.
 
-<img src="/img/gamefailures/lwr_2.jpg">
+{% include image.html url="/img/gamefailures/lwr_2.jpg" description="A verisimilitudinous medical cosmetic surgery simulator this was not." %}
 
 Also tough was finding a visual language for distinguishing rotatable things from static things. Without a lot of (any, actually) modelling skills or much actual experience in visual design I started to grok the amount of craft that goes into making something intelligible (light that bonfire again). But I wanted to (start to learn to) scale those hazy and towering cross-disciplinary mountain ranges in the distance that in previous lives I hadn't even bothered to consider surmountable.
 
 In retrospect, these design challenges are maybe more of thke kinds of polishing-things-till-they-feel-ok-hills (controls, game feel, readability) I felt better dying--or at least spending some time--on, rather than technical feature rabbit-holing. In fits and starts and dead-ends I was learning what it meant to design a progression of challenges. To teach something and then to expand upon it and then to ask something new of the player in a way that feels fair. To draw the player's eye somewhere so they don't get stuck looking at the unimportant bit.
 
-<img src="/img/gamefailures/lwr_3.jpg">
+{% include image.html url="/img/gamefailures/lwr_3.jpg" description="Cut with kindergarten scissors" %}
 
 In the end though, I still felt myself doing plenty of the aforementioned [rabbit-holing](http://imgs.xkcd.com/comics/nerd_sniping.png)--and running out of steam. Many new puzzles were boiling down to the same line of sight rut I found in Talos Principle, and others required a whole bunch of engineering for features I wasn't even sure were fun.
 
 At current count, the game has 16 levels I place in the "sort-of finished" category. There's another 40 that need work, or express redundant concepts, or for whatever reason don't fit into a larger whole.
 
-<img src="/img/gamefailures/lwr_4.jpg">
+{% include image.html url="/img/gamefailures/lwr_4.jpg" description="Wait, photons don't collide with each other, do they?" %}
 
 Is a puzzle game better when you distill it down to its absolute minimal state? Where every beat is something new? Do I want to make games that lead people along a pleasant garden path? Or do I want to construct elegantly minimal and brutal puzzle boxes they have to Houdini their way out of? There's no right answer here--just questions for myself to ponder.
 
 <img src="/img/gamefailures/lwr_5.jpg">
-
+{% include image.html url="/img/gamefailures/lwr_5.jpg" description="I know what this needs...more cube primitives!" %}
 ## in which I indulge in a minor dalliance outside of Unity's beefy embrace
 
 I was frustrated with the feedback loop involved in compiling Unity to iOS, and my own speed at making new levels. My progland nerd brain was getting bored by all that C# maybe?

@@ -4,6 +4,8 @@
 
 .image figcaption { font-size: 13px; }
 
+figure.image img { min-height: 150px; }
+
 body { margin-top: 20px; }
 
 .name-title { line-height: 130%; margin-bottom: 0; }
