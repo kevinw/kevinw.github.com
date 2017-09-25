@@ -20,7 +20,7 @@ Why? Come along with me as we skip merrily through a tiny graveyard of unfinishe
 
 ## how I learned interactive fiction is hard to make
 
-I had it right. First I wanted to learn Unity, so I could stay away from all that engine programming I was doing. I thought I would start with something "easy" and 2D--soon I was making a surreal gay app dating simulator called [Strange Dates](https://keelo.itch.io/strangedates).
+First I wanted to learn Unity, so I could stay away from all that engine programming I was doing. I thought I would start with something "easy" and 2D--soon I was making a surreal gay app dating simulator called [Strange Dates](https://keelo.itch.io/strangedates).
 
 {% include image.html url="/img/StrangeDatesTitle.jpg" description="embarrassingly homonormative title screen, check" %}
 
@@ -144,7 +144,7 @@ Things it didn't have that I built for game:
 - a webpack configuration so I could ship minified builds
 - pathfinding algorithms so my enemies could hunt you around the levels
 - a Tiled level loader because why not
-- logic for importing asesprite sprite sequences and parameters
+- logic for importing aseprite sequences and parameters
 - y-based sprite depth sorting
 - a "edit mode" gui for editing prefab properties from the browser and then saving changes back to the game data
 - a data driven entity-component-system inspired by Unity's, with prefab inheritance because then it would be even BETTER than Unity's
@@ -155,17 +155,17 @@ Things it didn't have that I built for game:
 
 The trajectory of this game's development shouldn't be a mystery at this point; after making a few dozen levels, I was feeling stuck, and feedback from players was encouraging, but not ecstatic. I did get into a better flow where the game was super data-driven; I could actually make new levels in Tiled without doing any coding. There's something to be said for getting into a "making content" flow that I'm learning is important.
 
-I was also missing a ton of things from Unity. Straying away from the Danish behemoth made me realize how deep its toolbox of useful stuff really is. If you need to collide a circle with a tilemap, and your physics engine doesn't hand you that abstraction, it's very tempting to make it. If my goal was to help start fleshing out an open-source WebGL framework for making small games online, I succeeded. But if it was to finish a game, I was still lost in the weeds...
+I was also missing a ton of things from Unity. Straying away from the Danish behemoth made me realize how deep its toolbox of useful stuff really is. If you need to collide a circle with a tilemap, and your physics engine doesn't hand you that abstraction, it's very tempting to make that functionality (instead of maybe cutting the feature that requires it). If my goal was to help start fleshing out an open-source WebGL framework for making small games online, I succeeded. But if it was to finish a game, I was still lost in the weeds...
 
 ## What I learned (and more questions than I started with)
 
-**Beware the rabbit hole.** Knowing how to program can help you make games, but it can also lead you down paths into the sweet-smelling forest of engine tweaking/building/optimizing. It helps to know you can probably make any feature you want, with enough time. But it's also dangerous. Pick something interesting to build towards and do nothing but reach that goal.
+**Beware the rabbit hole.** Knowing how to program can help you make games, but it can also lead you down paths into the deep and alluring forest of engine tweaking/building/optimizing. It helps to know you can probably make any feature you want, with enough time. But it's also dangerous. Pick something interesting to build towards and do nothing but reach that goal.
 
 **Game-making is multidisciplinary (so give yourself time and the emotional leeway to branch out).** You need a lot of different skills to make games. I didn't even mention all the time I trying to make weird ambient music with different granular synthesis apps.
 
-**Make something conceptually new, something with cultural relevance and something to say, something pretty, something smart, something funny, or something kinetic and crunchy and fun. But maybe pick ONE of these at a time for now so you actually have a shot, u noob.**
+**Make something conceptually new, something with cultural relevance and something to say, something pretty, something smart, something funny, or something kinetic and crunchy and fun. But maybe pick ONE of these at a time for now so you actually have a shot, u noob.** Enough said.
 
-And finally--since embarking on this journey, maybe the most successfully *fun* game I made was improvised with a friend on the floor for a deck of cards. Which leads to another lesson that has been haunting this graveyard like a lonely ghost moaning obvious and bold-faced bloggy truisms--**this gamedev stuff is much easy with collaborators; make games with friends.**
+And finally--since embarking on this journey, maybe the most successfully *fun* game I made was improvised with a friend on the floor for a deck of cards. Which leads to another lesson (besides "tech gets in the way") that has been haunting this graveyard like a lonely ghost moaning obvious and bold-faced bloggy truisms--**this gamedev stuff is much easy with collaborators; make games with friends.**
 
 <img src="/img/high-five-cards.jpg">
 
