@@ -2,6 +2,8 @@
 
 .subtle { color: #999; font-size: 70%; }
 
+.image figcaption { font-size: 13px; }
+
 body { margin-top: 20px; }
 
 .name-title { line-height: 130%; margin-bottom: 0; }
