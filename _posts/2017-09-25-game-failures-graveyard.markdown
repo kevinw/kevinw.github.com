@@ -48,7 +48,7 @@ Some things I remember doing instead of writing the actual game's content:
 - creating from scratch an entire [script language format](/img/gamefailures/convo.png) for interactive fiction
 - creating a parser for said totally over-engineered format
 - keyboard accessibility for tablets, keyboards, gamepads, mice
-- emojii support?!
+- emoji support?!
 - a bunch of complicated text fading and wrapping code that made things feel more polished
 - conversation pauses and natural feeling rhythms to texting inserted automatically based on sentences' grammatical structure
 - shaders to wobble stuff for when you get drunk
@@ -111,7 +111,7 @@ Often the first and loudest feedback was that the controls were too finicky--and
 
 Also tough was finding a visual language for distinguishing rotatable things from static things. Without a lot of (any, actually) modelling skills or much actual experience in visual design I started to grok the amount of craft that goes into making something intelligible (light that bonfire again). But I wanted to (start to learn to) scale those hazy and towering cross-disciplinary mountain ranges in the distance that in previous lives I hadn't even bothered to consider surmountable.
 
-In retrospect, these design challenges are maybe more of thke kinds of polishing-things-till-they-feel-ok-hills (controls, game feel, readability) I felt better dying--or at least spending some time--on, rather than technical feature rabbit-holing. In fits and starts and dead-ends I was learning what it meant to design a progression of challenges. To teach something and then to expand upon it and then to ask something new of the player in a way that feels fair. To draw the player's eye somewhere so they don't get stuck looking at the unimportant bit.
+In retrospect, these design challenges are maybe more of the kinds of polishing-things-till-they-feel-ok-hills (controls, game feel, readability) I felt better dying--or at least spending some time--on, rather than technical feature rabbit-holing. In fits and starts and dead-ends I was learning what it meant to design a progression of challenges. To teach something and then to expand upon it and then to ask something new of the player in a way that feels fair. To draw the player's eye somewhere so they don't get stuck looking at the unimportant bit.
 
 {% include image.html url="/img/gamefailures/lwr_3.jpg" description="Cut with kindergarten scissors" %}
 
@@ -127,7 +127,7 @@ Is a puzzle game better when you distill it down to its absolute minimal state? 
 {% include image.html url="/img/gamefailures/lwr_5.jpg" description="I know what this needs...more cube primitives!" %}
 ## in which I indulge in a minor dalliance outside of Unity's beefy embrace
 
-I was frustrated with the feedback loop involved in compiling Unity to iOS, and my own speed at making new levels. My progland nerd brain was getting bored by all that C# maybe?
+I was frustrated with the feedback loop involved in compiling Unity to iOS, and my own speed at making new levels. My proglang nerd brain was getting bored by all that C# maybe?
 
 <a href="http://kevinw.github.io/games/traplands"><img src="/img/gamefailures/traplands_title.gif"></a>
 
@@ -161,7 +161,7 @@ I was also missing a ton of things from Unity. Straying away from the Danish beh
 
 **Beware the rabbit hole.** Knowing how to program can help you make games, but it can also lead you down paths into the deep and alluring forest of engine tweaking/building/optimizing. It helps to know you can probably make any feature you want, with enough time. But it's also dangerous. Pick something interesting to build towards and do nothing but reach that goal.
 
-**Game-making is multidisciplinary (so give yourself time and the emotional leeway to branch out).** You need a lot of different skills to make games. I didn't even mention all the time I trying to make weird ambient music with different granular synthesis apps.
+**Game-making is multidisciplinary (so give yourself time and the emotional leeway to branch out).** You need a lot of different skills to make games. I didn't even mention all the time I was trying to make weird ambient music with different granular synthesis apps.
 
 **Make something conceptually new, something with cultural relevance and something to say, something pretty, something smart, something funny, or something kinetic and crunchy and fun. But maybe pick ONE of these at a time for now so you actually have a shot, u noob.** Enough said.
 
@@ -175,6 +175,6 @@ I'm not sure I'm done with these games, but at least they exist and I can point 
 
 What if I had some kind of artificial constraint forcing me to finish things? To keep the scope of my game manageable? To ship a beginning, middle, and end?
 
-(This something exists! It's called a game jam. I've successfuly made stuff for jams before. They function as real, working psychological gauntlets designed to force you to power through some of these problems. So one of my goals is do more jams I guess?)
+(This something exists! It's called a game jam. I've successfully made stuff for jams before. They function as real, working psychological gauntlets designed to force you to power through some of these problems. So one of my goals is do more jams I guess?)
 
 More broadly though, I'll keep at it. And who knows, there are whole other worlds out there--VR, more conceptual and relational art in spaces like museums, digital installations--so many ways to make playthings for people. I'm not giving up...it's really fun to fail at this.
