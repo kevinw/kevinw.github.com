@@ -15,7 +15,7 @@
 0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer name="inputnot_walls" width="11" height="10" visible="0">
+ <layer name="inputnot_walls" width="11" height="10">
   <properties>
    <property name="DeleteTiles" type="bool" value="true"/>
   </properties>
@@ -32,7 +32,7 @@
 0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer name="Output_shadows" width="11" height="10" visible="0">
+ <layer name="Output_shadows" width="11" height="10">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,374,0,0,0,0,0,
@@ -46,7 +46,7 @@
 0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer name="regions" width="11" height="10" visible="0">
+ <layer name="regions" width="11" height="10">
   <data encoding="csv">
 0,0,0,0,26,26,26,0,0,0,0,
 26,26,26,0,0,26,0,0,0,0,0,
