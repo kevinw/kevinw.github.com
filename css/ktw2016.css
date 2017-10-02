@@ -22,3 +22,7 @@ p { margin-bottom: 1.8rem; }
 
 h6 { margin-bottom: .5em; }
 
+/* shrink header selfie image on mobile */
+img#selfie { width: 160px; }
+@media (min-width: 400px) { img#selfie { width: auto; } }
+
