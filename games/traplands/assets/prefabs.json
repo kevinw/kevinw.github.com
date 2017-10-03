@@ -16,7 +16,13 @@
             ]
         },
         "DiesOnCollision": {
-            "particlesPrefab": "freezing_shot_burst"
+            "particlesPrefab": "freezing_shot_burst",
+            "onDie": [
+                [
+                    "DiesOnCollision.playOneShot",
+                    "shotHit"
+                ]
+            ]
         },
         "Mover": {
             "x": 0,
@@ -106,7 +112,13 @@
         },
         "Emitter_fireEmitter": {
             "prefab": "fireball",
-            "flipFromBody": "dragon"
+            "flipFromBody": "dragon",
+            "onEmit": [
+                [
+                    "Dragon.playOneShot",
+                    "dragonFlame"
+                ]
+            ]
         },
         "Sprite_dragon": {
             "animation": "red_dragon",
@@ -150,6 +162,9 @@
         },
         "SpriteEvents": {
             "onFinish": "SpriteEvents.destroyEntity"
+        },
+        "SoundEffect": {
+            "name": "emptyBreath"
         }
     },
     "empty_breathup": {
@@ -163,6 +178,9 @@
         },
         "SpriteEvents": {
             "onFinish": "SpriteEvents.destroyEntity"
+        },
+        "SoundEffect": {
+            "name": "emptyBreath"
         }
     },
     "endscreen": {
@@ -208,13 +226,25 @@
     },
     "exit": {
         "Trigger": {
-            "onTrigger": "Trigger.completeLevel"
+            "onTrigger": [
+                [
+                    "Trigger.playOneShot",
+                    "exit"
+                ],
+                [
+                    "Trigger.completeLevel"
+                ]
+            ]
         },
         "GameEvents": {
             "onTreasureCollected": [
                 [
                     "Sprite.play",
                     "open"
+                ],
+                [
+                    "Trigger.playOneShot",
+                    "doorOpen"
                 ],
                 [
                     "Hitbox.untag",
@@ -278,7 +308,13 @@
             "damageParticles": "fireball_burst"
         },
         "DiesOnCollision": {
-            "particlesPrefab": "fireball_burst"
+            "particlesPrefab": "fireball_burst",
+            "onDie": [
+                [
+                    "AutoTween.playOneShot",
+                    "flameHit"
+                ]
+            ]
         },
         "Trail": {
             "prefabName": "fireball_trail",
@@ -390,7 +426,13 @@
         },
         "PlayerEffects": {},
         "DiesOnCollision": {
-            "particlesPrefab": "freezing_shot_burst"
+            "particlesPrefab": "freezing_shot_burst",
+            "onDie": [
+                [
+                    "DiesOnCollision.playOneShot",
+                    "shotHit"
+                ]
+            ]
         },
         "Mover": {
             "x": 0,
@@ -424,7 +466,10 @@
             "rangeX": 4,
             "rangeY": 10
         },
-        "RenderDepth": -50
+        "RenderDepth": -50,
+        "SoundEffect": {
+            "name": "iceExplode"
+        }
     },
     "ice_heart": {
         "HeartPickup": {
@@ -473,7 +518,14 @@
             ]
         },
         "Awareness": {},
-        "Medusa": {}
+        "Medusa": {
+            "onShoot": [
+                [
+                    "Medusa.playOneShot",
+                    "treeShootRoots"
+                ]
+            ]
+        }
     },
     "mimic_heart": {
         "HeartPickup": {
@@ -515,6 +567,10 @@
                 ],
                 [
                     "Shadow.removeSelf"
+                ],
+                [
+                    "Health.playOneShot",
+                    "onionDie"
                 ]
             ]
         },
@@ -580,8 +636,22 @@
                 "y": 1
             }
         },
-        "FreezingShot": {},
-        "Health": {},
+        "FreezingShot": {
+            "onShot": [
+                [
+                    "Health.playOneShot",
+                    "spit"
+                ]
+            ]
+        },
+        "Health": {
+            "onDie": [
+                [
+                    "Health.playOneShot",
+                    "hurt"
+                ]
+            ]
+        },
         "KnockBack": {},
         "PlayerEffects": {
             "effects": []
@@ -624,7 +694,8 @@
             ]
         },
         "Pushable": {
-            "threshold": 0.3
+            "threshold": 0.3,
+            "soundEffectName": "stonePush"
         }
     },
     "red_laser_absorb": {
@@ -737,7 +808,16 @@
     "treasure": {
         "Pickup": {
             "type": "treasure",
-            "burstName": "treasure_burst"
+            "burstName": "treasure_burst",
+            "onPickup": [
+                [
+                    "Pickup.playOneShot",
+                    "coin"
+                ],
+                [
+                    "Pickup.fadeAway"
+                ]
+            ]
         },
         "Sprite": {
             "animation": "treasure",
