@@ -612,7 +612,13 @@
         "TopDownControls": {
             "maxSpeed": 63,
             "speed": 3500,
-            "friction": 625
+            "friction": 625,
+            "footstepSounds": [
+                "footstep4",
+                "footstep2"
+            ],
+            "footstepTime": 0.5,
+            "footstepTimeRange": 0.01
         },
         "Sprite_body": {
             "animation": "guy",
@@ -771,7 +777,10 @@
         "CausesDamage": {
             "active": false
         },
-        "Spikes": {}
+        "Spikes": {
+            "soundName": "spike",
+            "sheathSound": "spike_sheath"
+        }
     },
     "test_sprite": {
         "Sprite": {
