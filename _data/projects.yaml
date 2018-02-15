@@ -1,3 +1,8 @@
+- title: Jamming a Game in Typescript
+  url: /games-in-typescript-talk/
+  cover_url: /img/ts-talk.jpg
+  short_text: A talk I gave at Typescript NYC about my experience jamming a game in Javascript's typed cousin.
+
 - title: Blackout by Simile
   url: http://blackoutvr.com
   cover_url: /img/blackoutvr.jpg
