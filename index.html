@@ -3,6 +3,23 @@ layout: default
 title: Kevin Watters
 ---
 
+<div class="five columns">
+  <h4 id="projects">projects</h4>
+  <ul class="posts unstyled-list">
+  {% for game in site.data.projects %}
+  <li>
+      <a href="{{ game.url }}"><img src="{{ game.cover_url }}" class="u-full-width"></a>
+      <h6><a href="{{ game.url }}">{{ game.title }}</a></h6>
+      {% if game.short_text %}
+        <p>{{ game.short_text }}</p>
+      {% endif %}
+  </li>
+  {% endfor %}
+  </ul>
+
+</div>
+
+
 <div class="five columns" id="games">
   <h4 id="blog">words</h4>
     <ul class="posts unstyled-list">
@@ -28,20 +45,4 @@ title: Kevin Watters
     </li>
   {% endfor %}
   </ul>
-</div>
-
-<div class="five columns">
-  <h4 id="projects">projects</h4>
-  <ul class="posts unstyled-list">
-  {% for game in site.data.projects %}
-  <li>
-      <a href="{{ game.url }}"><img src="{{ game.cover_url }}" class="u-full-width"></a>
-      <h6><a href="{{ game.url }}">{{ game.title }}</a></h6>
-      {% if game.short_text %}
-        <p>{{ game.short_text }}</p>
-      {% endif %}
-  </li>
-  {% endfor %}
-  </ul>
-
 </div>

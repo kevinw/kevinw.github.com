@@ -8,7 +8,13 @@ figure.image img { min-height: 150px; }
 
 body { margin-top: 20px; }
 
-.name-title { line-height: 130%; margin-bottom: 0; }
+.name-title {
+letter-spacing: 0.05em;
+transform: rotate(-1.8deg);
+line-height: 85%;
+margin-top: 5px;
+margin-bottom: 10px; 
+}
 
 .name-detail { display: inline-block; padding-bottom: 10px; color: #a0a0a0; font-size: 80%; line-height: 150%; }
 
