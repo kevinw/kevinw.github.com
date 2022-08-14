@@ -8,7 +8,7 @@ title: Trackpad Touch - Unity Trackpad Multitouch Input Plugin - Kevin Watters
 <center>
 <iframe width="560" height="315" src="https://www.youtube.com/embed/DT7tO7-4VnM" frameborder="0" allowfullscreen></iframe>
 
-<h2><a href="http://u3d.as/content/kevin-watters/trackpad-touch">Get it in the Unity Asset Store</a></h2>
+<h2><a href="https://github.com/kevinw/trackpadtouch">Get the source code on Github here</a></h2>
 <h4>(requires OS X)</h4>
 
 </center>
@@ -18,8 +18,8 @@ title: Trackpad Touch - Unity Trackpad Multitouch Input Plugin - Kevin Watters
 This plugin reads multitouch input from your trackpad, giving it to your Unity
 game with an interface matching [Input.touches](http://docs.unity3d.com/ScriptReference/Input-touches.html).
 
-This allows you to test your game's multitouch functionality in the editor,
-without having to use Unity Remote or building to the device. It also works great in standalone builds, so you can ship
+This allows you to test multitouch functionality in the editor,
+without having to use Unity Remote or building to a mobile device. It also works great in standalone builds, so you can ship
 multitouch support to users.
 
 <a href="TrackpadTouchEditorScreenshot.png"><img src="TrackpadTouchEditorScreenshot700.jpg"></a>
